@@ -19,7 +19,6 @@
 #define IOT_PLUG_AND_PLAY_MODEL_ID "" //TODO insert your PnP model ID if your application supports PnP
 #define NETWORK_INTERFACE "wlan0"
 #define SAMPLE_VERSION_NUMBER "1.0"
-#define ONE_MS 1000000
 
 DX_USER_CONFIG dx_config;
 

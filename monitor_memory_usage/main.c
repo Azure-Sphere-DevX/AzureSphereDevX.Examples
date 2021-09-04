@@ -42,10 +42,6 @@
 
 #include "main.h"
 
-/****************************************************************************************
- * Implementation
- ****************************************************************************************/
-
 // Direct method name = MemoryLeak, json payload = {"LeakSize": <integer in KB> }
 static DX_DIRECT_METHOD_RESPONSE_CODE MemoryLeakHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
 {
