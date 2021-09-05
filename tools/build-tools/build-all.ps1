@@ -52,6 +52,7 @@ foreach ($dir in $dirList) {
                 }
             }
 
+            # was the imagepackage created - this is a proxy for sucessful build
             $imagefile = Get-ChildItem "*.imagepackage" -Recurse
             if ($imagefile.count -ne 0) {
                 Write-Output "`nSuccessful build: $dir.`n"
