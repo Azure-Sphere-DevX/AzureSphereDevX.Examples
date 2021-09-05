@@ -20,8 +20,8 @@ cmake_minimum_required (VERSION 3.10)
 
 project (direct_methods_example C)
 
-azsphere_configure_tools(TOOLS_REVISION "21.07")
-azsphere_configure_api(TARGET_API_SET "10")
+# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_version.txt
+include(azsphere_version.txt)
 
 add_subdirectory("AzureSphereDevX" out)
 
