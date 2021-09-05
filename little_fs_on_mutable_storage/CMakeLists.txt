@@ -21,7 +21,7 @@ cmake_minimum_required (VERSION 3.10)
 project (gpio_example C)
 
 # Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_version.txt
-include(azsphere_version.txt)
+include(azsphere_config.txt)
 
 add_subdirectory("AzureSphereDevX" out)
 
