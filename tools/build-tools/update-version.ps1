@@ -2,12 +2,16 @@
 
 $exit_code = 0
 $target_api_version = "10"
+$tools_version = "?.?"
 
 function update_cmakelists {
     param (
         $dir, 
-        $target_api_version
+        $target_api_version,
+        $tools_version
     )
+
+    Write-Output $dir $target_api_version  $tools_version
 
     # $cmakefile = Join-Path -Path $dir -ChildPath "CMakeLists.txt" 
 
@@ -65,7 +69,8 @@ function update_cmake_settings {
 function find_projects {
 
     param (
-        $target_api_version
+        $target_api_version,
+        $tools_version
     )
 
     $dirlist = Get-ChildItem -Recurse -Directory -Name -Depth 2
@@ -82,8 +87,8 @@ function find_projects {
                 # Is this a high-level app?
                 if (Select-String -Path $manifest -Pattern 'Default' -Quiet) {
 
-                    update_cmake_settings $dir $target_api_version
-                    # update_cmakelists $dir $target_api_version
+                    # update_cmake_settings $dir $target_api_version $tools_version
+                    update_cmakelists $dir $target_api_version $tools_version
                 }
                 else {                   
                     continue
@@ -93,7 +98,11 @@ function find_projects {
     }
 }
 
+Write-Output $PSScriptRoot
 
-find_projects($target_api_version)
+$tools_version = .$PSScriptRoot\get_tools_version.ps1
+$target_api_version = .$PSScriptRoot\get_latest_sysroot.ps1
+
+find_projects $target_api_version  $tools_version
 
 exit $exit_code
