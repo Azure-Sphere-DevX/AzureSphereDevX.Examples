@@ -19,7 +19,7 @@ set(AVNET TRUE "AVNET Azure Sphere Starter Kit Revision 1 ")
 cmake_minimum_required (VERSION 3.10)
 project (AzureSphereAzureIoT C)
 
-# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_version.txt
+# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_config.txt
 include(azsphere_config.txt)
 
 
