@@ -4,6 +4,45 @@ $gnupath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Lin
 
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue -path ./build
 
+function build-high-level {
+    param (
+        $dir
+    )
+
+    Write-Output "`nBuilding: $dir`n"
+
+    New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
+    Set-Location "./build"
+
+    cmake `
+        -G "Ninja" `
+        -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereToolchain.cmake" `
+        -DCMAKE_BUILD_TYPE="Release" `
+        ../$dir
+
+    cmake --build .   
+}
+
+function build-real-time {
+    param (
+        $dir
+    )
+
+    Write-Output "`nBuilding: $dir`n"
+
+    New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
+    Set-Location "./build"
+
+    cmake `
+        -G "Ninja" `
+        -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereRTCoreToolchain.cmake" `
+        -DARM_GNU_PATH:STRING=$gnupath `
+        -DCMAKE_BUILD_TYPE="Release" `
+        ../$dir
+
+    cmake --build .
+}
+
 $dirlist = Get-ChildItem -Recurse -Directory -Name -Depth 2
 foreach ($dir in $dirList) {
 
@@ -18,39 +57,19 @@ foreach ($dir in $dirList) {
             # Is this a high-level app?
             if (Select-String -Path $manifest -Pattern 'Default' -Quiet) {
 
-                Write-Output "`nBuilding: $dir`n"
-
-                New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
-                Set-Location "./build"
-
-                cmake `
-                    -G "Ninja" `
-                    -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereToolchain.cmake" `
-                    -DCMAKE_BUILD_TYPE="Release" `
-                    ../$dir
-
-                cmake --build .
-
+                build-high-level($dir)
             }
             else {
-
                 # Is this a real-time app?
                 if (Select-String -Path $manifest -Pattern 'RealTimeCapable' -Quiet) {
-                    Write-Output "`nBuilding Real-time: $dir`n"
 
-                    New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
-                    Set-Location "./build"
-
-                    cmake `
-                        -G "Ninja" `
-                        -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereRTCoreToolchain.cmake" `
-                        -DARM_GNU_PATH:STRING=$gnupath `
-                        -DCMAKE_BUILD_TYPE="Release" `
-                        ../$dir
-
-                    cmake --build .
+                    build-real-time($dir)
                 }
-            }
+                else {
+                    # Not a high-level or real-time app so just continue
+                    continue
+                }
+            } 
 
             # was the imagepackage created - this is a proxy for sucessful build
             $imagefile = Get-ChildItem "*.imagepackage" -Recurse
