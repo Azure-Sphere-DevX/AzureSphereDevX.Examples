@@ -5,7 +5,8 @@ if ($IsWindows) {
 }
 else {
     if ($IsLinux) {
-        $gnupath = "/opt/gcc-arm-none-eabi-10.3-2021.07/bin"
+        $gnufolder = (Get-ChildItem /opt -recurse -depth 1 | Where-Object { $_.PSIsContainer -eq $true -and $_.Name -match "gcc-arm-none" })
+        $gnupath = Join-Path -Path $gnufolder -ChildPath "bin"
     }
 }
 
@@ -27,7 +28,7 @@ function build-high-level {
             -DCMAKE_BUILD_TYPE="Release" `
             $dir
 
-        cmake --build .  
+        cmake --build .
     }
     else {
         if ($IsLinux) {
@@ -43,7 +44,7 @@ function build-high-level {
         else {
             Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
         }
-    }   
+    }
 }
 
 function build-real-time {
@@ -88,7 +89,7 @@ function build_application {
     )
 
     $manifest = Join-Path -Path $dir -ChildPath "app_manifest.json"
-    $cmakefile = Join-Path -Path $dir -ChildPath "CMakeLists.txt"    
+    $cmakefile = Join-Path -Path $dir -ChildPath "CMakeLists.txt"
 
     if (Test-Path -path $cmakefile) {
 
@@ -98,7 +99,7 @@ function build_application {
             # Is this a high-level app?
             if (Select-String -Path $manifest -Pattern 'Default' -Quiet) {
 
-                build-high-level $dir 
+                build-high-level $dir
             }
             else {
                 # Is this a real-time app?
@@ -110,7 +111,7 @@ function build_application {
                     # Not a high-level or real-time app so just continue
                     continue
                 }
-            } 
+            }
 
             # was the imagepackage created - this is a proxy for sucessful build
             $imagefile = Get-ChildItem "*.imagepackage" -Recurse
@@ -122,7 +123,7 @@ function build_application {
                 Write-Output "`nBuild failed: $dir.`n"
 
                 $script:exit_code = 1
-                
+
                 break
             }
 

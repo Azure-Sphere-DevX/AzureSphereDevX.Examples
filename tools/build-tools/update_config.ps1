@@ -6,7 +6,7 @@ $tools_version = $null
 
 function update_config {
     param (
-        $file, 
+        $file,
         $target_api_version,
         $tools_version
     )
@@ -41,19 +41,7 @@ function get_latest_sysroot {
 
 function get_sdk_version {
 
-    if ($IsWindows) {
-        $azure_sphere_sdk_version = azsphere show-version -o tsv
-    }
-    else {
-        if ($IsLinux) {
-            $azure_sphere_sdk_version = azsphere show-version -o tsv
-        }
-        else {
-            Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
-            return $null
-        }
-    }   
-
+    $azure_sphere_sdk_version = azsphere show-version -o tsv
 
     $version_parts = $azure_sphere_sdk_version.split('.')
     if ($version_parts.count -gt 1) {
