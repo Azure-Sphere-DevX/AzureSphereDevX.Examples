@@ -46,7 +46,7 @@ function get_sdk_version {
     }
     else {
         if ($IsLinux) {
-            $azure_sphere_sdk_version = azsphere show-version
+            $azure_sphere_sdk_version = azsphere show-version -o tsv
         }
         else {
             Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
