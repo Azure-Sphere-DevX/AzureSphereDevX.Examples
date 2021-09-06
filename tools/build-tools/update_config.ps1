@@ -44,6 +44,7 @@ function get_sdk_version {
     $azure_sphere_sdk_version = azsphere show-version -o tsv
 
     $version_parts = $azure_sphere_sdk_version.split('.')
+
     if ($version_parts.count -gt 1) {
         $tools_version = $version_parts[0] + '.' + $version_parts[1]
     }
@@ -51,7 +52,16 @@ function get_sdk_version {
         $tools_version = $null
     }
 
-    return $tools_version
+    $rtn = ""
+
+    if ([float]::TryParse($tools_version, [ref]$rtn)) {
+        return $tools_version
+    }
+    else {
+        Write-Output "Expected Azure Sphere SDK version to be a floating point number."
+        Write-Output (-join("The azsphere show-version -o tsv command returned: ", $azure_sphere_sdk_version))
+        return $null
+    }
 }
 
 $tools_version = get_sdk_version

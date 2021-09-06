@@ -71,7 +71,7 @@ function build-real-time {
                 -G "Ninja" `
                 -DCMAKE_TOOLCHAIN_FILE="/opt/azurespheresdk/CMakeFiles/AzureSphereRTCoreToolchain.cmake" `
                 -DARM_GNU_PATH:STRING=$gnupath  `
-                -DCMAKE_BUILD_TYPE="Debug" `
+                -DCMAKE_BUILD_TYPE="Release" `
                 $dir
 
             ninja
