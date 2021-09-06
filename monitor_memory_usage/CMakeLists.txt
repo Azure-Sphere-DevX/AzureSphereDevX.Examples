@@ -21,7 +21,7 @@ cmake_minimum_required (VERSION 3.10)
 project (azure_end_to_end C)
 
 # Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_config.txt
-include(azsphere_config.txt)
+include(cmake/azsphere_config.cmake)
 
 add_subdirectory("AzureSphereDevX" out)
 
