@@ -1,6 +1,14 @@
 Write-Output "`n`nBuild all test tool for AzureSphereDevX examples`n`n"
 
-$gnupath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Linux\gcc_arm\bin"
+if ($IsWindows) {
+    $gnupath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Linux\gcc_arm\bin"
+}
+else {
+    if ($IsLinux) {
+        $gnupath = "/opt/gcc-arm-none-eabi-10.3-2021.07/bin"
+    }
+}
+
 $exit_code = 0
 
 function build-high-level {
@@ -11,13 +19,31 @@ function build-high-level {
     New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
     Set-Location "./build"
 
-    cmake `
-        -G "Ninja" `
-        -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereToolchain.cmake" `
-        -DCMAKE_BUILD_TYPE="Release" `
-        $dir
+    if ($IsWindows) {
+        cmake `
+            -G "Ninja" `
+            -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereToolchain.cmake" `
+            -DAZURE_SPHERE_TARGET_API_SET="latest-lts" `
+            -DCMAKE_BUILD_TYPE="Release" `
+            $dir
 
-    cmake --build .   
+        cmake --build .  
+    }
+    else {
+        if ($IsLinux) {
+            cmake `
+                -G "Ninja" `
+                -DCMAKE_TOOLCHAIN_FILE="/opt/azurespheresdk/CMakeFiles/AzureSphereToolchain.cmake" `
+                -DAZURE_SPHERE_TARGET_API_SET="latest-lts" `
+                -DCMAKE_BUILD_TYPE="Release" `
+                $dir
+
+            ninja
+        }
+        else {
+            Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
+        }
+    }   
 }
 
 function build-real-time {
@@ -28,14 +54,31 @@ function build-real-time {
     New-Item -Name "./build" -ItemType "directory" -ErrorAction SilentlyContinue
     Set-Location "./build"
 
-    cmake `
-        -G "Ninja" `
-        -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereRTCoreToolchain.cmake" `
-        -DARM_GNU_PATH:STRING=$gnupath `
-        -DCMAKE_BUILD_TYPE="Release" `
-        $dir
+    if ($IsWindows) {
+        cmake `
+            -G "Ninja" `
+            -DCMAKE_TOOLCHAIN_FILE="C:\Program Files (x86)\Microsoft Azure Sphere SDK\CMakeFiles\AzureSphereRTCoreToolchain.cmake" `
+            -DARM_GNU_PATH:STRING=$gnupath `
+            -DCMAKE_BUILD_TYPE="Release" `
+            $dir
 
-    cmake --build .
+        cmake --build .
+    }
+    else {
+        if ($IsLinux) {
+            cmake `
+                -G "Ninja" `
+                -DCMAKE_TOOLCHAIN_FILE="/opt/azurespheresdk/CMakeFiles/AzureSphereRTCoreToolchain.cmake" `
+                -DARM_GNU_PATH:STRING=$gnupath  `
+                -DCMAKE_BUILD_TYPE="Debug" `
+                $dir
+
+            ninja
+        }
+        else {
+            Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
+        }
+    }
 }
 
 function build_application {

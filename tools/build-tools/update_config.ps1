@@ -23,8 +23,7 @@ function get_latest_sysroot {
     }
     else {
         if ($IsLinux) {
-            Write-Output "`nERROR: Support for Linux coming soon!`n"
-
+            $sysroots = get-childitem "/opt/azurespheresdk/Sysroots"  | Sort-Object -Descending -Property { $_.Name -as [int] }
         }
         else {
             Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
@@ -41,10 +40,23 @@ function get_latest_sysroot {
 }
 
 function get_sdk_version {
-    $azure_sphere_sdk_version = azsphere show-version -o tsv
+
+    if ($IsWindows) {
+        $azure_sphere_sdk_version = azsphere show-version -o tsv
+    }
+    else {
+        if ($IsLinux) {
+            $azure_sphere_sdk_version = azsphere show-version
+        }
+        else {
+            Write-Output "`nERROR: Tool supported on Windows and Linux.`n"
+            return $null
+        }
+    }   
+
 
     $version_parts = $azure_sphere_sdk_version.split('.')
-    if ($version_parts.count -gt 2) {
+    if ($version_parts.count -gt 1) {
         $tools_version = $version_parts[0] + '.' + $version_parts[1]
     }
     else {
@@ -56,8 +68,6 @@ function get_sdk_version {
 
 $tools_version = get_sdk_version
 $target_api_version = get_latest_sysroot
-
-$target_api_version = 10
 
 if ([string]::IsNullOrEmpty($tools_version)) {
     Write-Output "`nERROR: Azure Sphere CLI did not return SDK version. Check Azure Sphere CLI installed correctly.`n"
