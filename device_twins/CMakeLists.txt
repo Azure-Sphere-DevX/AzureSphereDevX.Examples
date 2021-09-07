@@ -20,7 +20,7 @@ cmake_minimum_required (VERSION 3.10)
 
 project (device_twins_example C)
 
-# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in azsphere_config.txt
+# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in cmake/azsphere_config.cmake
 include(cmake/azsphere_config.cmake)
 
 add_subdirectory("AzureSphereDevX" out)
