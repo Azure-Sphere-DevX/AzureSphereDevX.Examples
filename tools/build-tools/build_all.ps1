@@ -158,7 +158,7 @@ $elapsedTime = $(get-date) - $StartTime
 $totalTime = "{0:HH:mm:ss}" -f ([datetime]$elapsedTime.Ticks)
 
 if ($exit_code -eq 0) {
-    Write-Output "Build All completed sucessfully. Elapsed time: $totalTime"
+    Write-Output "Build All completed successfully. Elapsed time: $totalTime"
 }
 else {
     Write-Output "Build All failed. Elapsed time: $totalTime"
