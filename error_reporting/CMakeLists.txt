@@ -20,10 +20,10 @@ cmake_minimum_required (VERSION 3.10)
 
 project (direct_methods_example C)
 
-azsphere_configure_tools(TOOLS_REVISION "21.01")
-azsphere_configure_api(TARGET_API_SET "9")
+# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in cmake/azsphere_config.cmake
+include(cmake/azsphere_config.cmake)
 
-add_subdirectory("../../" out)
+add_subdirectory("AzureSphereDevX" out)
 
 # Create executable
 add_executable (${PROJECT_NAME} main.c)
@@ -33,22 +33,22 @@ target_include_directories(${PROJECT_NAME} PUBLIC ../../include )
 
 if(AVNET)
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "azure_sphere_learning_path.json")
 endif(AVNET)
 
 if(AVNET_REV_2)
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "azure_sphere_learning_path.json")
 endif(AVNET_REV_2)
 
 if (SEEED_STUDIO_RDB)
     add_definitions( -DOEM_SEEED_STUDIO=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
 endif()
 
 if (SEEED_STUDIO_MINI)
     add_definitions( -DOEM_SEEED_STUDIO_MINI=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
 endif(SEEED_STUDIO_MINI)
 
 

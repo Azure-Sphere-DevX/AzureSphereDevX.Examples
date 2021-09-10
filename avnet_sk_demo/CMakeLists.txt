@@ -16,12 +16,12 @@ set(AVNET TRUE "AVNET Azure Sphere Starter Kit Revision 1 ")
 
 cmake_minimum_required (VERSION 3.10)
 
-project (azure_end_to_end C)
+project (avnet_sk_demo C)
 
-azsphere_configure_tools(TOOLS_REVISION "21.07")
-azsphere_configure_api(TARGET_API_SET "10")
+# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in cmake/azsphere_config.cmake
+include(cmake/azsphere_config.cmake)
 
-add_subdirectory("../../../" out)
+add_subdirectory("AzureSphereDevX" out)
 
 set_source_files_properties(lsm6dso_reg.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(lps22hh_reg.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
@@ -43,12 +43,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC ../../../include )
 
 if(AVNET)
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../../HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "sample_appliance.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "sample_appliance.json")
 endif(AVNET)
 
 if(AVNET_REV_2)
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "../../HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "sample_appliance.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "sample_appliance.json")
 endif(AVNET_REV_2)
 
 azsphere_target_add_image_package(${PROJECT_NAME})
