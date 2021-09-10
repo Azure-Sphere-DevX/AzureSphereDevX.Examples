@@ -1,0 +1,210 @@
+{
+    "code": "StarterKit",
+    "name": "Starter Kit OOB Device",
+    "authType": 2,
+    "description": "Implements the cloud side of the Avnet Starter Kit OOB example",
+    "isIotEdgeEnable": false,
+    "attributes": [
+        {
+            "name": "gX",
+            "type": "NUMBER",
+            "description": "Acceleration X Axis",
+            "unit": "mg"
+        },
+        {
+            "name": "gY",
+            "type": "NUMBER",
+            "description": "Acceleration Y Axis",
+            "unit": "mg"
+        },
+        {
+            "name": "gZ",
+            "type": "NUMBER",
+            "description": "Acceleration Z Axis",
+            "unit": "mg"
+        },
+        {
+            "name": "aX",
+            "type": "NUMBER",
+            "description": "Angular Rate X Axis",
+            "unit": "mdps"
+        },
+        {
+            "name": "aY",
+            "type": "NUMBER",
+            "description": "Angular Rate X Axis",
+            "unit": "mdps"
+        },
+        {
+            "name": "aZ",
+            "type": "NUMBER",
+            "description": "Angular Rate Z Axis",
+            "unit": "mdps"
+        },
+        {
+            "name": "pressure",
+            "type": "NUMBER",
+            "description": "Pressure",
+            "unit": "hPa"
+        },
+        {
+            "name": "light_intensity",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "altitude",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "temp",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "rssi",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        }
+    ],
+    "settings": [
+        {
+            "name": "RGB Led (Green)",
+            "type": "STRING",
+            "localName": "userLedGreen",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "Click Board 2 Relay 1",
+            "type": "STRING",
+            "localName": "clickBoardRelay2",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "OledDisplayMsg1",
+            "type": "STRING",
+            "localName": "OledDisplayMsg1",
+            "isReadOnly": false
+        },
+        {
+            "name": "Application Version String",
+            "type": "STRING",
+            "localName": "versionString",
+            "isReadOnly": true
+        },
+        {
+            "name": "Application LED",
+            "type": "STRING",
+            "localName": "appLed",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "OledDisplayMsg4",
+            "type": "STRING",
+            "localName": "OledDisplayMsg4",
+            "isReadOnly": false
+        },
+        {
+            "name": "manufacturer",
+            "type": "STRING",
+            "localName": "manufacturer",
+            "isReadOnly": true
+        },
+        {
+            "name": "Click Board 2 Relay 2",
+            "type": "STRING",
+            "localName": "clickBoardRelay1",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "Enable Sensor Debug",
+            "type": "STRING",
+            "localName": "enableDebug",
+            "defaultValue": "true",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "Wi-Fi Led",
+            "type": "STRING",
+            "localName": "wifiLed",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "OledDisplayMsg2",
+            "type": "STRING",
+            "localName": "OledDisplayMsg2",
+            "isReadOnly": false
+        },
+        {
+            "name": "Set Sensor Poll Period",
+            "type": "NUMBER",
+            "localName": "sensorPollPeriod",
+            "defaultValue": "60",
+            "dataValidation": "1 to 3600",
+            "isReadOnly": false
+        },
+        {
+            "name": "RGB Led (Red)",
+            "type": "STRING",
+            "localName": "userLedRed",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "BSSID",
+            "type": "STRING",
+            "localName": "bssid",
+            "isReadOnly": true
+        },
+        {
+            "name": "model",
+            "type": "STRING",
+            "localName": "model",
+            "isReadOnly": true
+        },
+        {
+            "name": "Frequency",
+            "type": "NUMBER",
+            "localName": "freq",
+            "isReadOnly": true
+        },
+        {
+            "name": "RGB Led (Blue)",
+            "type": "STRING",
+            "localName": "userLedBlue",
+            "defaultValue": "false",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "OledDisplayMsg3",
+            "type": "STRING",
+            "localName": "OledDisplayMsg3",
+            "isReadOnly": false
+        },
+        {
+            "name": "SSID",
+            "type": "STRING",
+            "localName": "ssid",
+            "isReadOnly": true
+        }
+    ],
+    "dataFrequency": 60
+}

@@ -85,3 +85,15 @@
 [submodule "intercore_example/RealTimeAppTwo/mt3620_m4_software"]
 	path = intercore_example/RealTimeAppTwo/mt3620_m4_software
 	url = https://github.com/MediaTek-Labs/mt3620_m4_software.git
+[submodule "error_reporting/HardwareDefinitions"]
+	path = error_reporting/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "error_reporting/AzureSphereDevX"]
+	path = error_reporting/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_sk_demo/HardwareDefinitions"]
+	path = avnet_sk_demo/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_sk_demo/AzureSphereDevX"]
+	path = avnet_sk_demo/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
