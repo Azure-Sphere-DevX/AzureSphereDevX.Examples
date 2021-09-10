@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Name": "AvnetSK-V2-DevX",
+  "ComponentId": "06e116bd-e3af-4bfe-a0cb-f1530b8b91ab",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "0ne00000000" ],
+    "Capabilities": {
+      "AllowedApplicationConnections": [ "b2cec904-1c60-411b-8f62-5ffe9684b8ce" ],
+      "AllowedConnections": [
+        "global.azure-devices-provisioning.net",
+        "ENTER.IOT.HUB.HOSTNAME.net"
+      ],
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE",
+      "$SAMPLE_BUTTON_1",
+      "$SAMPLE_BUTTON_2",
+      "$SAMPLE_WIFI_LED",
+      "$SAMPLE_APP_LED",
+      "$RELAY_CLICK2_RELAY1",
+      "$RELAY_CLICK2_RELAY2"
+    ],
+    "I2cMaster": [ "$SAMPLE_LSM6DSO_I2C" ],
+    "Uart": [],
+    "SpiMaster": [],
+    "WifiConfig": true,
+    "NetworkConfig": false,
+    "SystemTime": false,
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
+    "PowerControls": [ "ForceReboot" ]
+  },
+  "ApplicationType": "Default"
+}
