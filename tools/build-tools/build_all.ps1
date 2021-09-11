@@ -137,7 +137,7 @@ $StartTime = $(get-date)
 
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue -path ./build
 
-$files = Get-ChildItem -Recurse -Depth 3 -Filter app_manifest.json
+$files = Get-ChildItem -Recurse -Depth 3 -Filter app_manifest.json | Sort-Object
 
 # Write-Output "Building $files.count projects"
 foreach ($file in $files) {
