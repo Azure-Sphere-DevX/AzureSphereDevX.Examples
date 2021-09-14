@@ -67,18 +67,31 @@ static void IntercoreSendMessageHandler(EventLoopTimer *eventLoopTimer)
     }
 
     // send echo message to realtime core app one
-    ic_control_block_app_one.cmd = LP_IC_ECHO;
-    strcpy(ic_control_block_app_one.message, REAL_TIME_COMPONENT_ID_APP_ONE);
+    memset(&ic_control_block_app_one, 0x00, sizeof(LP_INTER_CORE_BLOCK));
+    ic_control_block_app_one.cmd = LP_IC_ECHO;    
+    strncpy(ic_control_block_app_one.message, REAL_TIME_COMPONENT_ID_APP_ONE, sizeof(ic_control_block_app_one.message));
 
-    dx_intercorePublish(&intercore_app_one, &ic_control_block_app_one,
-                            sizeof(LP_INTER_CORE_BLOCK));
+    dx_intercorePublish(&intercore_app_one, &ic_control_block_app_one, sizeof(LP_INTER_CORE_BLOCK));
 
     // send echo message to realtime core app two
+    memset(&ic_control_block_app_two, 0x00, sizeof(LP_INTER_CORE_BLOCK));
     ic_control_block_app_two.cmd = LP_IC_ECHO;
-    strcpy(ic_control_block_app_two.message, REAL_TIME_COMPONENT_ID_APP_TWO);
+    strncpy(ic_control_block_app_two.message, REAL_TIME_COMPONENT_ID_APP_TWO, sizeof(ic_control_block_app_two.message));
 
-    dx_intercorePublish(&intercore_app_two, &ic_control_block_app_two,
-                            sizeof(LP_INTER_CORE_BLOCK));
+    // Intercore syncronise publish request then wait for read pattern with 1000 microsecond timeout. 
+    // Typical turn around time is 100 to 250 microseconds
+    if (dx_intercorePublishThenRead(&intercore_app_two, &ic_control_block_app_two, sizeof(LP_INTER_CORE_BLOCK)) >= 0) {
+
+        LP_INTER_CORE_BLOCK *ic_message_block = (LP_INTER_CORE_BLOCK *)intercore_app_two.intercore_recv_block;
+
+        if (ic_message_block->cmd == LP_IC_ECHO) {
+             Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
+        }
+    } else {
+        Log_Debug("Intercore message request/response failed\n");
+    }
+
+    dx_timerOneShotSet(&intercoresSendMessageTimer, &(struct timespec){0, 250 * ONE_MS});
 }
 
 /// <summary>
@@ -90,8 +103,7 @@ static void IntercoreResponseHandler(void *data_block, ssize_t message_length)
 
     switch (ic_message_block->cmd) {
     case LP_IC_ECHO:
-        Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId,
-                  ic_message_block->message);
+        Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
         break;
     default:
         break;
@@ -111,6 +123,11 @@ static void InitPeripheralAndHandlers(void)
 
     // Initialize Intercore Communications for core two
     dx_intercoreConnect(&intercore_app_two);
+    // set read timeout to 1000 microseconds
+    dx_intercoreReadTimeoutSet(&intercore_app_two, 1000);
+
+
+    dx_timerOneShotSet(&intercoresSendMessageTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>
