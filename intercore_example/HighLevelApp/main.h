@@ -31,15 +31,13 @@ static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer);
 INTER_CORE_BLOCK ic_block_asynchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 INTER_CORE_BLOCK ic_block_synchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 
-DX_INTERCORE_BINDING intercore_app_asynchronous = {.sockFd = -1,
-                                                   .nonblocking_io = true,
+DX_INTERCORE_BINDING intercore_app_asynchronous = {.nonblocking_io = true,
                                                    .rtAppComponentId = REAL_TIME_COMPONENT_ID_ASYNCHRONOUS,
                                                    .interCoreCallback = IntercoreResponseHandler,
                                                    .intercore_recv_block = &ic_block_asynchronous,
                                                    .intercore_recv_block_length = sizeof(ic_block_asynchronous)};
 
-DX_INTERCORE_BINDING intercore_app_synchronous = {.sockFd = -1,
-                                                  .nonblocking_io = true,
+DX_INTERCORE_BINDING intercore_app_synchronous = {.nonblocking_io = true,
                                                   .rtAppComponentId = REAL_TIME_COMPONENT_ID_SYNCHRONOUS,
                                                   .interCoreCallback = NULL,
                                                   .intercore_recv_block = &ic_block_synchronous,
