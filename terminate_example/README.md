@@ -1,3 +1,3 @@
 # Application termination
 
-[Application termination documentation on the project Wiki](https://github.com/microsoft/Azure-Sphere-DevX/wiki/Application-Termination)
+[Application termination documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Application-Termination)

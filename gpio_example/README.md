@@ -1,3 +1,3 @@
 # GPIO usage
 
-[GPIO usage documentation on the project Wiki](https://github.com/microsoft/Azure-Sphere-DevX/wiki/Working-with-GPIO)
+[GPIO usage documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Working-with-GPIO)

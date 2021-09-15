@@ -1,3 +1,3 @@
 # GPIO usage
 
-[Deferring updates](https://github.com/gloveboxes/AzureSphereDevX/wiki/Deferring-updates)
+[Deferring updates documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Deferring-updates)

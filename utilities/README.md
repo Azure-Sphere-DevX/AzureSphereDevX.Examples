@@ -1,3 +1,3 @@
 # Utilities
 
-[Utilities usage documentation on the project Wiki](https://github.com/microsoft/Azure-Sphere-DevX/wiki/Working-with-GPIO)
+[Utilities usage documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Utilities)

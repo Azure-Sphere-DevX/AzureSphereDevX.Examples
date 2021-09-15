@@ -4,9 +4,10 @@ This is an end to end sample pulling together publishing telemetry, device twins
 
 ## Select your build options
 
-1. Open build_optons.h
+1. Open build_options.h
 
 ### Non-connected build
+
 The non-connected build with read the Avnet Starter Kit on-board sensors and the sensor readings to debug
 
 1. Open CMakeLists.txt and select your hardware revision from lines 12-13
@@ -28,12 +29,13 @@ The non-connected build with read the Avnet Starter Kit on-board sensors and the
 1. Press F5 to build/load/run the application
 
 ## Other build options
+
 Please review the build_options.h file for all the different build options
 
 For more information refer to:
 
-1. [Adding the Azure Sphere DevX library](https://github.com/gloveboxes/AzureSphereDevX/wiki/Adding-the-DevX-Library)
-1. [Azure Messaging](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Sending-messages)
-1. [Device Twins](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Device-Twins)
-1. [Direct Methods](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Direct-Methods)
-1. [GPIO](https://github.com/gloveboxes/AzureSphereDevX/wiki/Working-with-GPIO)
+1. [Adding the Azure Sphere DevX library](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Adding-the-DevX-Library)
+1. [Azure Messaging](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Sending-messages)
+1. [Device Twins](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Device-Twins)
+1. [Direct Methods](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Direct-Methods)
+1. [GPIO](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Working-with-GPIO)

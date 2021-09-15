@@ -1,3 +1,3 @@
 # Intercore Example
 
-[Intercore Messaging Documentation](https://github.com/microsoft/Azure-Sphere-DevX/wiki/Intercore-Messaging)
+[Intercore Messaging documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Intercore-Messaging)
