@@ -28,8 +28,11 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 
 // Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-#define JSON_MESSAGE_BYTES 256
+#define JSON_MESSAGE_BYTES 256+128
 static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
+
+static char modifiedMsgBuffer[JSON_MESSAGE_BYTES] = {0};
+
 
 double desired_temperature = 0.0;
 
