@@ -57,52 +57,75 @@
 #include "main.h"
 
 /// <summary>
-/// Send message to realtime core app two
+/// Send message to realtime core app.
+/// The response will be synchronous, the high-level app with wait on read until a
+/// message is received from the real-time core or the read times out
 /// </summary>
-static void IntercoreSendMessageHandler(EventLoopTimer *eventLoopTimer)
+static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer)
 {
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
         return;
     }
 
-    // send echo message to realtime core app one
-    memset(&ic_control_block_app_one, 0x00, sizeof(LP_INTER_CORE_BLOCK));
-    ic_control_block_app_one.cmd = LP_IC_ECHO;    
-    strncpy(ic_control_block_app_one.message, REAL_TIME_COMPONENT_ID_APP_ONE, sizeof(ic_control_block_app_one.message));
+    // reset inter-core block
+    memset(&ic_block_synchronous, 0x00, sizeof(INTER_CORE_BLOCK));
 
-    dx_intercorePublish(&intercore_app_one, &ic_control_block_app_one, sizeof(LP_INTER_CORE_BLOCK));
+    // Set message cmd to ECHO and load the COMPONENT ID as the message payload
+    ic_block_synchronous.cmd = IC_ECHO;
+    strncpy(ic_block_synchronous.message, REAL_TIME_COMPONENT_ID_SYNCHRONOUS, sizeof(ic_block_synchronous.message));
 
-    // send echo message to realtime core app two
-    memset(&ic_control_block_app_two, 0x00, sizeof(LP_INTER_CORE_BLOCK));
-    ic_control_block_app_two.cmd = LP_IC_ECHO;
-    strncpy(ic_control_block_app_two.message, REAL_TIME_COMPONENT_ID_APP_TWO, sizeof(ic_control_block_app_two.message));
-
-    // Intercore syncronise publish request then wait for read pattern with 1000 microsecond timeout. 
-    // Typical turn around time is 100 to 250 microseconds
-    if (dx_intercorePublishThenRead(&intercore_app_two, &ic_control_block_app_two, sizeof(LP_INTER_CORE_BLOCK)) >= 0) {
-
-        LP_INTER_CORE_BLOCK *ic_message_block = (LP_INTER_CORE_BLOCK *)intercore_app_two.intercore_recv_block;
-
-        if (ic_message_block->cmd == LP_IC_ECHO) {
-             Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
-        }
-    } else {
+    // Intercore syncronise publish request then wait for read pattern with 1000 microsecond
+    // timeout. Typical turn around time is 100 to 250 microseconds
+    if (dx_intercorePublishThenRead(&intercore_app_synchronous, &ic_block_synchronous, sizeof(INTER_CORE_BLOCK)) < 0) {
         Log_Debug("Intercore message request/response failed\n");
+    } else {
+
+        INTER_CORE_BLOCK *ic_message_block = (INTER_CORE_BLOCK *)intercore_app_synchronous.intercore_recv_block;
+
+        if (ic_message_block->cmd == IC_ECHO) {
+            Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
+        }
     }
 
-    dx_timerOneShotSet(&intercoresSendMessageTimer, &(struct timespec){0, 250 * ONE_MS});
+    // reload the sync example timer
+    dx_timerOneShotSet(&intercoreSynchronousTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>
-/// Callback handler for Inter-Core Messaging - Does Device Twin Update, and Event Message
+/// Send message to realtime core app.
+/// The response will be asynchronous and IntercoreResponseHandler function will be called when a
+/// message is received from the real-time core.
+/// </summary>
+static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer)
+{
+    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
+        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
+        return;
+    }
+
+    // reset inter-core block
+    memset(&ic_block_asynchronous, 0x00, sizeof(INTER_CORE_BLOCK));
+
+    // Set message cmd to ECHO and load the COMPONENT ID as the message payload
+    ic_block_asynchronous.cmd = IC_ECHO;
+    strncpy(ic_block_asynchronous.message, REAL_TIME_COMPONENT_ID_ASYNCHRONOUS, sizeof(ic_block_asynchronous.message));
+
+    dx_intercorePublish(&intercore_app_asynchronous, &ic_block_asynchronous, sizeof(INTER_CORE_BLOCK));
+
+    // reload the async example timer
+    dx_timerOneShotSet(&intercoreAsynchronousTimer, &(struct timespec){1, 0});
+}
+
+/// <summary>
+/// Callback handler for Asynchronous Inter-Core Messaging Pattern
 /// </summary>
 static void IntercoreResponseHandler(void *data_block, ssize_t message_length)
 {
-    LP_INTER_CORE_BLOCK *ic_message_block = (LP_INTER_CORE_BLOCK *)data_block;
+    INTER_CORE_BLOCK *ic_message_block = (INTER_CORE_BLOCK *)data_block;
 
     switch (ic_message_block->cmd) {
-    case LP_IC_ECHO:
+    case IC_ECHO:
         Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
         break;
     default:
@@ -118,15 +141,16 @@ static void InitPeripheralAndHandlers(void)
 {
     dx_timerSetStart(timerSet, NELEMS(timerSet));
 
-    // Initialize Intercore Communications for core one
-    dx_intercoreConnect(&intercore_app_one);
+    // Initialize asynchronous inter-core messaging
+    dx_intercoreConnect(&intercore_app_asynchronous);
 
-    // Initialize Intercore Communications for core two
-    dx_intercoreConnect(&intercore_app_two);
-    // set intercore read timeout to 1000 microseconds
-    dx_intercorePublishThenReadTimeout(&intercore_app_two, 1000);
+    // Initialize synchronous inter-core messaging
+    dx_intercoreConnect(&intercore_app_synchronous);
+    // set intercore publish then read timeout to 1000 microseconds
+    dx_intercorePublishThenReadTimeout(&intercore_app_synchronous, 1000);
 
-    dx_timerOneShotSet(&intercoresSendMessageTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreAsynchronousTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreSynchronousTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>

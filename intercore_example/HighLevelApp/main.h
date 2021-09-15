@@ -20,34 +20,34 @@
 #include <stdio.h>
 #include <time.h>
 
-#define REAL_TIME_COMPONENT_ID_APP_ONE "09F0654C-674D-4C93-A4EA-DA60ACD4FD32"
-#define REAL_TIME_COMPONENT_ID_APP_TWO "5DFA4F92-B474-44EC-BF99-DDBC5B91F795"
+#define REAL_TIME_COMPONENT_ID_ASYNCHRONOUS "09F0654C-674D-4C93-A4EA-DA60ACD4FD32"
+#define REAL_TIME_COMPONENT_ID_SYNCHRONOUS "5DFA4F92-B474-44EC-BF99-DDBC5B91F795"
 
 // Forward signatures
 static void IntercoreResponseHandler(void *data_block, ssize_t message_length);
-static void IntercoreSendMessageHandler(EventLoopTimer *eventLoopTimer);
+static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer);
+static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer);
 
-LP_INTER_CORE_BLOCK ic_control_block_app_one = {.cmd = LP_IC_UNKNOWN, .msgId = 0, .message = {0}};
-LP_INTER_CORE_BLOCK ic_control_block_app_two = {.cmd = LP_IC_UNKNOWN, .msgId = 0, .message = {0}};
+INTER_CORE_BLOCK ic_block_asynchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
+INTER_CORE_BLOCK ic_block_synchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 
-DX_INTERCORE_BINDING intercore_app_one = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = REAL_TIME_COMPONENT_ID_APP_ONE,
-    .interCoreCallback = IntercoreResponseHandler,
-    .intercore_recv_block = &ic_control_block_app_one,
-    .intercore_recv_block_length = sizeof(ic_control_block_app_one)};
+DX_INTERCORE_BINDING intercore_app_asynchronous = {.sockFd = -1,
+                                                   .nonblocking_io = true,
+                                                   .rtAppComponentId = REAL_TIME_COMPONENT_ID_ASYNCHRONOUS,
+                                                   .interCoreCallback = IntercoreResponseHandler,
+                                                   .intercore_recv_block = &ic_block_asynchronous,
+                                                   .intercore_recv_block_length = sizeof(ic_block_asynchronous)};
 
-DX_INTERCORE_BINDING intercore_app_two = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = REAL_TIME_COMPONENT_ID_APP_TWO,
-    .interCoreCallback = IntercoreResponseHandler,
-    .intercore_recv_block = &ic_control_block_app_two,
-    .intercore_recv_block_length = sizeof(ic_control_block_app_two)};
+DX_INTERCORE_BINDING intercore_app_synchronous = {.sockFd = -1,
+                                                  .nonblocking_io = true,
+                                                  .rtAppComponentId = REAL_TIME_COMPONENT_ID_SYNCHRONOUS,
+                                                  .interCoreCallback = NULL,
+                                                  .intercore_recv_block = &ic_block_synchronous,
+                                                  .intercore_recv_block_length = sizeof(ic_block_synchronous)};
 
 // Timers
-static DX_TIMER_BINDING intercoresSendMessageTimer = {
-    .period = {1, 0}, .name = "intercoresSendMessageTimer", .handler = IntercoreSendMessageHandler};
+static DX_TIMER_BINDING intercoreAsynchronousTimer = {.period = {1, 0}, .name = "intercoreAsynchronousTimer", .handler = IntercoreAsynchronousHandler};
 
-DX_TIMER_BINDING *timerSet[] = {&intercoresSendMessageTimer};
+static DX_TIMER_BINDING intercoreSynchronousTimer = {.period = {1, 0}, .name = "intercoreSynchronousTimer", .handler = IntercoreSynchronousHandler};
+
+DX_TIMER_BINDING *timerSet[] = {&intercoreAsynchronousTimer, &intercoreSynchronousTimer};
