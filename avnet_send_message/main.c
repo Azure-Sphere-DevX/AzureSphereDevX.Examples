@@ -35,9 +35,30 @@
 
 static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 {
+
+    static int pollTime = 15;
+
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
         return;
+    }
+
+    // Get any telemetry frequency updates from the IoTConnecty library
+    int ioTConnectPollTime = dx_avnetGetTelemetryPeriod();
+
+    // If the poll frequency is 0, then IoT Connect requested that the 
+    // application stop sending telemetry, return without sending any
+    // telemetry.
+    if(ioTConnectPollTime == 0){
+        return;
+    }
+
+    // Verify we have received an updated frequency time from IoTConnect
+    if(ioTConnectPollTime > 0){
+        if (ioTConnectPollTime != pollTime){
+            pollTime = ioTConnectPollTime;
+            dx_timerChange(&publish_message, &(struct timespec){.tv_sec = pollTime, .tv_nsec = 0});
+        }
     }
 
     double temperature = 36.0;
@@ -49,22 +70,19 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 
         // Serialize telemetry as JSON
         bool serialization_result =
-            dx_avnetJsonSerialize(modifiedMsgBuffer, sizeof(modifiedMsgBuffer), 4, DX_JSON_INT, "MsgId", msgId++, 
+            dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), 4, DX_JSON_INT, "MsgId", msgId++, 
                 DX_JSON_DOUBLE, "Temperature", temperature, 
                 DX_JSON_DOUBLE, "Humidity", humidity, 
                 DX_JSON_DOUBLE, "Pressure", pressure);
 
-//        char realtime_payload[] = "{\"rt_temperature\": 40}";
-//        serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
-//                DX_JSON_STRING, "payload", realtime_payload);
-
-//        dx_avnetJsonSerializePayload(modifiedMsgBuffer, msgBuffer, sizeof(modifiedMsgBuffer));
-
         if (serialization_result) {
 
-            Log_Debug("%s\n", modifiedMsgBuffer);
+            Log_Debug("%s\n", msgBuffer);
 
-            dx_azurePublish(modifiedMsgBuffer, strlen(modifiedMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+            // Neerav, put the call to your new validation routine here and remove the dx_azurePublish() call since the
+            // new routine will send the telemetry with the correct mt value.
+
+            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
 
         } else {
             Log_Debug("JSON Serialization failed: Buffer too small\n");

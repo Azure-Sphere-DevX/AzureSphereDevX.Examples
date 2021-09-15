@@ -31,9 +31,6 @@ DX_USER_CONFIG dx_config;
 #define JSON_MESSAGE_BYTES 256+128
 static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
-static char modifiedMsgBuffer[JSON_MESSAGE_BYTES] = {0};
-
-
 double desired_temperature = 0.0;
 
 static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"},
