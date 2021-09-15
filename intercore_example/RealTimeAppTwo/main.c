@@ -78,8 +78,8 @@ static void process_inbound_message()
     static int msgId = 0;
     u32 mbox_local_buf_len;
     int result;
-    LP_INTER_CORE_BLOCK *in_data;
-    LP_INTER_CORE_BLOCK *out_data;
+    INTER_CORE_BLOCK *in_data;
+    INTER_CORE_BLOCK *out_data;
 
     mbox_local_buf_len = MBOX_BUFFER_LEN_MAX;
     result =
@@ -87,17 +87,17 @@ static void process_inbound_message()
 
     if (result == 0 && mbox_local_buf_len > payloadStart) {
 
-        in_data = (LP_INTER_CORE_BLOCK *)(mbox_local_buf + payloadStart);
+        in_data = (INTER_CORE_BLOCK *)(mbox_local_buf + payloadStart);
 
         switch (in_data->cmd) {
 
-        case LP_IC_ECHO:
-            out_data = (LP_INTER_CORE_BLOCK *)(mbox_local_buf + payloadStart);
+        case IC_ECHO:
+            out_data = (INTER_CORE_BLOCK *)(mbox_local_buf + payloadStart);
 
             out_data->msgId = msgId++;
             memcpy(out_data->message, in_data->message, sizeof(in_data->message));
 
-            send_intercore_msg(sizeof(LP_INTER_CORE_BLOCK));
+            send_intercore_msg(sizeof(INTER_CORE_BLOCK));
             break;
         default:
             break;
