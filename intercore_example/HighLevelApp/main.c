@@ -77,11 +77,11 @@ static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer)
 
     // Intercore syncronise publish request then wait for read pattern with 1000 microsecond
     // timeout. Typical turn around time is 100 to 250 microseconds
-    if (dx_intercorePublishThenRead(&intercore_app_sychronous, &ic_block_synchronous, sizeof(INTER_CORE_BLOCK)) < 0) {
+    if (dx_intercorePublishThenRead(&intercore_app_synchronous, &ic_block_synchronous, sizeof(INTER_CORE_BLOCK)) < 0) {
         Log_Debug("Intercore message request/response failed\n");
     } else {
 
-        INTER_CORE_BLOCK *ic_message_block = (INTER_CORE_BLOCK *)intercore_app_sychronous.intercore_recv_block;
+        INTER_CORE_BLOCK *ic_message_block = (INTER_CORE_BLOCK *)intercore_app_synchronous.intercore_recv_block;
 
         if (ic_message_block->cmd == IC_ECHO) {
             Log_Debug("Echoed message number %d from realtime core id: %s\n", ic_message_block->msgId, ic_message_block->message);
@@ -89,7 +89,7 @@ static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer)
     }
 
     // reload the sync example timer
-    dx_timerOneShotSet(&intercoreSynchronousExampleTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreSynchronousTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>
@@ -105,16 +105,16 @@ static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer)
     }
 
     // reset inter-core block
-    memset(&ic_block_asyncronous, 0x00, sizeof(INTER_CORE_BLOCK));
+    memset(&ic_block_asynchronous, 0x00, sizeof(INTER_CORE_BLOCK));
 
     // Set message cmd to ECHO and load the COMPONENT ID as the message payload
-    ic_block_asyncronous.cmd = IC_ECHO;
-    strncpy(ic_block_asyncronous.message, REAL_TIME_COMPONENT_ID_ASYNCHRONOUS, sizeof(ic_block_asyncronous.message));
+    ic_block_asynchronous.cmd = IC_ECHO;
+    strncpy(ic_block_asynchronous.message, REAL_TIME_COMPONENT_ID_ASYNCHRONOUS, sizeof(ic_block_asynchronous.message));
 
-    dx_intercorePublish(&intercore_app_asynchronous, &ic_block_asyncronous, sizeof(INTER_CORE_BLOCK));
+    dx_intercorePublish(&intercore_app_asynchronous, &ic_block_asynchronous, sizeof(INTER_CORE_BLOCK));
 
     // reload the async example timer
-    dx_timerOneShotSet(&intercoreAsynchronousExampleTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreAsynchronousTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>
@@ -141,16 +141,16 @@ static void InitPeripheralAndHandlers(void)
 {
     dx_timerSetStart(timerSet, NELEMS(timerSet));
 
-    // Initialize Intercore Communications for core one
+    // Initialize asynchronous inter-core messaging
     dx_intercoreConnect(&intercore_app_asynchronous);
 
-    // Initialize Intercore Communications for core two
-    dx_intercoreConnect(&intercore_app_sychronous);
-    // set intercore read timeout to 1000 microseconds
-    dx_intercorePublishThenReadTimeout(&intercore_app_sychronous, 1000);
+    // Initialize synchronous inter-core messaging
+    dx_intercoreConnect(&intercore_app_synchronous);
+    // set intercore publish then read timeout to 1000 microseconds
+    dx_intercorePublishThenReadTimeout(&intercore_app_synchronous, 1000);
 
-    dx_timerOneShotSet(&intercoreAsynchronousExampleTimer, &(struct timespec){1, 0});
-    dx_timerOneShotSet(&intercoreSynchronousExampleTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreAsynchronousTimer, &(struct timespec){1, 0});
+    dx_timerOneShotSet(&intercoreSynchronousTimer, &(struct timespec){1, 0});
 }
 
 /// <summary>

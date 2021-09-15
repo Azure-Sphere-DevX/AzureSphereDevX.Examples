@@ -28,35 +28,26 @@ static void IntercoreResponseHandler(void *data_block, ssize_t message_length);
 static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer);
 static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer);
 
-INTER_CORE_BLOCK ic_block_asyncronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
+INTER_CORE_BLOCK ic_block_asynchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 INTER_CORE_BLOCK ic_block_synchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 
-DX_INTERCORE_BINDING intercore_app_asynchronous = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = REAL_TIME_COMPONENT_ID_ASYNCHRONOUS,
-    .interCoreCallback = IntercoreResponseHandler,
-    .intercore_recv_block = &ic_block_asyncronous,
-    .intercore_recv_block_length = sizeof(ic_block_asyncronous)};
+DX_INTERCORE_BINDING intercore_app_asynchronous = {.sockFd = -1,
+                                                   .nonblocking_io = true,
+                                                   .rtAppComponentId = REAL_TIME_COMPONENT_ID_ASYNCHRONOUS,
+                                                   .interCoreCallback = IntercoreResponseHandler,
+                                                   .intercore_recv_block = &ic_block_asynchronous,
+                                                   .intercore_recv_block_length = sizeof(ic_block_asynchronous)};
 
-DX_INTERCORE_BINDING intercore_app_sychronous = {
-    .sockFd = -1,
-    .nonblocking_io = true,
-    .rtAppComponentId = REAL_TIME_COMPONENT_ID_SYNCHRONOUS,
-    .interCoreCallback = NULL,
-    .intercore_recv_block = &ic_block_synchronous,
-    .intercore_recv_block_length = sizeof(ic_block_synchronous)};
+DX_INTERCORE_BINDING intercore_app_synchronous = {.sockFd = -1,
+                                                  .nonblocking_io = true,
+                                                  .rtAppComponentId = REAL_TIME_COMPONENT_ID_SYNCHRONOUS,
+                                                  .interCoreCallback = NULL,
+                                                  .intercore_recv_block = &ic_block_synchronous,
+                                                  .intercore_recv_block_length = sizeof(ic_block_synchronous)};
 
 // Timers
-static DX_TIMER_BINDING intercoreAsynchronousExampleTimer = {
-    .period = {1, 0},
-    .name = "intercoreAsynchronousExampleTimer",
-    .handler = IntercoreAsynchronousHandler};
+static DX_TIMER_BINDING intercoreAsynchronousTimer = {.period = {1, 0}, .name = "intercoreAsynchronousTimer", .handler = IntercoreAsynchronousHandler};
 
-static DX_TIMER_BINDING intercoreSynchronousExampleTimer = {
-    .period = {1, 0},
-    .name = "intercoreSynchronousExampleTimer",
-    .handler = IntercoreSynchronousHandler};
+static DX_TIMER_BINDING intercoreSynchronousTimer = {.period = {1, 0}, .name = "intercoreSynchronousTimer", .handler = IntercoreSynchronousHandler};
 
-DX_TIMER_BINDING *timerSet[] = {&intercoreAsynchronousExampleTimer,
-                                &intercoreSynchronousExampleTimer};
+DX_TIMER_BINDING *timerSet[] = {&intercoreAsynchronousTimer, &intercoreSynchronousTimer};
