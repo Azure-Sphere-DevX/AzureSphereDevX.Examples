@@ -124,7 +124,7 @@ static void InitPeripheralAndHandlers(void)
     // Initialize Intercore Communications for core two
     dx_intercoreConnect(&intercore_app_two);
     // set intercore read timeout to 1000 microseconds
-    dx_intercoreReadTimeoutSet(&intercore_app_two, 1000);
+    dx_intercorePublishThenReadTimeout(&intercore_app_two, 1000);
 
     dx_timerOneShotSet(&intercoresSendMessageTimer, &(struct timespec){1, 0});
 }
