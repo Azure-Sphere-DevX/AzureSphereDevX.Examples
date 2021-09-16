@@ -97,3 +97,6 @@
 [submodule "avnet_sk_demo/AzureSphereDevX"]
 	path = avnet_sk_demo/AzureSphereDevX
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "tools"]
+	path = tools
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Tools.git
