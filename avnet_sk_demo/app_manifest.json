@@ -10,17 +10,19 @@
         "global.azure-devices-provisioning.net",
         "ENTER.IOT.HUB.HOSTNAME.net"
       ],
-    "Gpio": [
-      "$SAMPLE_RGBLED_RED",
-      "$SAMPLE_RGBLED_GREEN",
-      "$SAMPLE_RGBLED_BLUE",
-      "$SAMPLE_BUTTON_1",
-      "$SAMPLE_BUTTON_2",
-      "$SAMPLE_WIFI_LED",
-      "$SAMPLE_APP_LED",
-      "$RELAY_CLICK2_RELAY1",
-      "$RELAY_CLICK2_RELAY2"
-    ],
+      "Gpio": [
+        "$SAMPLE_RGBLED_RED",
+        "$SAMPLE_RGBLED_GREEN",
+        "$SAMPLE_RGBLED_BLUE",
+        "$SAMPLE_BUTTON_1",
+        "$SAMPLE_BUTTON_2",
+        "$SAMPLE_WIFI_LED",
+        "$SAMPLE_APP_LED",
+        "$RELAY_CLICK2_RELAY1",
+        "$RELAY_CLICK2_RELAY2",
+        "$SAMPLE_LSM6DSO_I2C_SDA_GPIO",
+        "$SAMPLE_LSM6DSO_I2C_SCL_GPIO"
+      ],
     "I2cMaster": [ "$SAMPLE_LSM6DSO_I2C" ],
     "Uart": [],
     "SpiMaster": [],
