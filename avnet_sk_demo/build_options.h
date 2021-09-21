@@ -39,7 +39,7 @@
 //      cd ../RealTimeExampleApp/
 //      azsphere device sideload deploy --image-package AvnetAlsPt19RTApp.imagepackage
 // Enable the M4_INTERCORE_COMMS #define below
-#define M4_INTERCORE_COMMS
+//#define M4_INTERCORE_COMMS
 
 // Defines how quickly the accelerator data is read and reported
 #define SENSOR_READ_PERIOD_SECONDS 5

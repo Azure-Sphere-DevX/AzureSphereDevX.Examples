@@ -19,9 +19,7 @@
         "$SAMPLE_WIFI_LED",
         "$SAMPLE_APP_LED",
         "$RELAY_CLICK2_RELAY1",
-        "$RELAY_CLICK2_RELAY2",
-        "$SAMPLE_LSM6DSO_I2C_SDA_GPIO",
-        "$SAMPLE_LSM6DSO_I2C_SCL_GPIO"
+        "$RELAY_CLICK2_RELAY2"
       ],
     "I2cMaster": [ "$SAMPLE_LSM6DSO_I2C" ],
     "Uart": [],
