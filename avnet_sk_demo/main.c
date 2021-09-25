@@ -775,22 +775,42 @@ static void UpdateOledEventHandler(EventLoopTimer *eventLoopTimer)
 /// </summary>
 static void alsPt19_receive_msg_handler(void *data_block, ssize_t message_length)
 {
-    // Cast the data block so we can index into the data
-    IC_COMMAND_BLOCK_ALS_PT19 *messageData = (IC_COMMAND_BLOCK_ALS_PT19*) data_block;
 
-    switch (messageData->cmd) {
-        case IC_READ_SENSOR:
-            // Pull the raw sensor data anb convert to Lux units
-            light_sensor = (messageData->sensorData * 2.5/4095)*1000000 / (float)(3650*0.1428);
-            break;
-        
-        // Handle the other cases by doing nothing
-        case IC_UNKNOWN:
-        case IC_HEARTBEAT:
-        case IC_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-        case IC_SET_SAMPLE_RATE:
-        default:
-            break;
+// Cast the data block so we can index into the data
+IC_COMMAND_BLOCK_ALS_PT19 *messageData = (IC_COMMAND_BLOCK_ALS_PT19*) data_block;
+
+switch (messageData->cmd) {
+    case IC_READ_SENSOR:
+        // Pull the sensor data already in units of Lux
+        light_sensor = (float)messageData->lightSensorLuxData;
+        break;
+    case IC_HEARTBEAT:
+        Log_Debug("IC_HEARTBEAT\n");
+        break;
+    case IC_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        Log_Debug("IC_READ_SENSOR_RESPOND_WITH_TELEMETRY\n");
+//        Log_Debug("%s\n", messageData->telemetryJSON);
+
+#ifdef IOT_HUB_APPLICATION
+#ifdef USE_IOT_CONNECT
+            // Add the IoTConnect metadata to the seralized telemetry
+            dx_avnetJsonSerializePayload(messageData->telemetryJSON, avtMsgBuffer, sizeof(avtMsgBuffer));
+            Log_Debug("%s\n", avtMsgBuffer);
+            dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+
+#else // !USE_IOT_CONNECT
+            Log_Debug("%s\n", messageData->telemetryJSON);
+            dx_azurePublish(messageData->telemetryJSON, strlen(messageData->telemetryJSON), messageProperties, NELEMS(messageProperties), &contentProperties);
+#endif // USE_IOT_CONNECT
+#endif // IOT_HUB_APPLICATION
+
+        break;
+    case IC_SET_SAMPLE_RATE:
+        Log_Debug("IC_SET_SAMPLE_RATE\n");
+        break;
+    case IC_UNKNOWN:
+    default:
+        break;
     }
 }
 #endif // M4_INTERCORE_COMMS

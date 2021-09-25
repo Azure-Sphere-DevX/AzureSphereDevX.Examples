@@ -14,10 +14,12 @@ typedef enum __attribute__((packed)) {
 } INTER_CORE_CMD;
 
 // Define the expected data structure.  Note this struct came from the AvnetGroveGPS real time application code
-typedef struct __attribute__((packed)) {
+typedef struct  __attribute__((packed))
+{
     INTER_CORE_CMD cmd;
     uint32_t sensorSampleRate;
     uint32_t sensorData;
     double lightSensorLuxData;
+    char telemetryJSON[64];
 } IC_COMMAND_BLOCK_ALS_PT19;
 
