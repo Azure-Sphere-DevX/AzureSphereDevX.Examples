@@ -100,3 +100,9 @@
 [submodule "tools"]
 	path = tools
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Tools.git
+[submodule ".\\avnet_gw_send_message\\AzureSphereDevX"]
+	path = .\\avnet_gw_send_message\\AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule ".\\avnet_gw_send_message\\HardwareDefinitions"]
+	path = .\\avnet_gw_send_message\\HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
