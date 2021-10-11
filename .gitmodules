@@ -97,11 +97,11 @@
 [submodule "avnet_sk_demo/AzureSphereDevX"]
 	path = avnet_sk_demo/AzureSphereDevX
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
-[submodule ".\\avnet_gw_send_message\\AzureSphereDevX"]
-	path = .\\avnet_gw_send_message\\AzureSphereDevX
+[submodule "avnet_gw_send_message/AzureSphereDevX"]
+	path = avnet_gw_send_message/AzureSphereDevX
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
-[submodule ".\\avnet_gw_send_message\\HardwareDefinitions"]
-	path = .\\avnet_gw_send_message\\HardwareDefinitions
+[submodule "avnet_gw_send_message/HardwareDefinitions"]
+	path = avnet_gw_send_message/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
 [submodule "tools"]
 	path = tools
