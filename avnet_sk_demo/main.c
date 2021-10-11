@@ -330,7 +330,7 @@ static void publish_message_handler(void)
 #ifdef USE_DEVX_SERIALIZATION
         // Serialize telemetry as JSON
 #ifdef USE_IOT_CONNECT
-        bool serialization_result = dx_avnetJsonSerialize(avtMsgBuffer, sizeof(avtMsgBuffer), 11, 
+        bool serialization_result = dx_avnetJsonSerialize(avtMsgBuffer, sizeof(avtMsgBuffer), NULL, 11, 
             DX_JSON_DOUBLE, "gX", acceleration_g.x,
             DX_JSON_DOUBLE, "gY", acceleration_g.y,
             DX_JSON_DOUBLE, "gZ", acceleration_g.z,
@@ -386,7 +386,7 @@ static void publish_message_handler(void)
 #ifdef USE_IOT_CONNECT
 
             // Add the IoTConnect metadata to the seralized telemetry
-            dx_avnetJsonSerializePayload(msgBuffer, avtMsgBuffer, sizeof(avtMsgBuffer));
+            dx_avnetJsonSerializePayload(msgBuffer, avtMsgBuffer, sizeof(avtMsgBuffer), NULL);
             Log_Debug("%s\n", avtMsgBuffer);
             dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
 
@@ -794,7 +794,7 @@ switch (messageData->cmd) {
 #ifdef IOT_HUB_APPLICATION
 #ifdef USE_IOT_CONNECT
             // Add the IoTConnect metadata to the seralized telemetry
-            dx_avnetJsonSerializePayload(messageData->telemetryJSON, avtMsgBuffer, sizeof(avtMsgBuffer));
+            dx_avnetJsonSerializePayload(messageData->telemetryJSON, avtMsgBuffer, sizeof(avtMsgBuffer), NULL);
             Log_Debug("%s\n", avtMsgBuffer);
             dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
 

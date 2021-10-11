@@ -106,7 +106,7 @@ static void monitor_memory_handler(EventLoopTimer *eventLoopTimer)
             
             // Serialize telemetry as JSON
 #ifdef USE_AVNET_IOTCONNECT            
-            bool serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
+            bool serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), NULL, 1, 
                                         DX_JSON_INT, "MemoryHighWaterMark", newMemoryHighWaterMark); 
 #else
             bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 

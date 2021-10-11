@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 1,
+  "Name": "avnet_gateway_example",
+  "ComponentId": "353d8b5e-d3ab-43f7-b65a-10f14b766d21",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": ["--ScopeID", "REPLACE_WITH_YOUR_ID_SCOPE"],
+  "Capabilities": {
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+    ],
+    "DeviceAuthentication": "REPLACE_WITH_YOUR_AZURE_SPHERE_TENANT_ID"
+  },
+  "ApplicationType": "Default"
+}
