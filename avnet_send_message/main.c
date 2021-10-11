@@ -49,17 +49,10 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 
         // Serialize telemetry as JSON
         bool serialization_result =
-            dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), 4, DX_JSON_INT, "MsgId", msgId++, 
+            dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), NULL, 4, DX_JSON_INT, "MsgId", msgId++, 
                 DX_JSON_DOUBLE, "Temperature", temperature, 
                 DX_JSON_DOUBLE, "Humidity", humidity, 
                 DX_JSON_DOUBLE, "Pressure", pressure);
-
-        char realtime_payload[] = "{\"rt_temperature\": 40}";
-
-        serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
-                DX_JSON_STRING, "payload", realtime_payload);
-
-        dx_avnetJsonSerializePayload(realtime_payload, msgBuffer, sizeof(realtime_payload));
 
 
         if (serialization_result) {
