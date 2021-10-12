@@ -94,7 +94,7 @@ void update_oled()
 		break;
 		case ENVIRONMENT:
 		{
-			update_environ(lsm6dso_temperature, lps22hh_temperature, pressure_kPa);
+			update_environ(lsm6dso_temperature, lps22hh_temperature, pressure_hPa);
 		}
 		break;
 		case OTHER:
@@ -506,7 +506,7 @@ void update_environ(float temp1, float temp2, float atm)
 	// Draw the value of atm
 	sd1306_draw_string(sizeof(str_atm) * 6, OLED_LINE_3_Y, string_data, FONT_SIZE_LINE, white_pixel);
 	// Draw the units of atm
-	sd1306_draw_string(sizeof(str_atm) * 6 + (get_str_size(string_data) + 1) * 6, OLED_LINE_3_Y, "kPa", FONT_SIZE_LINE, white_pixel);
+	sd1306_draw_string(sizeof(str_atm) * 6 + (get_str_size(string_data) + 1) * 6, OLED_LINE_3_Y, "hPa", FONT_SIZE_LINE, white_pixel);
 
 	// Convert altitude value to string
 	ftoa(altitude, string_data, 2);

@@ -32,7 +32,7 @@ extern bool lps22hhDetected;
 extern AccelerationgForce acceleration_g;
 extern AngularRateDegreesPerSecond angular_rate_dps;
 extern float lsm6dso_temperature;
-extern float pressure_kPa;
+extern float pressure_hPa;
 extern float lps22hh_temperature;
 extern int i2cFd;
 
