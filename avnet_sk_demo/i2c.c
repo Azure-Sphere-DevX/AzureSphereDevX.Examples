@@ -99,7 +99,7 @@ bool lps22hhDetected = false;
 AccelerationgForce acceleration_g;
 AngularRateDegreesPerSecond angular_rate_dps;
 float lsm6dso_temperature;
-float pressure_kPa;
+float pressure_hPa;
 float lps22hh_temperature;
 
 #ifdef OLED_SD1306
@@ -340,7 +340,7 @@ float lp_get_pressure(void)
 {
     lps22hh_reg_t lps22hhReg;
     uint32_t ui32bit;
-    static float pressure_kPa = NAN;
+    static float pressure_hPa = NAN;
 
     if (!initialized) {
         return NAN;
@@ -355,9 +355,9 @@ float lp_get_pressure(void)
 
         if ((lps22hhReg.status.p_da == 1) && (lps22hhReg.status.t_da == 1)) {
             lps22hh_pressure_raw_get(&pressure_ctx, &ui32bit);
-            pressure_kPa = lps22hh_from_lsb_to_hpa(ui32bit)/1000;
+            pressure_hPa = lps22hh_from_lsb_to_hpa(ui32bit);
         }
-        return pressure_kPa;
+        return pressure_hPa;
     }
     return NAN;
 }
