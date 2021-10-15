@@ -39,18 +39,6 @@
  *    telemetry.
  * 
  ************************************************************************************************/
-
-#include "hw/azure_sphere_learning_path.h" // Hardware definition
-
-#include "app_exit_codes.h"
-#include "dx_azure_iot.h"
-#include "dx_config.h"
-#include "dx_json_serializer.h"
-#include "dx_terminate.h"
-#include "dx_timer.h"
-#include "dx_utilities.h"
-#include "dx_version.h"
-#include <applibs/log.h>
 #include "main.h"
 
 /****************************************************************************************
