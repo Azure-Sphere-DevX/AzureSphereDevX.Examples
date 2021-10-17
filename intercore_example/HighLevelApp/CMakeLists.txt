@@ -1,26 +1,30 @@
 #  Copyright (c) Microsoft Corporation. All rights reserved.
 #  Licensed under the MIT License.
 
-###################################################################################################################
-
-# Select your developer board by removing the # tag from the beginning of the line
-
-# The default board selected is the AVNET Azure Sphere Starter Kit Revision 1.
-
-# If you are NOT using the AVNET Revision 1 board be sure to comment out the AVNET board
-
-set(AVNET TRUE "AVNET Azure Sphere Starter Kit Revision 1 ")    
-# set(AVNET_REV_2 TRUE "AVNET Azure Sphere Starter Kit Revision 2 ")             
-# set(SEEED_STUDIO_RDB TRUE "Seeed Studio Azure Sphere MT3620 Development Kit (aka Reference Design Board or rdb)")
-# set(SEEED_STUDIO_MINI TRUE "Seeed Studio Azure Sphere MT3620 Mini Dev Board")
-
-###################################################################################################################
-
 cmake_minimum_required (VERSION 3.10)
 project (AzureSphereAzureIoT C)
 
-# Azure Sphere TOOLS_REVISION and TARGET_API_SET set in cmake/azsphere_config.cmake
-include(cmake/azsphere_config.cmake)
+# Check if there is a global azsphere_board.cmake file
+get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
+
+if (EXISTS "${PARENT_DIR}/azsphere_board.global.txt")
+    include("${PARENT_DIR}/azsphere_board.global.txt")
+else()
+    include(azsphere_board.txt)
+endif()
+
+if (EXISTS "${PARENT_DIR}/Tools/cmake/azsphere_config.cmake")
+    include(../tools/cmake/azsphere_config.cmake)
+    auto_generate_azsphere_config()
+else()
+
+    # For information on setting tools revision and target api set see 
+    # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
+
+    azsphere_configure_tools(TOOLS_REVISION "21.07")
+    azsphere_configure_api(TARGET_API_SET "10")
+
+endif()
 
 
 add_subdirectory("AzureSphereDevX" out)
