@@ -1,3 +1,3 @@
-# GPIO usage
+# PWM usage
 
-[GPIO usage documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Working-with-GPIO)
+[PWM usage documentation](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Working-with-pwm)
