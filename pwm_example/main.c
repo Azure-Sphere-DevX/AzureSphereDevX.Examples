@@ -34,7 +34,7 @@
 #include "main.h"
 
 /// <summary>
-///
+/// Simple PWM example - 1kHz (1000 Hz), and alter duty cycle
 /// </summary>
 static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
 {
@@ -44,6 +44,7 @@ static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
     }
 
 #ifdef OEM_SEEED_STUDIO_MINI
+    // NO RGB LED so set PWM on the user LED
     static DX_PWM_BINDING *pwmLed = &pwm_user_led;
 #else
     static DX_PWM_BINDING *pwmLed = &pwm_red_led;
@@ -79,6 +80,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_pwmSetOpen(pwm_bindings, NELEMS(pwm_bindings));
     dx_timerSetStart(timerSet, NELEMS(timerSet));
 
+    // Turn off RGBLED - 100% duty cycle is off
     dx_pwmSetDutyCycle(&pwm_red_led, 1000, 100);
     dx_pwmSetDutyCycle(&pwm_green_led, 1000, 100);
     dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 100);
