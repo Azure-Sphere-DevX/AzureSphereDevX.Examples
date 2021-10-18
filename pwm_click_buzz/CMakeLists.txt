@@ -3,7 +3,12 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-project (gpio_example C)
+# Generate project id from the folder name
+get_filename_component(ProjectId ${CMAKE_CURRENT_LIST_DIR} NAME)
+string(REPLACE " " "_" ProjectId ${ProjectId})
+string(TOLOWER ${ProjectId} ProjectId)
+
+project(${ProjectId} C)
 
 # Check if there is a global azsphere_board.cmake file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
@@ -40,28 +45,28 @@ set(BOARD_COUNTER 0)
 if(AVNET)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "pwm_example.json")
     message(STATUS "Azure Sphere board selected: AVNET REV 1")
 endif(AVNET)
 
 if(AVNET_REV_2)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "pwm_example.json")
     message(STATUS "Azure Sphere board selected: AVNET REV 2")
 endif(AVNET_REV_2)
 
 if (SEEED_STUDIO_RDB)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_SEEED_STUDIO=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "pwm_example.json")
     message(STATUS "Azure Sphere board selected: SEEED STUDIO RDB")
 endif()
 
 if (SEEED_STUDIO_MINI)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_SEEED_STUDIO_MINI=TRUE )    
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "pwm_example.json")
     message(STATUS "Azure Sphere board selected: SEEED STUDIO MINI")
 endif(SEEED_STUDIO_MINI)
 
