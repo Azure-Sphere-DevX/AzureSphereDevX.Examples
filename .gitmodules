@@ -106,3 +106,6 @@
 [submodule "tools"]
 	path = tools
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Tools.git
+[submodule "pwm_example/HardwareDefinitions"]
+	path = pwm_example/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
