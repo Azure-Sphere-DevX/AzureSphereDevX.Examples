@@ -87,7 +87,8 @@ static void read_little_fs(void) {
 /// </summary>
 static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
 {
-    static GPIO_Value_Type button_a_state, button_b_state;
+    static GPIO_Value_Type button_a_state;
+    static bool operation_select = true;
 
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
@@ -95,11 +96,14 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
     }
 
     if (dx_gpioStateGet(&button_a, &button_a_state)) {
-        write_little_fs();
-    }
 
-    if (dx_gpioStateGet(&button_b, &button_b_state)) {
-        read_little_fs();
+        if (operation_select) {
+            write_little_fs();
+        } else {
+            read_little_fs();
+        }
+
+        operation_select = !operation_select;
     }
 }
 
@@ -130,8 +134,8 @@ static void init_little_fs(void)
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
-    dx_gpioSetOpen(gpio_set, NELEMS(gpio_set));
-    dx_timerSetStart(timerSet, NELEMS(timerSet));
+    dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
+    dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
 
     mutableStorageFd = Storage_OpenMutableFile();
     init_little_fs();
@@ -142,8 +146,8 @@ static void InitPeripheralsAndHandlers(void)
 /// </summary>
 static void ClosePeripheralsAndHandlers(void)
 {
-    dx_timerSetStop(timerSet, NELEMS(timerSet));
-    dx_gpioSetClose(gpio_set, NELEMS(gpio_set));
+    dx_timerSetStop(timer_bindings, NELEMS(timer_bindings));
+    dx_gpioSetClose(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerEventLoopStop();
 }
 
