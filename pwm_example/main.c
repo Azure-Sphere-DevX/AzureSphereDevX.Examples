@@ -78,7 +78,7 @@ static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
 static void InitPeripheralsAndHandlers(void)
 {
     dx_pwmSetOpen(pwm_bindings, NELEMS(pwm_bindings));
-    dx_timerSetStart(timerSet, NELEMS(timerSet));
+    dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
 
     // Turn off RGBLED - 100% duty cycle is off
     dx_pwmSetDutyCycle(&pwm_red_led, 1000, 100);
@@ -91,7 +91,8 @@ static void InitPeripheralsAndHandlers(void)
 /// </summary>
 static void ClosePeripheralsAndHandlers(void)
 {
-    dx_timerSetStop(timerSet, NELEMS(timerSet));
+    dx_timerSetStop(timer_bindings, NELEMS(timer_bindings));
+    dx_pwmSetClose(pwm_bindings, NELEMS(pwm_bindings));
     dx_timerEventLoopStop();
 }
 

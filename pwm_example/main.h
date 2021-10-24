@@ -35,5 +35,6 @@ static DX_PWM_BINDING pwm_user_led = {
 static DX_TIMER_BINDING tmr_update_led_pwm = {
     .period = {1, 0}, .name = "tmr_update_led_pwm", .handler = update_led_pwm_handler};
 
-static DX_TIMER_BINDING *timerSet[] = {&tmr_update_led_pwm};
-static DX_PWM_BINDING *pwm_bindings[] = {&pwm_red_led, &pwm_green_led, &pwm_blue_led, &pwm_user_led};
+static DX_TIMER_BINDING *timer_bindings[] = {&tmr_update_led_pwm};
+static DX_PWM_BINDING *pwm_bindings[] = {&pwm_red_led, &pwm_green_led, &pwm_blue_led,
+                                         &pwm_user_led};
