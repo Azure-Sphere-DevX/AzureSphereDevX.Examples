@@ -42,10 +42,9 @@ const struct lfs_config g_littlefs_config = {.read = storage_read,
  * GPIO Peripherals
  ****************************************************************************************/
 static DX_GPIO_BINDING button_a = {.pin = BUTTON_A, .name = "button_a", .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW};
-static DX_GPIO_BINDING button_b = {.pin = BUTTON_B, .name = "button_b", .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW};
 
-// All GPIOs added to gpio_set will be opened in InitPeripheralsAndHandlers
-DX_GPIO_BINDING *gpio_set[] = {&button_a, &button_b};
+// All GPIOs added to gpio_bindings will be opened in InitPeripheralsAndHandlers
+DX_GPIO_BINDING *gpio_bindings[] = {&button_a};
 
 /****************************************************************************************
  * Timer Bindings
@@ -53,4 +52,4 @@ DX_GPIO_BINDING *gpio_set[] = {&button_a, &button_b};
 static DX_TIMER_BINDING buttonPressCheckTimer = {.period = {0, 1 * ONE_MS}, .name = "buttonPressCheckTimer", .handler = ButtonPressCheckHandler};
 
 // All timers referenced in timers with be opened in the InitPeripheralsAndHandlers function
-DX_TIMER_BINDING *timerSet[] = {&buttonPressCheckTimer};
+DX_TIMER_BINDING *timer_bindings[] = {&buttonPressCheckTimer};
