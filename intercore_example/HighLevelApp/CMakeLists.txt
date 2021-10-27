@@ -5,6 +5,7 @@ cmake_minimum_required (VERSION 3.10)
 project (AzureSphereAzureIoT C)
 
 # Check if there is a global azsphere_board.cmake file
+
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
 if (EXISTS "${PARENT_DIR}/azsphere_board.global.txt")

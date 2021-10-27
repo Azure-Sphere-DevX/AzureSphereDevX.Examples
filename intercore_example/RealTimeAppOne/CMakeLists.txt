@@ -11,7 +11,26 @@ cmake_minimum_required(VERSION 3.10)
 # Configurations
 project(realtime_app_one_sample C)
 
-azsphere_configure_tools(TOOLS_REVISION "21.07")
+get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
+
+if (EXISTS "${PARENT_DIR}/azsphere_board.global.txt")
+    include("${PARENT_DIR}/azsphere_board.global.txt")
+else()
+    include(azsphere_board.txt)
+endif()
+
+if (EXISTS "${PARENT_DIR}/Tools/cmake/azsphere_config.cmake")
+    include(../tools/cmake/azsphere_config.cmake)
+    auto_generate_tools_revision()
+else()
+
+    # For information on setting tools revision and target api set see 
+    # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
+
+    azsphere_configure_tools(TOOLS_REVISION "21.07")
+
+endif()
+
 add_compile_definitions(OSAI_BARE_METAL)
 add_compile_definitions(OSAI_ENABLE_DMA)
 

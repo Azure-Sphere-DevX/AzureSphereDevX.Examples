@@ -118,3 +118,6 @@
 [submodule "pwm_click_buzz/HardwareDefinitions"]
 	path = pwm_click_buzz/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "intercore_example/tools"]
+	path = intercore_example/tools
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Tools
