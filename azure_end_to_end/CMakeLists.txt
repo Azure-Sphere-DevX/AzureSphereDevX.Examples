@@ -14,7 +14,7 @@ else()
     include(azsphere_board.txt)
 endif()
 
-if (EXISTS "${PARENT_DIR}/Tools/cmake/azsphere_config.cmake")
+if (EXISTS "${PARENT_DIR}/tools/cmake/azsphere_config.cmake")
     include(../tools/cmake/azsphere_config.cmake)
     auto_generate_azsphere_config()
 else()
