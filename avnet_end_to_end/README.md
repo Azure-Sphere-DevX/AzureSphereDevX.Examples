@@ -1,6 +1,6 @@
-# Azure IoT Telemetry, Hub Direct Methods and Device Twins
+# Avnet IoTConnect Telemetry, Hub Direct Methods and Device Twins
 
-This is an end to end sample pulling together publishing telemetry, device twins, direct methods, timer, gpio and more.
+This is an Avnet IoTConnect end to end sample pulling together publishing telemetry, device twins, direct methods, timer, gpio and more.  This example implements the same features as the Azure end to end example only with Avnet IoTConnect specific changes.
 
 ## Config app_manifest.json sample
 
