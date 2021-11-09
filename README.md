@@ -38,7 +38,7 @@ Be sure to visit the [Azure Sphere GenX Code Generator WiKi](https://github.com/
 
 ## Contributing to the DevX Examples Repo
 
-This is an community maintained project and your contribution is welcome and apreciated.  Please find the instructions below for adding additional exmaples to this repo.
+This is an community maintained project and your contribution is welcome and appreciated. Please find the instructions below for adding additional examples to this repo.
 
 1. Fork the repo into your GitHub account
 2. Pull your repo, make sure to pull the submodules: ```git clone --recurse-submodules https://github.com/<your gitHub account name>/AzureSphereDevX.Examples.git```
