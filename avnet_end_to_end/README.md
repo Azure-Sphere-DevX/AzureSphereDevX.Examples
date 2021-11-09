@@ -1,0 +1,17 @@
+# Avnet IoTConnect Telemetry, Hub Direct Methods and Device Twins
+
+This is an Avnet IoTConnect end to end sample pulling together publishing telemetry, device twins, direct methods, timer, gpio and more.  This example implements the same features as the Azure end to end example only with Avnet IoTConnect specific changes.
+
+## Config app_manifest.json sample
+
+1. Set ID Scope
+1. Set Allowed connections
+1. Set DeviceAuthentication
+
+For more information refer to:
+
+1. [Adding the Azure Sphere DevX library](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Adding-the-DevX-Library)
+1. [Azure Messaging](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Sending-messages)
+1. [Device Twins](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Device-Twins)
+1. [Direct Methods](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/IoT-Hub-Direct-Methods)
+1. [GPIO](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Working-with-GPIO)

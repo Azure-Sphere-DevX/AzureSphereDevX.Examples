@@ -121,3 +121,10 @@
 [submodule "intercore_example/tools"]
 	path = intercore_example/tools
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Tools
+[submodule "avnet_end_to_end/AzureSphereDevX"]
+	path = avnet_end_to_end/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_end_to_end/HardwareDefinitions"]
+	path = avnet_end_to_end/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+

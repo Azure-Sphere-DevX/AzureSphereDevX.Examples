@@ -1,0 +1,86 @@
+{
+    "code": "AVTe2e",
+    "name": "Avnet End to End",
+    "authType": 2,
+    "description": "Device template for the DevX avnet_end_to_end example.",
+    "isIotEdgeEnable": false,
+    "attributes": [
+        {
+            "name": "MsgId",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "Temperature",
+            "type": "NUMBER",
+            "description": null,
+            "unit": "Degrees C"
+        },
+        {
+            "name": "Humidity",
+            "type": "NUMBER",
+            "description": null,
+            "unit": "% moisture"
+        },
+        {
+            "name": "Pressure",
+            "type": "NUMBER",
+            "description": null,
+            "unit": null
+        }
+    ],
+    "settings": [
+        {
+            "name": "Software Version",
+            "type": "STRING",
+            "localName": "SoftwareVersion",
+            "defaultValue": "\"\"",
+            "isReadOnly": true
+        },
+        {
+            "name": "Timestamp of last startup",
+            "type": "STRING",
+            "localName": "DeviceStartUtc",
+            "defaultValue": "\" \"",
+            "isReadOnly": true
+        },
+        {
+            "name": "Current UTC time for device twin update",
+            "type": "STRING",
+            "localName": "ReportedUTC",
+            "defaultValue": "\"\"",
+            "isReadOnly": true
+        },
+        {
+            "name": "Timestamp of last connection",
+            "type": "STRING",
+            "localName": "DeviceConnectUtc",
+            "defaultValue": "\" \"",
+            "isReadOnly": true
+        },
+        {
+            "name": "Reported Humidity",
+            "type": "NUMBER",
+            "localName": "ReportedHumidity",
+            "defaultValue": "0",
+            "isReadOnly": true
+        },
+        {
+            "name": "Desired Sample Rate",
+            "type": "NUMBER",
+            "localName": "DesiredSampleRate",
+            "defaultValue": "75",
+            "dataValidation": "0 to 120",
+            "isReadOnly": false
+        },
+        {
+            "name": "Reported Temperature",
+            "type": "NUMBER",
+            "localName": "ReportedTemperature",
+            "defaultValue": "0",
+            "isReadOnly": true
+        }
+    ],
+    "dataFrequency": 60
+}
