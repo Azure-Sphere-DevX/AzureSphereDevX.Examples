@@ -95,14 +95,8 @@ int main(int argc, char *argv[])
 
     InitPeripheralsAndHandlers();
 
-    // Main loop
-    while (!dx_isTerminationRequired()) {
-        int result = EventLoop_Run(dx_timerGetEventLoop(), -1, true);
-        // Continue if interrupted by signal, e.g. due to breakpoint being set.
-        if (result == -1 && errno != EINTR) {
-            dx_terminate(DX_ExitCode_Main_EventLoopFail);
-        }
-    }
+    // Run the main event loop. This call blocks until termination is required.
+    dx_eventLoopRun();
 
     ClosePeripheralsAndHandlers();
     Log_Debug("Application exiting.\n");
