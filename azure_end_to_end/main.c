@@ -33,123 +33,117 @@
 
 #include "main.h"
 
-static void publish_message_handler(EventLoopTimer *eventLoopTimer)
+static DX_DEFINE_TIMER_HANDLER(publish_message_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
-    double temperature = 36.0;
-    double humidity = 55.0;
-    double pressure = 1100;
     static int msgId = 0;
 
-    if (dx_isAzureConnected()) {
+    if (azure_connected && environment.validated)
+    {
+        // clang-format off
+        // Serialize environment as JSON
+        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 4,
+            DX_JSON_INT, "msgId", msgId++,
+            DX_JSON_INT, "temperature", environment.latest.temperature,
+            DX_JSON_INT, "humidity", environment.latest.humidity,
+            DX_JSON_INT, "pressure", environment.latest.pressure);
+        // clang-format on
 
-        // Serialize telemetry as JSON
-        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 4, 
-            DX_JSON_INT, "MsgId", msgId++, 
-            DX_JSON_DOUBLE, "Temperature", temperature, 
-            DX_JSON_DOUBLE, "Humidity", humidity, 
-            DX_JSON_DOUBLE, "Pressure", pressure);
-
-        if (serialization_result) {
-
+        if (serialization_result)
+        {
             Log_Debug("%s\n", msgBuffer);
-
             dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
-
-        } else {
-            Log_Debug("JSON Serialization failed: Buffer too small\n");
+        }
+        else
+        {
             dx_terminate(APP_ExitCode_Telemetry_Buffer_Too_Small);
         }
     }
 }
+DX_END_TIMER_HANDLER
 
-static void report_properties_handler(EventLoopTimer *eventLoopTimer)
+/// <summary>
+///  Generate some fake sensor data
+/// </summary>
+DX_DEFINE_TIMER_HANDLER(read_sensor_handler)
 {
-    float temperature = 25.05f;
-    double humidity = 60.25;
+    environment.latest.temperature = 25;
+    environment.latest.humidity = 55;
+    environment.latest.pressure = 1050;
+    environment.validated = true;
+}
+DX_END_TIMER_HANDLER
 
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
-    if (dx_isAzureConnected()) {
-
-        // Update twin with current UTC (Universal Time Coordinate) in ISO format
-        dx_deviceTwinReportValue(&dt_reported_utc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-
-        // The type passed in must match the Divice Twin Type DX_DEVICE_TWIN_FLOAT
-        dx_deviceTwinReportValue(&dt_reported_temperature, &temperature);
-
-        // The type passed in must match the Divice Twin Type DX_DEVICE_TWIN_DOUBLE
-        dx_deviceTwinReportValue(&dt_reported_humidity, &humidity);
+/// <summary>
+/// Determine if environment value changed. If so, update it's device twin
+/// </summary>
+/// <param name="new_value"></param>
+/// <param name="previous_value"></param>
+/// <param name="device_twin"></param>
+static void device_twin_update(int *latest_value, int *previous_value, DX_DEVICE_TWIN_BINDING *device_twin)
+{
+    if (*latest_value != *previous_value)
+    {
+        *previous_value = *latest_value;
+        dx_deviceTwinReportValue(device_twin, latest_value);
     }
 }
 
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEFINE_TIMER_HANDLER(report_properties_handler)
+{
+    if (azure_connected && environment.validated)
+    {
+        device_twin_update(&environment.latest.temperature, &environment.previous.temperature, &dt_temperature);
+        device_twin_update(&environment.latest.pressure, &environment.previous.pressure, &dt_pressure);
+        device_twin_update(&environment.latest.humidity, &environment.previous.humidity, &dt_humidity);
+    }
+}
+DX_END_TIMER_HANDLER
+
+static DX_DEFINE_DEVICETWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (sample_rate_seconds >= 0 && sample_rate_seconds <= 120) {
-
-        dx_timerChange(&tmr_publish_message, &(struct timespec){sample_rate_seconds, 0});
-
+    if (IN_RANGE(sample_rate_seconds, 0, 120))
+    {
+        dx_timerChange(&tmr_read_sensor, &(struct timespec){sample_rate_seconds, 0});
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-
-    } else {
+    }
+    else
+    {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
-
-    /*	Casting device twin state examples
-
-            float value = *(float*)deviceTwinBinding->propertyValue;
-            double value = *(double*)deviceTwinBinding->propertyValue;
-            int value = *(int*)deviceTwinBinding->propertyValue;
-            bool value = *(bool*)deviceTwinBinding->propertyValue;
-            char* value = (char*)deviceTwinBinding->propertyValue;
-    */
 }
+DX_END_DEVICETWIN_HANDLER
 
-// Direct method name = LightControl, json payload = {"State": true }
-static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+DX_DEFINE_DIRECTMETHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
 {
-    char state_str[] = "State";
-    bool requested_state;
-
-    JSON_Object *jsonObject = json_value_get_object(json);
-    if (jsonObject == NULL) {
-        return DX_METHOD_FAILED;
-    }
-
-    requested_state = (bool)json_object_get_boolean(jsonObject, state_str);
-
-    dx_gpioStateSet(&gpio_led, requested_state);
-
+    DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
+    dx_gpioStateSet(led, true);
     return DX_METHOD_SUCCEEDED;
+}
+DX_END_DIRECTMETHOD_HANDLER
+
+DX_DEFINE_DIRECTMETHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
+{
+    DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
+    dx_gpioStateSet(led, false);
+    return DX_METHOD_SUCCEEDED;
+}
+DX_END_DIRECTMETHOD_HANDLER
+
+static void StartupReport(bool connected)
+{
+    // This is the first connect so update device start time UTC and software version
+    dx_deviceTwinReportValue(&dt_deviceStartUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
+    snprintf(msgBuffer, sizeof(msgBuffer), "Sample version: %s, DevX version: %s", SAMPLE_VERSION_NUMBER, AZURE_SPHERE_DEVX_VERSION);
+    dx_deviceTwinReportValue(&dt_softwareVersion, msgBuffer);
+    dx_azureUnregisterConnectionChangedNotification(StartupReport);
 }
 
 static void NetworkConnectionState(bool connected)
 {
-    static bool first_time = true;
-
-    if (first_time && connected) {
-        first_time = false;
-
-        // This is the first connect so update device start time UTC and software version
-        dx_deviceTwinReportValue(&dt_deviceStartUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-        snprintf(msgBuffer, sizeof(msgBuffer), "Sample version: %s, DevX version: %s", SAMPLE_VERSION_NUMBER, AZURE_SPHERE_DEVX_VERSION);
-        dx_deviceTwinReportValue(&dt_softwareVersion, msgBuffer);
-    }
-
-    if (connected) {
-        dx_deviceTwinReportValue(&dt_deviceConnectUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-    }
-
+    azure_connected = connected;
     dx_gpioStateSet(&gpio_network_led, connected);
 }
 
@@ -164,6 +158,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
+    dx_azureRegisterConnectionChangedNotification(StartupReport);
     dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
 }
 
@@ -183,22 +178,16 @@ int main(int argc, char *argv[])
 {
     dx_registerTerminationHandler();
 
-    if (!dx_configParseCmdLineArguments(argc, argv, &dx_config)) {
+    if (!dx_configParseCmdLineArguments(argc, argv, &dx_config))
+    {
         return dx_getTerminationExitCode();
     }
 
     InitPeripheralsAndHandlers();
 
-    // Main loop
-    while (!dx_isTerminationRequired()) {
-        int result = EventLoop_Run(dx_timerGetEventLoop(), -1, true);
-        // Continue if interrupted by signal, e.g. due to breakpoint being set.
-        if (result == -1 && errno != EINTR) {
-            dx_terminate(DX_ExitCode_Main_EventLoopFail);
-        }
-    }
+    // This call blocks until termination requested
+    dx_eventLoopRun();
 
     ClosePeripheralsAndHandlers();
-    Log_Debug("Application exiting.\n");
     return dx_getTerminationExitCode();
 }
