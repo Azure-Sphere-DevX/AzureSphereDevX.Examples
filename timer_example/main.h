@@ -15,10 +15,13 @@ static void oneShotHandler(EventLoopTimer *eventLoopTimer);
  * Timer Bindings
  ****************************************************************************************/
 static DX_TIMER_BINDING periodicTimer = {
-    .period = {6, 0}, .name = "periodicTimer", .handler = PeriodicHandler};
+    .repeat = &(struct timespec){6, 0}, .name = "periodicTimer", .handler = PeriodicHandler};
 
-// a timer with no period specified or a zero period are initialized as oneshot timers
-static DX_TIMER_BINDING oneShotTimer = {.name = "oneShotTimer", .handler = oneShotHandler};
+// A timer with no period specified or a zero period are initialized as disarmed oneshot timers
+// A timer initialized with a delay will fire once with the delay expires
+static DX_TIMER_BINDING oneShotTimer = {.delay = &(struct timespec){2, 500 * ONE_MS},
+                                        .name = "oneShotTimer",
+                                        .handler = oneShotHandler};
 
 // All timers referenced in timers with be opened in the InitPeripheralsAndHandlers function
 DX_TIMER_BINDING *timers[] = {&periodicTimer, &oneShotTimer};

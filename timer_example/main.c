@@ -65,8 +65,6 @@ static void PeriodicHandler(EventLoopTimer *eventLoopTimer)
 static void InitPeripheralsAndHandlers(void)
 {
     dx_timerSetStart(timers, NELEMS(timers));
-    // set the oneshot timer to fire
-    dx_timerOneShotSet(&oneShotTimer, &(struct timespec){2, 500 * ONE_MS});
 }
 
 /// <summary>
