@@ -99,7 +99,7 @@ static DX_DEFINE_TIMER_HANDLER(report_properties_handler)
 }
 DX_END_TIMER_HANDLER
 
-static DX_DEFINE_DEVICETWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
+static DX_DEFINE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -114,23 +114,23 @@ static DX_DEFINE_DEVICETWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBi
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
-DX_END_DEVICETWIN_HANDLER
+DX_END_DEVICE_TWIN_HANDLER
 
-DX_DEFINE_DIRECTMETHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
+DX_DEFINE_DIRECT_METHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
 {
     DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
     dx_gpioStateSet(led, true);
     return DX_METHOD_SUCCEEDED;
 }
-DX_END_DIRECTMETHOD_HANDLER
+DX_END_DIRECT_METHOD_HANDLER
 
-DX_DEFINE_DIRECTMETHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
+DX_DEFINE_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
 {
     DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
     dx_gpioStateSet(led, false);
     return DX_METHOD_SUCCEEDED;
 }
-DX_END_DIRECTMETHOD_HANDLER
+DX_END_DIRECT_METHOD_HANDLER
 
 static void StartupReport(bool connected)
 {

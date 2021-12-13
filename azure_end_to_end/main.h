@@ -19,9 +19,9 @@
 #define SAMPLE_VERSION_NUMBER "1.0"
 
 // Forward declarations
-static DX_DECLARE_DEVICETWIN_HANDLER(dt_desired_sample_rate_handler);
-static DX_DECLARE_DIRECTMETHOD_HANDLER(LightOffHandler);
-static DX_DECLARE_DIRECTMETHOD_HANDLER(LightOnHandler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(LightOffHandler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(LightOnHandler);
 static DX_DECLARE_TIMER_HANDLER(publish_message_handler);
 static DX_DECLARE_TIMER_HANDLER(read_sensor_handler);
 static DX_DECLARE_TIMER_HANDLER(report_properties_handler);
