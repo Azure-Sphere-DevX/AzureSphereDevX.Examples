@@ -33,7 +33,7 @@
 
 #include "main.h"
 
-static DX_DEFINE_TIMER_HANDLER(publish_message_handler)
+static DX_TIMER_HANDLER(publish_message_handler)
 {
     static int msgId = 0;
 
@@ -59,19 +59,19 @@ static DX_DEFINE_TIMER_HANDLER(publish_message_handler)
         }
     }
 }
-DX_END_TIMER_HANDLER
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Generate some fake sensor data
 /// </summary>
-DX_DEFINE_TIMER_HANDLER(read_sensor_handler)
+DX_TIMER_HANDLER(read_sensor_handler)
 {
     environment.latest.temperature = 25;
     environment.latest.humidity = 55;
     environment.latest.pressure = 1050;
     environment.validated = true;
 }
-DX_END_TIMER_HANDLER
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Determine if environment value changed. If so, update it's device twin
@@ -88,7 +88,7 @@ static void device_twin_update(int *latest_value, int *previous_value, DX_DEVICE
     }
 }
 
-static DX_DEFINE_TIMER_HANDLER(report_properties_handler)
+static DX_TIMER_HANDLER(report_properties_handler)
 {
     if (azure_connected && environment.validated)
     {
@@ -97,9 +97,9 @@ static DX_DEFINE_TIMER_HANDLER(report_properties_handler)
         device_twin_update(&environment.latest.humidity, &environment.previous.humidity, &dt_humidity);
     }
 }
-DX_END_TIMER_HANDLER
+DX_TIMER_HANDLER_END
 
-static DX_DEFINE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -114,23 +114,23 @@ static DX_DEFINE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinB
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
-DX_END_DEVICE_TWIN_HANDLER
+DX_DEVICE_TWIN_HANDLER_END
 
-DX_DEFINE_DIRECT_METHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
+DX_DIRECT_METHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
 {
     DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
     dx_gpioStateSet(led, true);
     return DX_METHOD_SUCCEEDED;
 }
-DX_END_DIRECT_METHOD_HANDLER
+DX_DIRECT_METHOD_END
 
-DX_DEFINE_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
+DX_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
 {
     DX_GPIO_BINDING *led = (DX_GPIO_BINDING *)directMethodBinding->context;
     dx_gpioStateSet(led, false);
     return DX_METHOD_SUCCEEDED;
 }
-DX_END_DIRECT_METHOD_HANDLER
+DX_DIRECT_METHOD_END
 
 static void StartupReport(bool connected)
 {
