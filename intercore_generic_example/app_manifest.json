@@ -1,14 +1,18 @@
 {
   "SchemaVersion": 1,
-  "Name": "azure_end_to_end",
-  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "Name": "generic_rtApp_interface",
+  "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "REPLACE_WITH_YOUR_ID_SCOPE" ],
   "Capabilities": {
-    "Gpio": [ "$NETWORK_CONNECTED_LED", "$LED2" ],
+    "Gpio": [],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
       "REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+    ],
+    "AllowedApplicationConnections": [
+      "f6768b9a-e086-4f5a-8219-5ffe9684b001",
+      "f6768b9a-e086-4f5a-8219-5ffe9684b002"
     ],
     "DeviceAuthentication": "REPLACE_WITH_YOUR_AZURE_SPHERE_TENANT_ID"
   },

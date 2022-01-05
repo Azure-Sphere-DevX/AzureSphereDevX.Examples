@@ -33,60 +33,35 @@
 
 #include "main.h"
 
-static void publish_message_handler(EventLoopTimer *eventLoopTimer)
+// Globals 
+static bool rt_app1_running = false;
+static bool rt_app2_running = false;
+
+static void request_telemetry_handler(EventLoopTimer *eventLoopTimer)
 {
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
         return;
     }
 
-    double temperature = 36.0;
-    double humidity = 55.0;
-    double pressure = 1100;
-    static int msgId = 0;
+    Log_Debug("Request telemetry from the RTApp(s)\n");
 
-    if (dx_isAzureConnected()) {
+    if(rt_app1_running){
 
-        // Serialize telemetry as JSON
-        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 4, 
-            DX_JSON_INT, "MsgId", msgId++, 
-            DX_JSON_DOUBLE, "Temperature", temperature, 
-            DX_JSON_DOUBLE, "Humidity", humidity, 
-            DX_JSON_DOUBLE, "Pressure", pressure);
-
-        if (serialization_result) {
-
-            Log_Debug("%s\n", msgBuffer);
-
-            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
-
-        } else {
-            Log_Debug("JSON Serialization failed: Buffer too small\n");
-            dx_terminate(APP_ExitCode_Telemetry_Buffer_Too_Small);
-        }
-    }
-}
-
-static void report_properties_handler(EventLoopTimer *eventLoopTimer)
-{
-    float temperature = 25.05f;
-    double humidity = 60.25;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
+        // Send IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY message to realtime core app one
+        memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
+        ic_tx_block.cmd = IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY;
+        dx_intercorePublish(&intercore_app1, &ic_tx_block,
+                            sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
     }
 
-    if (dx_isAzureConnected()) {
+    if(rt_app2_running){
 
-        // Update twin with current UTC (Universal Time Coordinate) in ISO format
-        dx_deviceTwinReportValue(&dt_reported_utc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-
-        // The type passed in must match the Divice Twin Type DX_DEVICE_TWIN_FLOAT
-        dx_deviceTwinReportValue(&dt_reported_temperature, &temperature);
-
-        // The type passed in must match the Divice Twin Type DX_DEVICE_TWIN_DOUBLE
-        dx_deviceTwinReportValue(&dt_reported_humidity, &humidity);
+        // Send IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY message to realtime core app two
+        memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
+        ic_tx_block.cmd = IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY;
+        dx_intercorePublish(&intercore_app2, &ic_tx_block,
+                            sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
     }
 }
 
@@ -97,60 +72,75 @@ static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
     // validate data is sensible range before applying
     if (sample_rate_seconds >= 0 && sample_rate_seconds <= 120) {
 
+        Log_Debug("New sample rate: %d seconds\n", sample_rate_seconds);
+
         dx_timerChange(&tmr_publish_message, &(struct timespec){sample_rate_seconds, 0});
-
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-
-    } else {
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_ERROR);
+        dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
     }
-
-    /*	Casting device twin state examples
-
-            float value = *(float*)deviceTwinBinding->propertyValue;
-            double value = *(double*)deviceTwinBinding->propertyValue;
-            int value = *(int*)deviceTwinBinding->propertyValue;
-            bool value = *(bool*)deviceTwinBinding->propertyValue;
-            char* value = (char*)deviceTwinBinding->propertyValue;
-    */
 }
 
-// Direct method name = LightControl, json payload = {"State": true }
-static DX_DIRECT_METHOD_RESPONSE_CODE TelemetryIntervalHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static void dt_auto_telemetry_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
-    char state_str[] = "State";
-    bool requested_state;
+    int telemetry_time_seconds = *(int *)deviceTwinBinding->propertyValue;
 
-    JSON_Object *jsonObject = json_value_get_object(json);
-    if (jsonObject == NULL) {
-        return DX_METHOD_FAILED;
+    // validate data is sensible range before applying
+    if (telemetry_time_seconds >= 0 && telemetry_time_seconds <= 86400) { // 0 (off) to 24hrs
+
+        Log_Debug("New auto telemetry rate: %d seconds\n", telemetry_time_seconds);
+
+        // Verify that we have a non-NULL context pointer.  The pointer references a intercore binding 
+        if(deviceTwinBinding->context != NULL){
+
+            DX_INTERCORE_BINDING myBinding = *(DX_INTERCORE_BINDING *)deviceTwinBinding->context;
+
+            // Send IC_GENERIC_SAMPLE_RATE message to realtime core app one
+            memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
+            ic_tx_block.cmd = IC_GENERIC_SAMPLE_RATE;
+            ic_tx_block.sensorSampleRate = telemetry_time_seconds;
+            dx_intercorePublish(&myBinding, &ic_tx_block,
+                                sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));           
+
+        }
+      
+        dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
     }
-
-    requested_state = (bool)json_object_get_boolean(jsonObject, state_str);
-
-    dx_gpioStateSet(&gpio_led, requested_state);
-
-    return DX_METHOD_SUCCEEDED;
 }
 
-static void NetworkConnectionState(bool connected)
+/// <summary>
+/// Callback handler for Asynchronous Inter-Core Messaging Pattern
+/// </summary>
+static void IntercoreResponseHandler(void *data_block, ssize_t message_length)
 {
-    static bool first_time = true;
+    IC_COMMAND_BLOCK_GENERIC_RT_TO_HL *ic_message_block = (IC_COMMAND_BLOCK_GENERIC_RT_TO_HL *)data_block;
 
-    if (first_time && connected) {
-        first_time = false;
+    switch (ic_message_block->cmd) {
+        
+    case IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        Log_Debug("IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY recieved\n");
 
-        // This is the first connect so update device start time UTC and software version
-        dx_deviceTwinReportValue(&dt_deviceStartUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-        snprintf(msgBuffer, sizeof(msgBuffer), "Sample version: %s, DevX version: %s", SAMPLE_VERSION_NUMBER, AZURE_SPHERE_DEVX_VERSION);
-        dx_deviceTwinReportValue(&dt_softwareVersion, msgBuffer);
+        Log_Debug("Tx telemetry: %s\n", ic_message_block->telemetryJSON);
+
+        // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
+        if(dx_isAzureConnected()){
+            dx_azurePublish(ic_message_block->telemetryJSON, strnlen(ic_message_block->telemetryJSON, JSON_STRING_MAX_SIZE), 
+                            messageProperties, NELEMS(messageProperties), &contentProperties);
+
+        }
+        break;
+
+    // Handle all other cases by doing nothing . . .
+    case IC_GENERIC_UNKNOWN:
+        Log_Debug("RX IC_GENERIC_UNKNOWN response\n");
+        break;
+    case IC_GENERIC_SAMPLE_RATE:
+        Log_Debug("RX IC_GENERIC_SAMPLE_RATE response\n");
+        break;
+    case IC_GENERIC_HEARTBEAT:
+        Log_Debug("RX IC_GENERIC_HEARTBEAT response\n");
+        break;
+    default:
+        break;
     }
-
-    if (connected) {
-        dx_deviceTwinReportValue(&dt_deviceConnectUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-    }
-
-    dx_gpioStateSet(&gpio_network_led, connected);
 }
 
 /// <summary>
@@ -159,12 +149,43 @@ static void NetworkConnectionState(bool connected)
 static void InitPeripheralsAndHandlers(void)
 {
     dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
-    dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
-    dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
-    dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
+    // Initialize asynchronous inter-core messaging
+    if(dx_intercoreConnect(&intercore_app1)){
+        rt_app1_running = true;
+
+        // Force the auto Telemetry feature off
+        memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
+        ic_tx_block.cmd = IC_GENERIC_SAMPLE_RATE;
+        ic_tx_block.sensorSampleRate = 0;
+        dx_intercorePublish(&intercore_app1, &ic_tx_block,
+                            sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
+
+        Log_Debug("RTApp1 present and running!\n");
+    }
+    else{
+        Log_Debug("RTApp1 Not found!\n");
+    }
+
+    // Initialize asynchronous inter-core messaging
+    if(dx_intercoreConnect(&intercore_app2)){
+        rt_app2_running = true;
+
+        // Force the auto Telemetry feature off
+        memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
+        ic_tx_block.cmd = IC_GENERIC_SAMPLE_RATE;
+        ic_tx_block.sensorSampleRate = 0;
+        dx_intercorePublish(&intercore_app2, &ic_tx_block,
+                            sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
+
+        Log_Debug("RTApp2 present and running!\n");
+    }
+    else{
+        Log_Debug("RTApp2 Not found!\n");
+    }
+
 }
 
 /// <summary>
@@ -174,8 +195,6 @@ static void ClosePeripheralsAndHandlers(void)
 {
     dx_timerSetStop(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinUnsubscribe();
-    dx_directMethodUnsubscribe();
-    dx_gpioSetClose(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerEventLoopStop();
 }
 
