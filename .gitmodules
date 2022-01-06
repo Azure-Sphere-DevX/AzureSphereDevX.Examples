@@ -128,3 +128,9 @@
 	path = avnet_end_to_end/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
 
+[submodule ".\\intercore_generic_example\\AzureSphereDevX"]
+	path = .\\intercore_generic_example\\AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule ".\\intercore_generic_example\\HardwareDefinitions"]
+	path = .\\intercore_generic_example\\HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
