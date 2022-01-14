@@ -317,21 +317,21 @@ static void ReadWifiConfig(bool outputDebug){
 	}
 	else 
 	{
-        network_data.frequency_MHz = network.frequencyMHz;
-        network_data.rssi = network.signalRssi;
-		snprintf(bssid, BSSID_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x",
-			network.bssid[0], network.bssid[1], network.bssid[2], 
-			network.bssid[3], network.bssid[4], network.bssid[5]);
-
-        // Clear the ssid array
-        memset(network_data.SSID, 0, WIFICONFIG_SSID_MAX_LENGTH);
-        strncpy(network_data.SSID, network.ssid, network.ssidLength);
 
         // Make sure we're connected to the IoTHub before updating the local variable or sending device twin updates
         if (dx_isAzureConnected()) {
 
             // Check to see if the SSID changed, if so update the SSID and send updated device twins properties
             if (strncmp(network_data.SSID, (char*)&network.ssid, network.ssidLength)!=0 ) {
+
+                network_data.frequency_MHz = network.frequencyMHz;
+                network_data.rssi = network.signalRssi;
+                snprintf(bssid, BSSID_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x", network.bssid[0], network.bssid[1], network.bssid[2], network.bssid[3], network.bssid[4],
+                         network.bssid[5]);
+
+                // Clear the ssid array
+                memset(network_data.SSID, 0, WIFICONFIG_SSID_MAX_LENGTH);
+                strncpy(network_data.SSID, network.ssid, network.ssidLength);
 
 #ifdef IOT_HUB_APPLICATION
                 // Note that we send up this data to Azure if it changes, but the IoT Central Properties elements only 
