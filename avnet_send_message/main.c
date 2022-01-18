@@ -35,9 +35,30 @@
 
 static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 {
+
+    static int pollTime = 15;
+
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
         return;
+    }
+
+    // Get any telemetry frequency updates from the IoTConnecty library
+    int ioTConnectPollTime = dx_avnetGetTelemetryPeriod();
+
+    // If the poll frequency is 0, then IoT Connect requested that the 
+    // application stop sending telemetry, return without sending any
+    // telemetry.
+    if(ioTConnectPollTime == 0){
+        return;
+    }
+
+    // Verify we have received an updated frequency time from IoTConnect
+    if(ioTConnectPollTime > 0){
+        if (ioTConnectPollTime != pollTime){
+            pollTime = ioTConnectPollTime;
+            dx_timerChange(&publish_message, &(struct timespec){.tv_sec = pollTime, .tv_nsec = 0});
+        }
     }
 
     double temperature = 36.0;
@@ -54,10 +75,12 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
                 DX_JSON_DOUBLE, "Humidity", humidity, 
                 DX_JSON_DOUBLE, "Pressure", pressure);
 
-
         if (serialization_result) {
 
             Log_Debug("%s\n", msgBuffer);
+
+            // Neerav, put the call to your new validation routine here and remove the dx_azurePublish() call since the
+            // new routine will send the telemetry with the correct mt value.
 
             dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
 
