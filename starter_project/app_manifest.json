@@ -10,7 +10,7 @@
       "global.azure-devices-provisioning.net",
       "TODO_REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
     ],
-    "DeviceAuthentication": "TODO_REPLACE_WITH_YOUR_AZURE_SPHERE_TENANT_ID"
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000"
   },
   "ApplicationType": "Default"
 }

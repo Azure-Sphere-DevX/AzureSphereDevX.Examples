@@ -23,7 +23,7 @@ else()
     # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
 
     azsphere_configure_tools(TOOLS_REVISION "21.07")
-    azsphere_configure_api(TARGET_API_SET "10")
+    azsphere_configure_api(TARGET_API_SET "11")
 
 endif()
 
@@ -40,28 +40,28 @@ set(BOARD_COUNTER 0)
 if(AVNET)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk" TARGET_DEFINITION "sample_appliance.json")
     message(STATUS "Azure Sphere board selected: AVNET REV 1")
 endif(AVNET)
 
 if(AVNET_REV_2)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_AVNET=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/avnet_mt3620_sk_rev2" TARGET_DEFINITION "sample_appliance.json")
     message(STATUS "Azure Sphere board selected: AVNET REV 2")
 endif(AVNET_REV_2)
 
 if (SEEED_STUDIO_RDB)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_SEEED_STUDIO=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "sample_appliance.json")
     message(STATUS "Azure Sphere board selected: SEEED STUDIO RDB")
 endif()
 
 if (SEEED_STUDIO_MINI)
     MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
     add_definitions( -DOEM_SEEED_STUDIO_MINI=TRUE )    
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "azure_sphere_learning_path.json")
+    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "sample_appliance.json")
     message(STATUS "Azure Sphere board selected: SEEED STUDIO MINI")
 endif(SEEED_STUDIO_MINI)
 
