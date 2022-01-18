@@ -1,15 +1,96 @@
 [submodule "avnet_send_message/AzureSphereDevX"]
 	path = avnet_send_message/AzureSphereDevX
-	url = https://github.com/bawilless/AzureSphereDevX.git
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
 [submodule "avnet_send_message/HardwareDefinitions"]
 	path = avnet_send_message/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
-[submodule "starter_project/AzureSphereDevX"]	
-	path = starter_project/AzureSphereDevX	
+[submodule "azure_end_to_end/AzureSphereDevX"]
+	path = azure_end_to_end/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "azure_end_to_end/HardwareDefinitions"]
+	path = azure_end_to_end/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "azure_send_message/AzureSphereDevX"]
+	path = azure_send_message/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "azure_send_message/HardwareDefinitions"]
+	path = azure_send_message/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "deferred_update/AzureSphereDevX"]
+	path = deferred_update/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "deferred_update/HardwareDefinitions"]
+	path = deferred_update/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "device_twins/AzureSphereDevX"]
+	path = device_twins/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "device_twins/HardwareDefinitions"]
+	path = device_twins/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "direct_methods/AzureSphereDevX"]
+	path = direct_methods/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "direct_methods/HardwareDefinitions"]
+	path = direct_methods/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "gpio_example/AzureSphereDevX"]
+	path = gpio_example/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "gpio_example/HardwareDefinitions"]
+	path = gpio_example/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "little_fs_on_mutable_storage/AzureSphereDevX"]
+	path = little_fs_on_mutable_storage/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "little_fs_on_mutable_storage/HardwareDefinitions"]
+	path = little_fs_on_mutable_storage/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "monitor_memory_usage/AzureSphereDevX"]
+	path = monitor_memory_usage/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "monitor_memory_usage/HardwareDefinitions"]
+	path = monitor_memory_usage/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "starter_project/AzureSphereDevX"]
+	path = starter_project/AzureSphereDevX
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
 [submodule "starter_project/HardwareDefinitions"]
 	path = starter_project/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "timer_example/AzureSphereDevX"]
+	path = timer_example/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "timer_example/HardwareDefinitions"]
+	path = timer_example/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "uart_example/AzureSphereDevX"]
+	path = uart_example/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "uart_example/HardwareDefinitions"]
+	path = uart_example/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "intercore_example/HighLevelApp/AzureSphereDevX"]
+	path = intercore_example/HighLevelApp/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "intercore_example/HighLevelApp/HardwareDefinitions"]
+	path = intercore_example/HighLevelApp/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "little_fs_on_mutable_storage/littlefs"]
+	path = little_fs_on_mutable_storage/littlefs
+	url = https://github.com/littlefs-project/littlefs.git
+[submodule "intercore_example/RealTimeAppOne/mt3620_m4_software"]
+	path = intercore_example/RealTimeAppOne/mt3620_m4_software
+	url = https://github.com/MediaTek-Labs/mt3620_m4_software.git
+[submodule "intercore_example/RealTimeAppTwo/mt3620_m4_software"]
+	path = intercore_example/RealTimeAppTwo/mt3620_m4_software
+	url = https://github.com/MediaTek-Labs/mt3620_m4_software.git
+[submodule "error_reporting/HardwareDefinitions"]
+	path = error_reporting/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "error_reporting/AzureSphereDevX"]
+	path = error_reporting/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
 [submodule "avnet_sk_demo/HardwareDefinitions"]
 	path = avnet_sk_demo/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
