@@ -1,5 +1,5 @@
 
-#include "hw/azure_sphere_learning_path.h" // Hardware definition
+#include "hw/sample_appliance.h" // Hardware definition
 #include "app_exit_codes.h"
 #include "dx_azure_iot.h"
 #include "dx_config.h"
