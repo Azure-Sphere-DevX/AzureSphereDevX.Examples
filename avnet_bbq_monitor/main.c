@@ -42,9 +42,109 @@
 #include "main.h"
 
 /****************************************************************************************
+ * Globals with defaults
+ ****************************************************************************************/
+static meat_t meatType = STEAK;
+static steak_order_t steakOrderTemp = MEDIUM_RARE; 
+static int targetTempPolo = 165;
+static int targetTempSwine = 145;
+static int overDoneDelta = 5;
+
+/****************************************************************************************
  * Implementation
  ****************************************************************************************/
-// TODO: Add all your handlers and helper functions here
+static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+{
+    int tempMeatType = *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(tempMeatType, STEAK, SWINE)){
+
+        meatType = tempMeatType;
+        Log_Debug("New target meat: %d\n", meatType);
+
+        // Ack the reported value back to IoTCentral
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
+    }
+    else{
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, &meatType, DX_DEVICE_TWIN_RESPONSE_ERROR);
+    }
+}
+
+static void dt_target_temp_steak_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+{
+    int tempSteakOrderTemp = *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(tempSteakOrderTemp, RARE, WELL_DONE)){
+
+        steakOrderTemp = tempSteakOrderTemp;
+        Log_Debug("New steak order temp: %d\n", steakOrderTemp);
+
+        // Ack the reported value back to IoTCentral
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
+    }
+    else{
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, &steakOrderTemp, DX_DEVICE_TWIN_RESPONSE_ERROR);
+    }
+
+}
+
+static void dt_target_temp_polo_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+{
+    int tempTargetTempPolo= *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(tempTargetTempPolo, 165, 180)){
+
+        targetTempPolo = tempTargetTempPolo;
+        Log_Debug("New target temp Polo: %d\n", targetTempPolo);
+
+        // Ack the reported value back to IoTCentral
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
+    }
+    else{
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, &targetTempPolo, DX_DEVICE_TWIN_RESPONSE_ERROR);
+    }
+
+}
+
+static void dt_target_temp_swine_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+{
+    int tempTargetTempSwine= *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(tempTargetTempSwine, 145, 160)){
+
+        targetTempSwine = tempTargetTempSwine;
+        Log_Debug("New target temp Swine: %d\n", targetTempSwine);
+
+        // Ack the reported value back to IoTCentral
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
+    }
+    else{
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, &targetTempSwine, DX_DEVICE_TWIN_RESPONSE_ERROR);
+    }
+
+}
+
+static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+{
+    int tempOverDoneDelta= *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(tempOverDoneDelta, 1, 20)){
+
+        overDoneDelta = tempOverDoneDelta;
+        Log_Debug("New over done delta: %d\n", overDoneDelta);
+
+        // Ack the reported value back to IoTCentral
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
+    }
+    else{
+        dx_deviceTwinAckDesiredValue(deviceTwinBinding, &overDoneDelta, DX_DEVICE_TWIN_RESPONSE_ERROR);
+    }
+}
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.

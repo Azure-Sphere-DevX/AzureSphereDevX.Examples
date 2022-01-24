@@ -8,6 +8,7 @@
 #include "dx_timer.h"
 #include "dx_utilities.h"
 #include "dx_direct_methods.h"
+#include "dx_device_twins.h"
 #include "dx_version.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
@@ -37,12 +38,28 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
-// TODO: Add any application constants
+typedef enum {
+    STEAK = 0,
+    POLO  = 1,
+    SWINE = 2
+} meat_t;
+
+typedef enum{
+    RARE = 125,
+    MEDIUM_RARE = 130,
+    MEDIUM      = 135,
+    MEDIUM_WELL = 140,
+    WELL_DONE   = 155
+} steak_order_t;
 
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
-// TODO: Add all Forward declarations here or in main.c
+static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static void dt_target_temp_steak_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static void dt_target_temp_polo_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static void dt_target_temp_swine_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
 
 /****************************************************************************************
  * Telemetry message buffer property sets
@@ -64,11 +81,11 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Bindings
  ****************************************************************************************/
-// TODO: Declare all bindings here, for example . . . 
-
-//static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
-//static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
-//static DX_TIMER_BINDING tmr_publish_message = {.period = {4, 0}, .name = "tmr_publish_message", .handler = publish_message_handler};
+static DX_DEVICE_TWIN_BINDING dt_target_meat = {.propertyName = "targetMeat", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_target_meat_handler};
+static DX_DEVICE_TWIN_BINDING dt_target_temp_steak = {.propertyName = "ttSteak", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_target_temp_steak_handler};
+static DX_DEVICE_TWIN_BINDING dt_target_temp_polo = {.propertyName = "ttPolo", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_target_temp_polo_handler};
+static DX_DEVICE_TWIN_BINDING dt_target_temp_swine = {.propertyName = "ttSwine", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_target_temp_swine_handler};
+static DX_DEVICE_TWIN_BINDING dt_target_over_temp = {.propertyName = "ttOverDone", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_temp_over_done_handler};
 
 /****************************************************************************************
  * Binding sets
@@ -76,7 +93,7 @@ DX_USER_CONFIG dx_config;
 // TODO: Update each binding set below with the bindings defined above.  Add bindings by reference, i.e., &dt_desired_sample_rate
 // These sets are used by the initailization code.
 
-DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {};
+DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_target_meat, &dt_target_temp_steak, &dt_target_temp_polo, &dt_target_temp_swine, &dt_target_over_temp};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {};
 DX_TIMER_BINDING *timer_bindings[] = {};
