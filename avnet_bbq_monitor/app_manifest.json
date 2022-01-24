@@ -3,14 +3,23 @@
   "Name": "avnet_bbq_monitor-V0",
   "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
   "EntryPoint": "/bin/app",
-  "CmdArgs": [ "--ScopeID", "TODO_REPLACE_WITH_YOUR_ID_SCOPE" ],
+  "CmdArgs": [ "--ScopeID", "0ne00495410" ],
   "Capabilities": {
     "Gpio": [],
     "AllowedConnections": [
-      "global.azure-devices-provisioning.net",
-      "TODO_REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+    "global.azure-devices-provisioning.net",
+      "iotc-692809f4-73ee-4b6c-a797-0de83767ff24.azure-devices.net",
+      "iotc-5b4ae0cb-191a-4b5e-95e0-7f391d822fbc.azure-devices.net",
+      "iotc-c3bdd3f4-6366-40b1-9b53-b754261fdb0f.azure-devices.net",
+      "iotc-8a1cbadb-05ea-4d9c-8a88-a8388724d793.azure-devices.net",
+      "iotc-9c092cfd-716f-4106-928d-eec6b4a835c8.azure-devices.net",
+      "iotc-c667ed78-1400-4400-b306-4e613b098c95.azure-devices.net",
+      "iotc-a7337735-c0c8-496f-96cc-5aafcec21a17.azure-devices.net",
+      "iotc-63c8cdc2-a051-4781-979d-71cb12afaf11.azure-devices.net",
+      "iotc-9646b081-ff81-4041-9ed7-00700e1028c6.azure-devices.net",
+      "iotc-bcd9e3a3-e6c0-4f78-bc93-c332266e09c9.azure-devices.net"
     ],
-    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000"
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
   },
   "ApplicationType": "Default"
 }

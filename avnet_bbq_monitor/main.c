@@ -54,7 +54,7 @@ static void InitPeripheralsAndHandlers(void)
 #ifdef USE_AVNET_IOTCONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
-//    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
+    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
 #endif     
     
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
