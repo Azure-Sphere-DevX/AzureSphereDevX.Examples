@@ -133,3 +133,9 @@
 [submodule "intercore_generic_example/HardwareDefinitions"]
 	path = intercore_generic_example/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "device_twins_json_object/AzureSphereDevX"]
+	path = device_twins_json_object/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "device_twins_json_object/HardwareDefinitions"]
+	path = device_twins_json_object/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
