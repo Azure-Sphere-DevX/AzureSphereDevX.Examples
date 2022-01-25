@@ -1,9 +1,9 @@
-#  Copyright (c) Microsoft Corporation. All rights reserved.
+#  Copyright (c) Avnet Incorporated. All rights reserved.
 #  Licensed under the MIT License.
 
 cmake_minimum_required (VERSION 3.10)
 
-project (device_twins_example C)
+project (device_twins_json_object_example C)
 
 # Check if there is a global azsphere_board.cmake file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
@@ -23,7 +23,7 @@ else()
     # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
 
     azsphere_configure_tools(TOOLS_REVISION "21.07")
-    azsphere_configure_api(TARGET_API_SET "10")
+    azsphere_configure_api(TARGET_API_SET "11")
 
 endif()
 
