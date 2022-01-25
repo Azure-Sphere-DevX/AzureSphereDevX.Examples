@@ -122,7 +122,7 @@ DX_DIRECT_METHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
     dx_gpioStateSet(led, true);
     return DX_METHOD_SUCCEEDED;
 }
-DX_DIRECT_METHOD_END
+DX_DIRECT_METHOD_HANDLER_END
 
 DX_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
 {
@@ -130,7 +130,7 @@ DX_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg
     dx_gpioStateSet(led, false);
     return DX_METHOD_SUCCEEDED;
 }
-DX_DIRECT_METHOD_END
+DX_DIRECT_METHOD_HANDLER_END
 
 static void StartupReport(bool connected)
 {
