@@ -23,25 +23,15 @@
 
 #include "main.h"
 
-static void monitor_wifi_network_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(monitor_wifi_network_handler)
 {
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(ExitCode_ConsumeEventLoopWifiMonitor);
-        return;
-    }
-
     ReadWifiConfig(true);
 }
+DX_TIMER_HANDLER_END
 
-static void read_sensors_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(read_sensors_handler)
 {
     static bool firstPass = true;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(ExitCode_ConsumeEventLoopReadSensors);
-        return;
-    }
 
     // Read the sensors
     acceleration_g = lp_get_acceleration();
@@ -107,6 +97,7 @@ static void read_sensors_handler(EventLoopTimer *eventLoopTimer)
     // Send the latest readings up as telemetry
     publish_message_handler();
 }
+DX_TIMER_HANDLER_END
 
 static void publish_message_handler(void)
 {
@@ -191,7 +182,7 @@ static void publish_message_handler(void)
 #endif // IOT_HUB_APPLICATION    
 }
 
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -213,8 +204,9 @@ static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
 
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
-static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_gpio_handler, deviceTwinBinding)
 {
     bool gpio_level = *(bool *)deviceTwinBinding->propertyValue;
 
@@ -234,8 +226,9 @@ static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 #endif // USE_PNP
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
-static void dt_oled_message_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_oled_message_handler, deviceTwinBinding)
 {
     bool message_processed = true;
     
@@ -269,8 +262,9 @@ static void dt_oled_message_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 #endif // USE_PNP        
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
-static void dt_debug_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_debug_handler, deviceTwinBinding)
 {
     sensor_debug_enabled = *(bool*)deviceTwinBinding->propertyValue;
 #ifdef USE_PNP
@@ -280,6 +274,7 @@ static void dt_debug_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 #endif // USE_PNP
 
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 
 static void NetworkConnectionState(bool connected)
@@ -364,9 +359,8 @@ static void ReadWifiConfig(bool outputDebug){
 ///  Payload: {"delayTime": 0 < delay in seconds > 12*60*60}
 ///  Start Reboot Device Direct Method 'RebootDevice' {"delayTime":15}
 /// </summary>
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_restart_device_handler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
-{
-    
+static DX_DIRECT_METHOD_HANDLER(dm_restart_device_handler, json, directMethodBinding, responseMsg)
+{    
     char delay_str[] = "delayTime";
     int requested_delay_seconds;
 
@@ -392,13 +386,14 @@ static DX_DIRECT_METHOD_RESPONSE_CODE dm_restart_device_handler(JSON_Value *json
         return DX_METHOD_FAILED;
     }
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 /// <summary>
 ///  Function for rebootDevice directMethod
 ///  name: haltApplication
 ///  Payload: None
 /// </summary>
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_halt_device_handler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static DX_DIRECT_METHOD_HANDLER(dm_halt_device_handler, json, directMethodBinding, responseMsg)
 {
     
     int requested_delay_seconds = HALT_APPLICATION_DELAY_TIME_SECONDS;
@@ -407,27 +402,23 @@ static DX_DIRECT_METHOD_RESPONSE_CODE dm_halt_device_handler(JSON_Value *json, D
     dx_timerOneShotSet(&tmr_reboot, &(struct timespec){requested_delay_seconds, 0});
     return DX_METHOD_SUCCEEDED;
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 /// <summary>
 /// Restart the Device
 /// </summary>
-static void delay_restart_timer_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(delay_restart_timer_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(ExitCode_ConsumeEventLoopRestart);
-        return;
-    }
-
     PowerManagement_ForceSystemReboot();
 }
+DX_TIMER_HANDLER_END
 
 /// </summary>
 ///  name: setSensor
 ///  payload: {"pollTime": 0 > integer < 12 hours >}
 /// </summary>
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_set_sensor_poll_period(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
-{
-    
+static DX_DIRECT_METHOD_HANDLER(dm_set_sensor_poll_period, json, directMethodBinding, responseMsg)
+{    
     char poll_str[] = "pollTime";
     int requested_poll_time_seconds;
 
@@ -453,11 +444,12 @@ static DX_DIRECT_METHOD_RESPONSE_CODE dm_set_sensor_poll_period(JSON_Value *json
         return DX_METHOD_FAILED;    
     }
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 /// <summary>
 /// Handler to check for Button Presses
 /// </summary>
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
 {
     // Assume the device comes up with the buttons at rest
     static GPIO_Value_Type buttonAState = GPIO_Value_High;
@@ -466,11 +458,6 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
     // Variables for the current state
     GPIO_Value_Type button_a_state;
     GPIO_Value_Type button_b_state;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(ExitCode_ConsumeEventButtonHandler);
-        return;
-    }
 
     // Read both button states
     if(GPIO_GetValue(buttonA.fd, &button_a_state) < 0){
@@ -488,6 +475,7 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
     ProcessButtonState(button_a_state, &buttonAState, "buttonA");
     ProcessButtonState(button_b_state, &buttonBState, "buttonB");
 }
+DX_TIMER_HANDLER_END
 
 static void ProcessButtonState(GPIO_Value_Type new_state, GPIO_Value_Type* old_state, const char* telemetry_key){
 

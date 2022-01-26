@@ -41,26 +41,26 @@
 
 // Forward declarations
 //static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
-static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
-static void dt_oled_message_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_gpio_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_oled_message_handler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(dm_halt_device_handler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(dm_restart_device_handler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(dm_set_sensor_poll_period);
+static DX_DECLARE_TIMER_HANDLER(delay_restart_timer_handler);
+static DX_DECLARE_TIMER_HANDLER(monitor_wifi_network_handler);
+static DX_DECLARE_TIMER_HANDLER(read_sensors_handler);
 static void publish_message_handler(void);
-static void read_sensors_handler(EventLoopTimer *eventLoopTimer);
-static void monitor_wifi_network_handler(EventLoopTimer *eventLoopTimer);
-static void delay_restart_timer_handler(EventLoopTimer *eventLoopTimer);
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_restart_device_handler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_set_sensor_poll_period(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
-static DX_DIRECT_METHOD_RESPONSE_CODE dm_halt_device_handler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
 #ifdef OLED_SD1306
-static void UpdateOledEventHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(UpdateOledEventHandler);
 #endif // OLED_SD1306
 static void ReadWifiConfig(bool outputDebug);
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 #ifdef IOT_HUB_APPLICATION
 static void SendButtonTelemetry(const char* telemetry_key, GPIO_Value_Type button_state);
 #endif // IOT_HUB_APPLICATION
 static void ProcessButtonState(GPIO_Value_Type new_state, GPIO_Value_Type* old_state, const char* telemetry_key);
-static void dt_debug_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_debug_handler);
 #ifdef M4_INTERCORE_COMMS
 static void alsPt19_receive_msg_handler(void *data_block, ssize_t message_length);
 #endif // M4_INTERCORE_COMMS

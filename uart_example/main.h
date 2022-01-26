@@ -11,7 +11,7 @@
 #include <applibs/log.h>
 
 // Forward declarations
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 static void uart_rx_handler1(DX_UART_BINDING *uartBinding);
 
 /****************************************************************************************

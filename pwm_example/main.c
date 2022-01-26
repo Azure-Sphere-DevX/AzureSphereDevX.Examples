@@ -36,13 +36,8 @@
 /// <summary>
 /// Simple PWM example - 1kHz (1000 Hz), and alter duty cycle
 /// </summary>
-static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(update_led_pwm_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
 #ifdef OEM_SEEED_STUDIO_MINI
     // NO RGB LED so set PWM on the user LED
     static DX_PWM_BINDING *pwmLed = &pwm_user_led;
@@ -71,6 +66,7 @@ static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
 
     duty_cycle++;
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

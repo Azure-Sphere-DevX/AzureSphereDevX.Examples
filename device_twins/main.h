@@ -28,10 +28,10 @@ static char copy_of_property_value[LOCAL_DEVICE_TWIN_PROPERTY];
 DX_USER_CONFIG dx_config;
 
 // Forward declarations
-static void report_now_handler(EventLoopTimer *eventLoopTimer);
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
-static void dt_copy_string_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
-static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_copy_string_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_gpio_handler);
+static DX_DECLARE_TIMER_HANDLER(report_now_handler);
 
 static DX_MESSAGE_PROPERTY *sensorErrorProperties[] = {
     &(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"},

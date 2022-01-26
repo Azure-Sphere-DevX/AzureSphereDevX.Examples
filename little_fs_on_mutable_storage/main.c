@@ -85,15 +85,10 @@ static void read_little_fs(void) {
 /// <summary>
 /// Handler to check for Button Presses
 /// </summary>
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
 {
     static GPIO_Value_Type button_a_state;
     static bool operation_select = true;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
 
     if (dx_gpioStateGet(&button_a, &button_a_state)) {
 
@@ -106,6 +101,7 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
         operation_select = !operation_select;
     }
 }
+DX_TIMER_HANDLER_END
 
 
 static void init_little_fs(void)

@@ -25,8 +25,8 @@
 
 // Forward signatures
 static void IntercoreResponseHandler(void *data_block, ssize_t message_length);
-static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer);
-static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(IntercoreAsynchronousHandler);
+static DX_DECLARE_TIMER_HANDLER(IntercoreSynchronousHandler);
 
 INTER_CORE_BLOCK ic_block_asynchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
 INTER_CORE_BLOCK ic_block_synchronous = {.cmd = IC_UNKNOWN, .msgId = 0, .message = {0}};
