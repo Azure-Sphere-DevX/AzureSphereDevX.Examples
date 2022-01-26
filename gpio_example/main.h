@@ -10,9 +10,9 @@
 #include <applibs/log.h>
 
 // Forward declarations
-static void BlinkLedHandler(EventLoopTimer *eventLoopTimer);
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer);
-static void LedOffToggleHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(BlinkLedHandler);
+static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
+static DX_DECLARE_TIMER_HANDLER(LedOffToggleHandler);
 
 /****************************************************************************************
  * GPIO Peripherals

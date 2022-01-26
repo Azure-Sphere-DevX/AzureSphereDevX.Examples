@@ -34,13 +34,8 @@
 #include "main.h"
 
 // Validate sensor readings and report device twins
-static void report_now_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(report_now_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     if (!dx_isAzureConnected()) {
         return;
     }
@@ -80,8 +75,9 @@ static void report_now_handler(EventLoopTimer *eventLoopTimer)
         }
     }
 }
+DX_TIMER_HANDLER_END
 
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     // validate data is sensible range before applying
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
@@ -108,6 +104,7 @@ static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
             char* value = (char*)deviceTwinBinding->property_value;
     */
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 // check string contain only printable characters
 // ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q
@@ -123,7 +120,7 @@ bool IsDataValid(char *data)
 // Sample device twin handler that demonstrates how to manage string device twin types.  When an
 // application uses a string device twin, the application must make a local copy of the string on
 // any device twin update. This gives you memory control as strings can be of arbitrary length.
-static void dt_copy_string_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_copy_string_handler, deviceTwinBinding)
 {
     char *property_value = (char *)deviceTwinBinding->propertyValue;
 
@@ -146,13 +143,14 @@ static void dt_copy_string_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
                                      DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 // Set Network Connected state LED
 static void ConnectionStatus(bool connection_state) {
     dx_gpioStateSet(&network_connected_led, connection_state);
 }
 
-static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_gpio_handler, deviceTwinBinding)
 {
     // Verify that the context pointer is non-null
     if(deviceTwinBinding->context != NULL){
@@ -174,6 +172,7 @@ static void dt_gpio_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

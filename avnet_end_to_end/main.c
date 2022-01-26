@@ -33,13 +33,8 @@
 
 #include "main.h"
 
-static void publish_message_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(publish_message_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     double temperature = 36.0;
     double humidity = 55.0;
     double pressure = 1100;
@@ -67,16 +62,12 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
         }
     }
 }
+DX_TIMER_HANDLER_END
 
-static void report_properties_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(report_properties_handler)
 {
     float temperature = 25.05f;
     double humidity = 60.25;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
 
     if (dx_isAzureConnected()) {
 
@@ -90,8 +81,9 @@ static void report_properties_handler(EventLoopTimer *eventLoopTimer)
         dx_deviceTwinReportValue(&dt_reported_humidity, &humidity);
     }
 }
+DX_TIMER_HANDLER_END
 
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -115,9 +107,10 @@ static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
             char* value = (char*)deviceTwinBinding->propertyValue;
     */
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 // Direct method name = LightControl, json payload = {"State": true }
-static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static DX_DIRECT_METHOD_HANDLER(LightControlHandler, json, directMethodBinding, responseMsg)
 {
     char state_str[] = "State";
     bool requested_state;
@@ -133,20 +126,20 @@ static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(JSON_Value *json, DX_D
 
     return DX_METHOD_SUCCEEDED;
 }
+DX_DIRECT_METHOD_HANDLER_END
+
+
+static void StartupReport(bool connected)
+{
+    // This is the first connect so update device start time UTC and software version
+    dx_deviceTwinReportValue(&dt_deviceStartUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
+    snprintf(msgBuffer, sizeof(msgBuffer), "Sample version: %s, DevX version: %s", SAMPLE_VERSION_NUMBER, AZURE_SPHERE_DEVX_VERSION);
+    dx_deviceTwinReportValue(&dt_softwareVersion, msgBuffer);
+    dx_azureUnregisterConnectionChangedNotification(StartupReport);
+}
 
 static void NetworkConnectionState(bool connected)
 {
-    static bool first_time = true;
-
-    if (first_time && connected) {
-        first_time = false;
-
-        // This is the first connect so update device start time UTC and software version
-        dx_deviceTwinReportValue(&dt_deviceStartUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
-        snprintf(msgBuffer, sizeof(msgBuffer), "Sample version: %s, DevX version: %s", SAMPLE_VERSION_NUMBER, AZURE_SPHERE_DEVX_VERSION);
-        dx_deviceTwinReportValue(&dt_softwareVersion, msgBuffer);
-    }
-
     if (connected) {
         dx_deviceTwinReportValue(&dt_deviceConnectUtc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
     }
@@ -165,6 +158,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
+    dx_azureRegisterConnectionChangedNotification(StartupReport);
     dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
 }
 

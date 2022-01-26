@@ -17,7 +17,7 @@
 #define NETWORK_INTERFACE "wlan0"
 
 // Forward declarations
-static void publish_message_handler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(publish_message_handler);
 
 DX_USER_CONFIG dx_config;
 

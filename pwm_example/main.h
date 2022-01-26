@@ -10,7 +10,7 @@
 #include <applibs/log.h>
 
 // Forward declarations
-static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(update_led_pwm_handler);
 
 /***********************************************************************************************************
  * declare pwm bindings

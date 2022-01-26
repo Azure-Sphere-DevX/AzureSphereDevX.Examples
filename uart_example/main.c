@@ -36,7 +36,7 @@
 /// <summary>
 /// Handler to check for Button Presses
 /// </summary>
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
 {
     static GPIO_Value_Type buttonAState, buttonBState;
 
@@ -59,6 +59,7 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
         dx_uartWrite(&loopBackClick1, buttonBMsg, strnlen(buttonBMsg, 32));
     }
 }
+DX_TIMER_HANDLER_END
 
 static void uart_rx_handler1(DX_UART_BINDING *uartBinding)
 {

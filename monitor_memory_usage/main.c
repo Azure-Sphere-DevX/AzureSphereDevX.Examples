@@ -43,7 +43,7 @@
 #include "main.h"
 
 // Direct method name = MemoryLeak, json payload = {"LeakSize": <integer in KB> }
-static DX_DIRECT_METHOD_RESPONSE_CODE MemoryLeakHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static DX_DIRECT_METHOD_HANDLER(MemoryLeakHandler, json, directMethodBinding, responseMsg)
 {
     char state_str[] = "LeakSize";
     int memoryToLeak = 0; 
@@ -69,6 +69,7 @@ static DX_DIRECT_METHOD_RESPONSE_CODE MemoryLeakHandler(JSON_Value *json, DX_DIR
     Log_Debug("Malloc() failed!\n");
     return DX_METHOD_FAILED;
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 // Handler
 /*
@@ -84,14 +85,9 @@ static DX_DIRECT_METHOD_RESPONSE_CODE MemoryLeakHandler(JSON_Value *json, DX_DIR
 * conservatively for maximum reliability. Values are approximate and may vary 
 * across OS versions.
 */
-static void monitor_memory_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(monitor_memory_handler)
 {
     static size_t memoryHighWaterMark = 0;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopMemoryMonitor);
-        return;
-    }
 
 #ifdef USE_AVNET_IOTCONNECT
     if (dx_isAvnetConnected()) {
@@ -122,6 +118,7 @@ static void monitor_memory_handler(EventLoopTimer *eventLoopTimer)
         }
     }
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.

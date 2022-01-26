@@ -62,13 +62,8 @@
 //
 // Once child devices have been created on the IoTConnect platform, the children id and tags will be sent to the application on startup.
 // This way the the application only need to dynamically create children when new child devices are connected to the gateway.
-static void add_gw_children_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(add_gw_children_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     if (dx_isAvnetConnected()) {
 
         // Create child devices dynamically on the GW device
@@ -85,14 +80,10 @@ static void add_gw_children_handler(EventLoopTimer *eventLoopTimer)
         dx_timerStop(&tmr_add_gw_children);
     }
 }
+DX_TIMER_HANDLER_END
 
-static void publish_message_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(publish_message_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     if (dx_isAvnetConnected()){
     
         sendChildDeviceTelemetry("temperatureChild01", "temperature", ((float)rand()/(float)(RAND_MAX)) * 5);
@@ -108,8 +99,9 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 
     }
 }
+DX_TIMER_HANDLER_END
 
-static void delete_gw_children_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(delete_gw_children_handler)
 {
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
@@ -140,6 +132,7 @@ static void delete_gw_children_handler(EventLoopTimer *eventLoopTimer)
         
     }
 }
+DX_TIMER_HANDLER_END
 
 
 /// <summary>

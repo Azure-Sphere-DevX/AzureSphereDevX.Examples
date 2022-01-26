@@ -35,25 +35,17 @@
 /// Oneshot handler to turn off BUZZ Click buzzer
 /// </summary>
 /// <param name="eventLoopTimer"></param>
-static void alert_buzzer_off_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(alert_buzzer_off_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
     dx_pwmStop(&pwm_buzz_click);
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Simple PWM example - 1kHz (1000 Hz), and alter duty cycle
 /// </summary>
-static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(update_led_pwm_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     static DX_PWM_BINDING *pwmLed = &pwm_red_led;
 
     static int duty_cycle = 0;
@@ -80,6 +72,7 @@ static void update_led_pwm_handler(EventLoopTimer *eventLoopTimer)
     dx_pwmSetDutyCycle(&pwm_buzz_click, 5000, 1);
     dx_timerOneShotSet(&tmr_alert_buzzer_off_oneshot, &(struct timespec){0, 10 * ONE_MS});
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

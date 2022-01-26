@@ -36,26 +36,18 @@
 /// <summary>
 /// One shot timer handler to turn off Alert LED
 /// </summary>
-static void LedOffToggleHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(LedOffToggleHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
     dx_gpioOff(&led);
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Handler to check for Button Presses
 /// </summary>
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
 {
     static GPIO_Value_Type buttonAState;
-
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
 
     if (dx_gpioStateGet(&buttonA, &buttonAState)) {
         dx_gpioOn(&led);
@@ -63,17 +55,13 @@ static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer)
         dx_timerOneShotSet(&ledOffOneShotTimer, &(struct timespec){1, 0});
     }
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Handler for dev boards with no onboard buttons - blink the LED every 500ms
 /// </summary>
-static void BlinkLedHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(BlinkLedHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
 #ifdef OEM_SEEED_STUDIO_MINI
 
     static bool toggleLed = false;
@@ -82,6 +70,7 @@ static void BlinkLedHandler(EventLoopTimer *eventLoopTimer)
 
 #endif
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

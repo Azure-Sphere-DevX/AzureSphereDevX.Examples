@@ -36,34 +36,29 @@
 /// <summary>
 /// One shot timer handler example
 /// </summary>
-static void oneShotHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(oneShotHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-    Log_Debug("Hello from the oneshot timer. Reloading the oneshot timer period\n");
+    dx_Log_Debug("Hello from the oneshot timer. Reloading the oneshot timer period\n");
     // The oneshot timer will trigger again in 2.5 seconds
     dx_timerOneShotSet(&oneShotTimer, &(struct timespec){2, 500 * ONE_MS});
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Periodic timer handler example
 /// </summary>
-static void PeriodicHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(PeriodicHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-    Log_Debug("Hello from the periodic timer called every 6 seconds\n");
+    dx_Log_Debug("Hello from the periodic timer called every 6 seconds\n");
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+    dx_Log_Debug_Init(debug_msg_buffer, sizeof(debug_msg_buffer));
     dx_timerSetStart(timers, NELEMS(timers));
 }
 
@@ -81,14 +76,8 @@ int main(void)
     dx_registerTerminationHandler();
     InitPeripheralsAndHandlers();
 
-    // Main loop
-    while (!dx_isTerminationRequired()) {
-        int result = EventLoop_Run(dx_timerGetEventLoop(), -1, true);
-        // Continue if interrupted by signal, e.g. due to breakpoint being set.
-        if (result == -1 && errno != EINTR) {
-            dx_terminate(DX_ExitCode_Main_EventLoopFail);
-        }
-    }
+    // Call to run the event loop is a blocking call until termination is requested
+    dx_eventLoopRun();
 
     ClosePeripheralsAndHandlers();
     return dx_getTerminationExitCode();
