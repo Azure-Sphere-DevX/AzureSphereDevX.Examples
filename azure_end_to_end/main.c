@@ -104,7 +104,7 @@ static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(sample_rate_seconds, 0, 120))
+    if (IN_RANGE(sample_rate_seconds, 1, 120))
     {
         dx_timerChange(&tmr_read_sensor, &(struct timespec){sample_rate_seconds, 0});
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
@@ -122,7 +122,7 @@ DX_DIRECT_METHOD_HANDLER(LightOnHandler, json, directMethodBinding, responseMsg)
     dx_gpioStateSet(led, true);
     return DX_METHOD_SUCCEEDED;
 }
-DX_DIRECT_METHOD_END
+DX_DIRECT_METHOD_HANDLER_END
 
 DX_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg)
 {
@@ -130,7 +130,7 @@ DX_DIRECT_METHOD_HANDLER(LightOffHandler, json, directMethodBinding, responseMsg
     dx_gpioStateSet(led, false);
     return DX_METHOD_SUCCEEDED;
 }
-DX_DIRECT_METHOD_END
+DX_DIRECT_METHOD_HANDLER_END
 
 static void StartupReport(bool connected)
 {

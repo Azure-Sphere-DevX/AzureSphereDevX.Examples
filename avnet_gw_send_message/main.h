@@ -18,9 +18,9 @@
 #define NETWORK_INTERFACE "wlan0"
 
 // Forward declarations
-static void publish_message_handler(EventLoopTimer *eventLoopTimer);
-static void add_gw_children_handler(EventLoopTimer *eventLoopTimer);
-static void delete_gw_children_handler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(add_gw_children_handler);
+static DX_DECLARE_TIMER_HANDLER(delete_gw_children_handler);
+static DX_DECLARE_TIMER_HANDLER(publish_message_handler);
 void sendChildDeviceTelemetry(const char* id, const char* key, float value);
 
 DX_USER_CONFIG dx_config;

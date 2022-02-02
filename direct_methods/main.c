@@ -36,24 +36,15 @@
 /// <summary>
 /// One shot timer handler to turn off Alert LED
 /// </summary>
-static void LedOffToggleHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(LedOffToggleHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
     dx_gpioOff(&led);
 }
-
-static inline bool in_range(int low, int high, int x)
-{
-    return low <= x && x <= high;
-}
+DX_TIMER_HANDLER_END
 
 // Direct method name = LightControl, json payload = {"State": true, "Duration":2} or {"State":
 // false, "Duration":2}
-static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(
-    JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static DX_DIRECT_METHOD_HANDLER(LightControlHandler, json, directMethodBinding, responseMsg)
 {
     char duration_str[] = "Duration";
     char state_str[] = "State";
@@ -77,7 +68,7 @@ static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(
     requested_duration_seconds = (int)json_object_get_number(jsonObject, duration_str);
     Log_Debug("Duration %d \n", requested_duration_seconds);
 
-    if (!in_range(1, 120, requested_duration_seconds)) {
+    if (!IN_RANGE(requested_duration_seconds, 1, 120)) {
         return DX_METHOD_FAILED;
     }
 
@@ -91,24 +82,21 @@ static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(
 
     return DX_METHOD_SUCCEEDED;
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 /// <summary>
 /// Restart the Device
 /// </summary>
-static void DelayRestartDeviceTimerHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(DelayRestartDeviceTimerHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
     PowerManagement_ForceSystemReboot();
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Start Device Power Restart Direct Method 'ResetMethod' integer seconds eg 5
 /// </summary>
-static DX_DIRECT_METHOD_RESPONSE_CODE RestartDeviceHandler(
-    JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg)
+static DX_DIRECT_METHOD_HANDLER(RestartDeviceHandler, json, directMethodBinding, responseMsg)
 {
     // Allocate and initialize a response message buffer. The
     // calling function is responsible for the freeing memory
@@ -126,7 +114,7 @@ static DX_DIRECT_METHOD_RESPONSE_CODE RestartDeviceHandler(
 
     // leave enough time for the device twin dt_reportedRestartUtc
     // to update before restarting the device
-    if (seconds > 2 && seconds < 10) {
+    if (IN_RANGE(seconds, 2, 10)) {
         // Create Direct Method Response
         snprintf(*responseMsg, responseLen, "%s called. Restart in %d seconds",
                  directMethodBinding->methodName, seconds);
@@ -143,6 +131,7 @@ static DX_DIRECT_METHOD_RESPONSE_CODE RestartDeviceHandler(
         return DX_METHOD_FAILED;
     }
 }
+DX_DIRECT_METHOD_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

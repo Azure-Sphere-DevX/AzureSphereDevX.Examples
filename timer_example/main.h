@@ -8,8 +8,10 @@
 #include "dx_utilities.h"
 #include <applibs/log.h>
 
-static void PeriodicHandler(EventLoopTimer *eventLoopTimer);
-static void oneShotHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(PeriodicHandler);
+static DX_DECLARE_TIMER_HANDLER(oneShotHandler);
+
+static char debug_msg_buffer[128];
 
 /****************************************************************************************
  * Timer Bindings
@@ -17,7 +19,6 @@ static void oneShotHandler(EventLoopTimer *eventLoopTimer);
 static DX_TIMER_BINDING periodicTimer = {
     .repeat = &(struct timespec){6, 0}, .name = "periodicTimer", .handler = PeriodicHandler};
 
-// A timer with no period specified or a zero period are initialized as disarmed oneshot timers
 // A timer initialized with a delay will fire once with the delay expires
 static DX_TIMER_BINDING oneShotTimer = {.delay = &(struct timespec){2, 500 * ONE_MS},
                                         .name = "oneShotTimer",

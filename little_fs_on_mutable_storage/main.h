@@ -15,7 +15,7 @@
 char writeMessage[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\r\n";
 
 // Forward declarations
-static void ButtonPressCheckHandler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 
 // The Project is configured for 64K of Mutable Storage (256 blocks * 256 block size)
 #define BLOCK_SIZE 256

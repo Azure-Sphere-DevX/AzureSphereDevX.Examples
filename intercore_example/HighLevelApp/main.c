@@ -61,13 +61,8 @@
 /// The response will be synchronous, the high-level app with wait on read until a
 /// message is received from the real-time core or the read times out
 /// </summary>
-static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(IntercoreSynchronousHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     // reset inter-core block
     memset(&ic_block_synchronous, 0x00, sizeof(INTER_CORE_BLOCK));
 
@@ -91,19 +86,15 @@ static void IntercoreSynchronousHandler(EventLoopTimer *eventLoopTimer)
     // reload the sync example timer
     dx_timerOneShotSet(&intercoreSynchronousTimer, &(struct timespec){1, 0});
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Send message to realtime core app.
 /// The response will be asynchronous and IntercoreResponseHandler function will be called when a
 /// message is received from the real-time core.
 /// </summary>
-static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(IntercoreAsynchronousHandler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     // reset inter-core block
     memset(&ic_block_asynchronous, 0x00, sizeof(INTER_CORE_BLOCK));
 
@@ -116,6 +107,7 @@ static void IntercoreAsynchronousHandler(EventLoopTimer *eventLoopTimer)
     // reload the async example timer
     dx_timerOneShotSet(&intercoreAsynchronousTimer, &(struct timespec){1, 0});
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 /// Callback handler for Asynchronous Inter-Core Messaging Pattern

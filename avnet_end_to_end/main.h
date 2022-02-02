@@ -18,10 +18,10 @@
 #define SAMPLE_VERSION_NUMBER "1.0"
 
 // Forward declarations
-static DX_DIRECT_METHOD_RESPONSE_CODE LightControlHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
-static void publish_message_handler(EventLoopTimer *eventLoopTimer);
-static void report_properties_handler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(LightControlHandler);
+static DX_DECLARE_TIMER_HANDLER(publish_message_handler);
+static DX_DECLARE_TIMER_HANDLER(report_properties_handler);
 
 DX_USER_CONFIG dx_config;
 

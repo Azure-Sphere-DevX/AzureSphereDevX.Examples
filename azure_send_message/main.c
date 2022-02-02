@@ -33,13 +33,8 @@
 
 #include "main.h"
 
-static void publish_message_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(publish_message_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     double temperature = 36.0;
     double humidity = 55.0;
     double pressure = 1100;
@@ -66,6 +61,7 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
         }
     }
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timers.

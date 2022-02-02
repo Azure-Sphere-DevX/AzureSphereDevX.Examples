@@ -37,13 +37,8 @@
 static bool rt_app1_running = false;
 static bool rt_app2_running = false;
 
-static void request_telemetry_handler(EventLoopTimer *eventLoopTimer)
+static DX_TIMER_HANDLER(request_telemetry_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     Log_Debug("Request telemetry from the RTApp(s)\n");
 
     if(rt_app1_running){
@@ -64,8 +59,9 @@ static void request_telemetry_handler(EventLoopTimer *eventLoopTimer)
                             sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
     }
 }
+DX_TIMER_HANDLER_END
 
-static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_desired_sample_rate_handler, deviceTwinBinding)
 {
     int sample_rate_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -78,8 +74,9 @@ static void dt_desired_sample_rate_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
-static void dt_auto_telemetry_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
+static DX_DEVICE_TWIN_HANDLER(dt_auto_telemetry_handler, deviceTwinBinding)
 {
     int telemetry_time_seconds = *(int *)deviceTwinBinding->propertyValue;
 
@@ -96,7 +93,7 @@ static void dt_auto_telemetry_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
             // Send IC_GENERIC_SAMPLE_RATE message to realtime core app one
             memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
             ic_tx_block.cmd = IC_GENERIC_SAMPLE_RATE;
-            ic_tx_block.sensorSampleRate = telemetry_time_seconds;
+            ic_tx_block.sensorSampleRate = (uint32_t)telemetry_time_seconds;
             dx_intercorePublish(&myBinding, &ic_tx_block,
                                 sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));           
 
@@ -105,6 +102,7 @@ static void dt_auto_telemetry_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
     }
 }
+DX_DEVICE_TWIN_HANDLER_END
 
 /// <summary>
 /// Callback handler for Asynchronous Inter-Core Messaging Pattern

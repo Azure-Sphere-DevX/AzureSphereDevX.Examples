@@ -39,8 +39,8 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
-static DX_DIRECT_METHOD_RESPONSE_CODE MemoryLeakHandler(JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
-static void monitor_memory_handler(EventLoopTimer *eventLoopTimer);
+static DX_DECLARE_DIRECT_METHOD_HANDLER(MemoryLeakHandler);
+static DX_DECLARE_TIMER_HANDLER(monitor_memory_handler);
 
 /****************************************************************************************
  * Telemetry message buffer property sets
