@@ -7,7 +7,7 @@ The AzureSphereDevX library and the AzureSphere.Examples are community maintaine
 1. Clone the examples.
 
     ```bash
-    git clone --recurse-submodules https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples.git
+    git clone --recurse-submodules https://github.com/Avnet/AzureSphereDevX.Examples.git
     ```
 
 1. Run the Update and Build tools. Follow the [build tools](https://github.com/Azure-Sphere-DevX/AzureSphereDevX.Examples/wiki/Build-Tools) notes to update and test build all examples.
