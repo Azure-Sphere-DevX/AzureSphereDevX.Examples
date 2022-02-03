@@ -139,3 +139,12 @@
 [submodule "device_twins_json_object/HardwareDefinitions"]
 	path = device_twins_json_object/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_RTAppLab_app/AzureSphereDevX"]
+	path = avnet_RTAppLab_app/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_RTAppLab_app/HardwareDefinitions"]
+	path = avnet_RTAppLab_app/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule ".\\avnet_RTAppLab_app\\HardwareDefinitions"]
+	path = .\\avnet_RTAppLab_app\\HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
