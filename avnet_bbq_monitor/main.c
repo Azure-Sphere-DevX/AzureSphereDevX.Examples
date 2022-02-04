@@ -53,6 +53,67 @@ static int overDoneDelta = 5;
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+/// <summary>
+/// receive_msg_handler()
+/// This handler is called when the high level application receives a raw data read response from the 
+/// Thermo CLICK real time application.
+/// </summary>
+static void receive_msg_handler(void *data_block, ssize_t message_length)
+{
+    // Cast the data block so we can index into the data
+    IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL*) data_block;
+
+    switch (messageData->cmd) {
+        case IC_THERMO_CLICK_READ_SENSOR:
+            // Pull the sensor data 
+            Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
+            break;
+        // Handle the other cases by doing nothing
+        case IC_THERMO_CLICK_HEARTBEAT:
+            Log_Debug("IC_THERMO_CLICK_HEARTBEAT\n");
+            break;
+        case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+            Log_Debug("IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+
+            // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
+            //if(dx_isAzureConnected()){
+//            dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), 
+//                        messageProperties, NELEMS(messageProperties), &contentProperties);
+//
+//            }
+            break;
+        case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
+            Log_Debug("IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
+            break;
+        case IC_THERMO_CLICK_UNKNOWN:
+        default:
+            break;
+        }
+}
+
+
+/// <summary>
+/// Periodic timer handler example
+/// </summary>
+static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
+{
+    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
+        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
+        return;
+    }
+
+    // Request the temperature data from the real-time application
+    // reset inter-core block
+    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
+
+    // Send read sensor message to realtime core app one
+    ic_tx_block.cmd = IC_THERMO_CLICK_READ_SENSOR;
+    dx_intercorePublish(&intercore_thermo_click_binding, &ic_tx_block,
+                        sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
+
+}
+
+
 static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
     int tempMeatType = *(int *)deviceTwinBinding->propertyValue;
@@ -161,6 +222,8 @@ static void InitPeripheralsAndHandlers(void)
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
+
+    dx_intercoreConnect(&intercore_thermo_click_binding);
 
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
     // see the azure_end_to_end example for an example

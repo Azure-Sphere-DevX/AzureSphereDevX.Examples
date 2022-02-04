@@ -1,10 +1,11 @@
 {
   "SchemaVersion": 1,
   "Name": "avnet_bbq_monitor-V0",
-  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "0ne00495410" ],
   "Capabilities": {
+    "AllowedApplicationConnections": [ "f6768b9a-e086-4f5a-8219-5ffe9684b001" ],
     "Gpio": [],
     "AllowedConnections": [
     "global.azure-devices-provisioning.net",
