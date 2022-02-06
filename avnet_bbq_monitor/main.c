@@ -30,14 +30,14 @@
  *	 3. Click File, then Save to auto-generate the CMake Cache.
  *
  *  How to use this sample
- * 
- *    Developers can use this sample as a starting point for their DevX based Azure Sphere 
- *    application.  It will connect to an Azure IoTHub, IOTCentral or Avnet's IoTConnect.  
- * 
+ *
+ *    Developers can use this sample as a starting point for their DevX based Azure Sphere
+ *    application.  It will connect to an Azure IoTHub, IOTCentral or Avnet's IoTConnect.
+ *
  *    There are sections marked with "TODO" that the developer can review for hints on where
  *    to add code, or to enable code that may be needed for general support, such as sending
  *    telemetry.
- * 
+ *
  ************************************************************************************************/
 #include "main.h"
 
@@ -45,7 +45,7 @@
  * Globals with defaults
  ****************************************************************************************/
 static meat_t meatType = STEAK;
-static steak_order_t steakOrderTemp = MEDIUM_RARE; 
+static steak_order_t steakOrderTemp = MEDIUM_RARE;
 static int targetTempPolo = 165;
 static int targetTempSwine = 145;
 static int overDoneDelta = 5;
@@ -53,44 +53,56 @@ static int overDoneDelta = 5;
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+static void buzz_click_alarm(bool alarmOn, DX_PWM_BINDING *pwmDevice)
+{
+
+    if (alarmOn) {
+
+        dx_pwmSetDutyCycle(&pwm_buzz_click, 5000, 1);
+
+    } else {
+
+        dx_pwmStop(&pwm_buzz_click);
+    }
+}
+
 /// <summary>
 /// receive_msg_handler()
-/// This handler is called when the high level application receives a raw data read response from the 
+/// This handler is called when the high level application receives a raw data read response from the
 /// Thermo CLICK real time application.
 /// </summary>
 static void receive_msg_handler(void *data_block, ssize_t message_length)
 {
     // Cast the data block so we can index into the data
-    IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL*) data_block;
+    IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *)data_block;
 
     switch (messageData->cmd) {
-        case IC_THERMO_CLICK_READ_SENSOR:
-            // Pull the sensor data 
-            Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
-            break;
-        // Handle the other cases by doing nothing
-        case IC_THERMO_CLICK_HEARTBEAT:
-            Log_Debug("IC_THERMO_CLICK_HEARTBEAT\n");
-            break;
-        case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-            Log_Debug("IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+    case IC_THERMO_CLICK_READ_SENSOR:
+        // Pull the sensor data
+        Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
+        break;
+    // Handle the other cases by doing nothing
+    case IC_THERMO_CLICK_HEARTBEAT:
+        Log_Debug("IC_THERMO_CLICK_HEARTBEAT\n");
+        break;
+    case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        Log_Debug("IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
 
-            // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
-            //if(dx_isAzureConnected()){
-//            dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), 
-//                        messageProperties, NELEMS(messageProperties), &contentProperties);
-//
-//            }
-            break;
-        case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
-            Log_Debug("IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
-            break;
-        case IC_THERMO_CLICK_UNKNOWN:
-        default:
-            break;
-        }
+        // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
+        // if(dx_isAzureConnected()){
+        //            dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE),
+        //                        messageProperties, NELEMS(messageProperties), &contentProperties);
+        //
+        //            }
+        break;
+    case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
+        Log_Debug("IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
+        break;
+    case IC_THERMO_CLICK_UNKNOWN:
+    default:
+        break;
+    }
 }
-
 
 /// <summary>
 /// Periodic timer handler example
@@ -108,26 +120,26 @@ static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
 
     // Send read sensor message to realtime core app one
     ic_tx_block.cmd = IC_THERMO_CLICK_READ_SENSOR;
-    dx_intercorePublish(&intercore_thermo_click_binding, &ic_tx_block,
-                        sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
+    dx_intercorePublish(&intercore_thermo_click_binding, &ic_tx_block, sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
 
+    static bool alarmState = true;
+    buzz_click_alarm(alarmState, &pwm_buzz_click);
+    alarmState = !alarmState;
 }
-
 
 static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
     int tempMeatType = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(tempMeatType, STEAK, SWINE)){
+    if (IN_RANGE(tempMeatType, STEAK, SWINE)) {
 
         meatType = tempMeatType;
         Log_Debug("New target meat: %d\n", meatType);
 
         // Ack the reported value back to IoTCentral
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-    }
-    else{
+    } else {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, &meatType, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
@@ -137,72 +149,65 @@ static void dt_target_temp_steak_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBindi
     int tempSteakOrderTemp = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(tempSteakOrderTemp, RARE, WELL_DONE)){
+    if (IN_RANGE(tempSteakOrderTemp, RARE, WELL_DONE)) {
 
         steakOrderTemp = tempSteakOrderTemp;
         Log_Debug("New steak order temp: %d\n", steakOrderTemp);
 
         // Ack the reported value back to IoTCentral
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-    }
-    else{
+    } else {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, &steakOrderTemp, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
-
 }
 
 static void dt_target_temp_polo_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
-    int tempTargetTempPolo= *(int *)deviceTwinBinding->propertyValue;
+    int tempTargetTempPolo = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(tempTargetTempPolo, 165, 180)){
+    if (IN_RANGE(tempTargetTempPolo, 165, 180)) {
 
         targetTempPolo = tempTargetTempPolo;
         Log_Debug("New target temp Polo: %d\n", targetTempPolo);
 
         // Ack the reported value back to IoTCentral
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-    }
-    else{
+    } else {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, &targetTempPolo, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
-
 }
 
 static void dt_target_temp_swine_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
-    int tempTargetTempSwine= *(int *)deviceTwinBinding->propertyValue;
+    int tempTargetTempSwine = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(tempTargetTempSwine, 145, 160)){
+    if (IN_RANGE(tempTargetTempSwine, 145, 160)) {
 
         targetTempSwine = tempTargetTempSwine;
         Log_Debug("New target temp Swine: %d\n", targetTempSwine);
 
         // Ack the reported value back to IoTCentral
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-    }
-    else{
+    } else {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, &targetTempSwine, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
-
 }
 
 static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
 {
-    int tempOverDoneDelta= *(int *)deviceTwinBinding->propertyValue;
+    int tempOverDoneDelta = *(int *)deviceTwinBinding->propertyValue;
 
     // validate data is sensible range before applying
-    if (IN_RANGE(tempOverDoneDelta, 1, 20)){
+    if (IN_RANGE(tempOverDoneDelta, 1, 20)) {
 
         overDoneDelta = tempOverDoneDelta;
         Log_Debug("New over done delta: %d\n", overDoneDelta);
 
         // Ack the reported value back to IoTCentral
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue, DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-    }
-    else{
+    } else {
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, &overDoneDelta, DX_DEVICE_TWIN_RESPONSE_ERROR);
     }
 }
@@ -214,10 +219,16 @@ static void InitPeripheralsAndHandlers(void)
 {
 #ifdef USE_AVNET_IOTCONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
-#else     
+#else
     dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
-#endif     
-    
+#endif
+
+    // Open the PWM interface
+    dx_pwmSetOpen(pwm_bindings, NELEMS(pwm_bindings));
+
+    // Turn off the Buzz CLICK
+    dx_pwmStop(&pwm_buzz_click);
+
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
@@ -240,6 +251,7 @@ static void ClosePeripheralsAndHandlers(void)
     dx_directMethodUnsubscribe();
     dx_gpioSetClose(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerEventLoopStop();
+    dx_pwmSetClose(pwm_bindings, NELEMS(pwm_bindings));
 }
 
 int main(int argc, char *argv[])

@@ -11,5 +11,6 @@
     "files.associations": {
         "dx_avnet_iot_connect.h": "c",
         "dx_json_serializer.h": "c"
-    }
+    },
+   "editor.formatOnSave": true
 }

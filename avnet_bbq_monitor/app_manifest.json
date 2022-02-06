@@ -3,12 +3,30 @@
   "Name": "avnet_bbq_monitor-V0",
   "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
-  "CmdArgs": [ "--ScopeID", "0ne00495410" ],
+  "CmdArgs": [
+    "--ScopeID",
+    "0ne00495410"
+  ],
   "Capabilities": {
-    "AllowedApplicationConnections": [ "f6768b9a-e086-4f5a-8219-5ffe9684b001" ],
-    "Gpio": [],
+    "AllowedApplicationConnections": [
+      "f6768b9a-e086-4f5a-8219-5ffe9684b001"
+    ],
+    "Gpio": [
+      "$RGBLED_RED",
+      "$RGBLED_GREEN",
+      "$RGBLED_BLUE",
+      "$UPDATE_PENDING_LED",
+      "$BUTTON_1",
+      "$BUTTON_2"
+    ],
+    "Pwm": [
+      "$PWM_CLICK_CONTROLLER"
+    ],
+    "I2cMaster": [
+      "$OLED_I2C"
+    ],
     "AllowedConnections": [
-    "global.azure-devices-provisioning.net",
+      "global.azure-devices-provisioning.net",
       "iotc-692809f4-73ee-4b6c-a797-0de83767ff24.azure-devices.net",
       "iotc-5b4ae0cb-191a-4b5e-95e0-7f391d822fbc.azure-devices.net",
       "iotc-c3bdd3f4-6366-40b1-9b53-b754261fdb0f.azure-devices.net",
