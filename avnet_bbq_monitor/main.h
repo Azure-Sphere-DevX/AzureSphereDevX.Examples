@@ -45,6 +45,25 @@ typedef enum { STEAK = 0, POLO = 1, SWINE = 2 } meat_t;
 typedef enum { RARE = 125, MEDIUM_RARE = 130, MEDIUM = 135, MEDIUM_WELL = 140, WELL_DONE = 155 } steak_order_t;
 
 /****************************************************************************************
+ * BBQ Statue LED
+ *
+ * 1.	The Avnet Starter Kit RGB LED will indicate if the temperature is below the target
+ * temperature (yellow), at the target temperature (Green) or above a over temperature
+ * target (red).
+ ****************************************************************************************/
+#define RGB_RED_INDEX 0
+#define RGB_GREEN_INDEX 1
+#define RGB_BLUE_INDEX 2
+
+// Define which LED(S) to light up for each case
+typedef enum {
+    RGB_ALL_LEDS = (((1 << RGB_RED_INDEX)) | (1 << RGB_GREEN_INDEX) | (1 << RGB_BLUE_INDEX)),
+    RGB_UNDER_TARGET_TEMP = (1 << RGB_BLUE_INDEX),
+    RGB_DINNER_READY = (1 << RGB_GREEN_INDEX),
+    RGB_OVER_DONE = (1 << RGB_RED_INDEX)
+} Dinner_Status;
+
+/****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
 // Device Twin Declarations
@@ -55,6 +74,7 @@ static void dt_target_temp_swine_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBindi
 static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
 
 static void buzz_click_alarm(bool, DX_PWM_BINDING *);
+static void setDinnerStatusLed(Dinner_Status);
 
 // Timer Declarations
 static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer);
@@ -110,6 +130,11 @@ DX_INTERCORE_BINDING intercore_thermo_click_binding = {.sockFd = -1,
 static DX_PWM_CONTROLLER pwm_buzz_controller = {.controllerId = PWM_CLICK_CONTROLLER, .name = "PWM Click Controller"};
 static DX_PWM_BINDING pwm_buzz_click = {.pwmController = &pwm_buzz_controller, .channelId = 1, .name = "click 2 buzz"};
 
+// GPIO Bingings
+static DX_GPIO_BINDING red_led = {.pin = RGBLED_RED, .name = "RedLed", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
+static DX_GPIO_BINDING green_led = {.pin = RGBLED_GREEN, .name = "GreenLed", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
+static DX_GPIO_BINDING blue_led = {.pin = RGBLED_BLUE, .name = "BlueLed", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
+
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
@@ -118,6 +143,6 @@ static DX_PWM_BINDING pwm_buzz_click = {.pwmController = &pwm_buzz_controller, .
 
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_target_meat, &dt_target_temp_steak, &dt_target_temp_polo, &dt_target_temp_swine, &dt_target_over_temp};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
-DX_GPIO_BINDING *gpio_bindings[] = {};
+DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_read_and_process_sensor_data};
 static DX_PWM_BINDING *pwm_bindings[] = {&pwm_buzz_click};

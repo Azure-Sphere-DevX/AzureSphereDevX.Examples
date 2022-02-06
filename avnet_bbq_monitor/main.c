@@ -53,6 +53,25 @@ static int overDoneDelta = 5;
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+static void setDinnerStatusLed(Dinner_Status dinnerStatus)
+{
+
+    // Define an array of the led bindings so we can process the loop
+    DX_GPIO_BINDING *dinnerLEDs[] = {&red_led, &green_led, &blue_led};
+
+    // Turn off all the LEDs before setting the new state
+    dx_gpioOff(&red_led);
+    dx_gpioOff(&green_led);
+    dx_gpioOff(&blue_led);
+
+    // Loop through the dinnerStatus bits
+    for (int8_t bitIndex = 0; bitIndex < NELEMS(dinnerLEDs); bitIndex++) {
+        if ((int8_t)dinnerStatus & (1 << bitIndex)) {
+            dx_gpioOn(dinnerLEDs[bitIndex]);
+        }
+    }
+}
+
 static void buzz_click_alarm(bool alarmOn, DX_PWM_BINDING *pwmDevice)
 {
 
@@ -109,6 +128,10 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 /// </summary>
 static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
 {
+
+    static Dinner_Status currentStatus = RGB_ALL_LEDS;
+    Log_Debug("currentStatus: 0X%x\n", currentStatus);
+
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
         return;
@@ -122,9 +145,28 @@ static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
     ic_tx_block.cmd = IC_THERMO_CLICK_READ_SENSOR;
     dx_intercorePublish(&intercore_thermo_click_binding, &ic_tx_block, sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
 
-    static bool alarmState = true;
-    buzz_click_alarm(alarmState, &pwm_buzz_click);
-    alarmState = !alarmState;
+    //    static bool alarmState = true;
+    //    buzz_click_alarm(alarmState, &pwm_buzz_click);
+    //    alarmState = !alarmState;
+
+    setDinnerStatusLed(currentStatus);
+
+    switch (currentStatus) {
+    case RGB_ALL_LEDS:
+        currentStatus = RGB_UNDER_TARGET_TEMP;
+        break;
+    case RGB_UNDER_TARGET_TEMP:
+        currentStatus = RGB_DINNER_READY;
+        break;
+    case RGB_DINNER_READY:
+        currentStatus = RGB_OVER_DONE;
+        break;
+    case RGB_OVER_DONE:
+        currentStatus = RGB_ALL_LEDS;
+        break;
+    default:
+        break;
+    }
 }
 
 static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
