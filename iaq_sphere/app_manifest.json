@@ -1,0 +1,16 @@
+{
+  "SchemaVersion": 1,
+  "Name": "iaq_sphere-v0",
+  "ComponentId": "40284c0b-3d10-4c33-ab01-267d0957665e",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "TODO_REPLACE_WITH_YOUR_ID_SCOPE" ],
+  "Capabilities": {
+    "Gpio": [],
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "TODO_REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+    ],
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000"
+  },
+  "ApplicationType": "Default"
+}
