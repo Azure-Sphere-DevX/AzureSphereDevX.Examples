@@ -63,7 +63,7 @@ typedef enum { SHOW_LOGO = 0, SHOW_BBQ_STATUS, SHOW_OTA_UPDATE_PENDING } Oled_St
 #define SSID_MAX_LEGTH 15
 
 uint8_t oled_init(DX_I2C_BINDING *oledBinding);
-void oled_update(DX_I2C_BINDING *oledBinding, int targetTemp, float bbqTemp, Oled_States newState);
+void oled_update(DX_I2C_BINDING *oledBinding, float targetTemp, float bbqTemp, Oled_States newState);
 void oled_draw_logo(DX_I2C_BINDING *oledBinding);
 
 #endif

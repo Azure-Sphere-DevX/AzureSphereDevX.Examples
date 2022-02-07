@@ -29,7 +29,7 @@ SOFTWARE.
 #include <math.h>
 
 // Forward declarations
-void oled_draw_bbq_status(DX_I2C_BINDING *oledBinding, int targetTemp, float bbqTemp);
+void oled_draw_bbq_status(DX_I2C_BINDING *oledBinding, float targetTemp, float bbqTemp);
 
 // AVNET logo
 const unsigned char Image_avnet_bmp[BUFFER_SIZE] = {
@@ -75,7 +75,7 @@ uint8_t oled_init(DX_I2C_BINDING *oledBinding)
 }
 
 // State machine to change the OLED status
-void oled_update(DX_I2C_BINDING *oledBinding, int targetTemp, float bbqTemp, Oled_States currentState)
+void oled_update(DX_I2C_BINDING *oledBinding, float targetTemp, float bbqTemp, Oled_States currentState)
 {
     switch (currentState) {
     case SHOW_LOGO:
@@ -114,13 +114,13 @@ void oled_draw_logo(DX_I2C_BINDING *oledBinding)
  * @param  None
  * @retval None.
  */
-void oled_draw_bbq_status(DX_I2C_BINDING *oledBinding, int targetTemp, float bbqTemp)
+void oled_draw_bbq_status(DX_I2C_BINDING *oledBinding, float targetTemp, float bbqTemp)
 
 {
     // Strings for labels
     uint8_t str_title[] = "BBQ Temps";
-    uint8_t str_targetTemp[] = "Target: ";
-    uint8_t str_currentTemp[] = "Current:";
+    uint8_t str_targetTemp[] = "Target:  ";
+    uint8_t str_currentTemp[] = "Current: ";
     uint8_t aux_float_data_str[] = "%.2f";
 
     // Clear oled buffer
@@ -134,7 +134,7 @@ void oled_draw_bbq_status(DX_I2C_BINDING *oledBinding, int targetTemp, float bbq
 
     // Draw target temperature
     // Convert temperature value to string
-    ftoa((float)targetTemp, aux_float_data_str, 2);
+    ftoa(targetTemp, aux_float_data_str, 2);
     // Draw the temperature string
     sd1306_draw_string(get_str_size(str_targetTemp) * 6, OLED_LINE_2_Y, aux_float_data_str, FONT_SIZE_LINE, white_pixel);
     // Draw the units

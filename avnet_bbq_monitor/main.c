@@ -41,6 +41,9 @@
  ************************************************************************************************/
 #include "main.h"
 
+// Forwared declaration
+float calculateTargetTemp(void);
+
 /****************************************************************************************
  * Globals with defaults
  ****************************************************************************************/
@@ -49,7 +52,6 @@ static steak_order_t steakOrderTemp = MEDIUM_RARE;
 static int targetTempPolo = 165;
 static int targetTempSwine = 145;
 static int overDoneDelta = 5;
-static int currentTargetTemp = 185;
 
 /****************************************************************************************
  * Implementation
@@ -94,39 +96,54 @@ static void buzz_click_alarm(bool alarmOn, DX_PWM_BINDING *pwmDevice)
 static void receive_msg_handler(void *data_block, ssize_t message_length)
 {
     float currentTempF = 0.0;
+    float currentTargetTemp = 0.0;
 
     // Cast the data block so we can index into the data
     IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *)data_block;
 
     switch (messageData->cmd) {
-    case IC_THERMO_CLICK_READ_SENSOR:
-        // Pull the sensor data
-        currentTempF = (messageData->temperature * 9.0F / 5.0F) + 32.0F;
-        Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
-        Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempF: %.2f\n", currentTempF);
+        case IC_THERMO_CLICK_READ_SENSOR:
+            // Pull the sensor data
+            currentTempF = (messageData->temperature * 9.0F / 5.0F) + 32.0F;
+            //Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
+            //Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempF: %.2f\n", currentTempF);
 
-        // Send the data to the OLED
-        oled_update(&oled_i2c, currentTargetTemp, currentTempF, SHOW_BBQ_STATUS);
-    // Handle the other cases by doing nothing
-    case IC_THERMO_CLICK_HEARTBEAT:
-        Log_Debug("IC_THERMO_CLICK_HEARTBEAT\n");
-        break;
-    case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-        Log_Debug("IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+            // Drive the user interfaces based on the target meat temp and the current temp
+            currentTargetTemp = calculateTargetTemp();
 
-        // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
-        // if(dx_isAzureConnected()){
-        //            dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE),
-        //                        messageProperties, NELEMS(messageProperties), &contentProperties);
-        //
-        //            }
-        break;
-    case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
-        Log_Debug("IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
-        break;
-    case IC_THERMO_CLICK_UNKNOWN:
-    default:
-        break;
+            // Dinner is still cooking
+            if (currentTempF < currentTargetTemp) {
+
+                setDinnerStatusLed(RGB_UNDER_TARGET_TEMP);
+                buzz_click_alarm(false, &pwm_buzz_click);
+            }
+
+            // Dinner is overdone!
+            else if (currentTempF > (currentTargetTemp + (float)overDoneDelta)) {
+
+                setDinnerStatusLed(RGB_OVER_DONE);
+                buzz_click_alarm(true, &pwm_buzz_click);
+
+                // Dinner is overdone!
+            } else if (currentTempF > currentTargetTemp) {
+
+                setDinnerStatusLed(RGB_DINNER_READY);
+                buzz_click_alarm(true, &pwm_buzz_click);
+
+            } else {
+                Log_Debug("ERROR: temperature logic is broken\n");
+            }
+
+            // Send the current data to the OLED
+            oled_update(&oled_i2c, currentTargetTemp, currentTempF, SHOW_BBQ_STATUS);
+
+        // Handle the other cases by doing nothing
+        case IC_THERMO_CLICK_HEARTBEAT:
+        case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
+        case IC_THERMO_CLICK_UNKNOWN:
+        default:
+            break;
     }
 }
 
@@ -151,29 +168,6 @@ static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
     // Send read sensor message to realtime core app one
     ic_tx_block.cmd = IC_THERMO_CLICK_READ_SENSOR;
     dx_intercorePublish(&intercore_thermo_click_binding, &ic_tx_block, sizeof(IC_COMMAND_BLOCK_THERMO_CLICK_HL_TO_RT));
-
-    //    static bool alarmState = true;
-    //    buzz_click_alarm(alarmState, &pwm_buzz_click);
-    //    alarmState = !alarmState;
-
-    setDinnerStatusLed(currentStatus);
-
-    switch (currentStatus) {
-    case RGB_ALL_LEDS:
-        currentStatus = RGB_UNDER_TARGET_TEMP;
-        break;
-    case RGB_UNDER_TARGET_TEMP:
-        currentStatus = RGB_DINNER_READY;
-        break;
-    case RGB_DINNER_READY:
-        currentStatus = RGB_OVER_DONE;
-        break;
-    case RGB_OVER_DONE:
-        currentStatus = RGB_ALL_LEDS;
-        break;
-    default:
-        break;
-    }
 }
 
 static void dt_target_meat_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
@@ -261,6 +255,28 @@ static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding)
     }
 }
 
+// Use the device twin data to determine the current target temperature
+float calculateTargetTemp(void)
+{
+
+    // Use the device twin data to determine the target temp for the meat on the BBQ
+
+    switch (meatType) {
+    case POLO:
+        return (float)targetTempPolo;
+        break;
+    case SWINE:
+        return (float)targetTempSwine;
+        break;
+    case STEAK:
+        return (float)steakOrderTemp;
+        break;
+    default:
+        return NAN;
+        break;
+    }
+}
+
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
 /// </summary>
@@ -287,7 +303,7 @@ static void InitPeripheralsAndHandlers(void)
 
     if (dx_i2cOpen(&oled_i2c)) {
         oled_init(&oled_i2c);
-        oled_update(&oled_i2c, 0, 0.0, SHOW_LOGO);
+        oled_update(&oled_i2c, 0.0, 0.0, SHOW_LOGO);
     }
 
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
