@@ -49,6 +49,7 @@ static steak_order_t steakOrderTemp = MEDIUM_RARE;
 static int targetTempPolo = 165;
 static int targetTempSwine = 145;
 static int overDoneDelta = 5;
+static int currentTargetTemp = 185;
 
 /****************************************************************************************
  * Implementation
@@ -92,14 +93,20 @@ static void buzz_click_alarm(bool alarmOn, DX_PWM_BINDING *pwmDevice)
 /// </summary>
 static void receive_msg_handler(void *data_block, ssize_t message_length)
 {
+    float currentTempF = 0.0;
+
     // Cast the data block so we can index into the data
     IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *)data_block;
 
     switch (messageData->cmd) {
     case IC_THERMO_CLICK_READ_SENSOR:
         // Pull the sensor data
+        currentTempF = (messageData->temperature * 9.0F / 5.0F) + 32.0F;
         Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
-        break;
+        Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempF: %.2f\n", currentTempF);
+
+        // Send the data to the OLED
+        oled_update(&oled_i2c, currentTargetTemp, currentTempF, SHOW_BBQ_STATUS);
     // Handle the other cases by doing nothing
     case IC_THERMO_CLICK_HEARTBEAT:
         Log_Debug("IC_THERMO_CLICK_HEARTBEAT\n");
@@ -278,6 +285,11 @@ static void InitPeripheralsAndHandlers(void)
 
     dx_intercoreConnect(&intercore_thermo_click_binding);
 
+    if (dx_i2cOpen(&oled_i2c)) {
+        oled_init(&oled_i2c);
+        oled_update(&oled_i2c, 0, 0.0, SHOW_LOGO);
+    }
+
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
     // see the azure_end_to_end example for an example
     // dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
@@ -294,6 +306,7 @@ static void ClosePeripheralsAndHandlers(void)
     dx_gpioSetClose(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerEventLoopStop();
     dx_pwmSetClose(pwm_bindings, NELEMS(pwm_bindings));
+    dx_i2cClose(&oled_i2c);
 }
 
 int main(int argc, char *argv[])

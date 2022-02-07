@@ -29,8 +29,11 @@ endif()
 
 add_subdirectory("AzureSphereDevX" out)
 
+# Silence conversion warnings for the OLED source files
+set_source_files_properties(sd1306.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
+
 # Create executable
-add_executable (${PROJECT_NAME} main.c)
+add_executable (${PROJECT_NAME} main.c bbq_monitor_oled.c sd1306.c)
 target_link_libraries (${PROJECT_NAME} applibs pthread gcc_s c azure_sphere_devx)
 target_include_directories(${PROJECT_NAME} PUBLIC AzureSphereDevX/include )
 

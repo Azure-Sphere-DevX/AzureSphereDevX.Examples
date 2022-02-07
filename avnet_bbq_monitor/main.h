@@ -12,9 +12,11 @@
 #include "dx_intercore.h"
 #include "thermo_click_rt_app.h"
 #include "dx_pwm.h"
+#include "dx_i2c.h"
 #include "dx_version.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
+#include "bbq_monitor_oled.h"
 
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -135,6 +137,9 @@ static DX_GPIO_BINDING red_led = {.pin = RGBLED_RED, .name = "RedLed", .directio
 static DX_GPIO_BINDING green_led = {.pin = RGBLED_GREEN, .name = "GreenLed", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
 static DX_GPIO_BINDING blue_led = {.pin = RGBLED_BLUE, .name = "BlueLed", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
 
+// I2C Binding
+static DX_I2C_BINDING oled_i2c = {.interfaceId = OLED_I2C, .name = "OLED", .speedInHz = I2C_BUS_SPEED_STANDARD};
+
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
@@ -146,3 +151,4 @@ DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_read_and_process_sensor_data};
 static DX_PWM_BINDING *pwm_bindings[] = {&pwm_buzz_click};
+  
