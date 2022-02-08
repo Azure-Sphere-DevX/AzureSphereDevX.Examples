@@ -1,4 +1,4 @@
-/* Copyright (c) Microsoft Corporation. All rights reserved.
+/* Copyright (c) Avnet Incorporated. All rights reserved.
  * Licensed under the MIT License.
  *
  * This example is built on the Azure Sphere DevX library.
@@ -15,8 +15,6 @@
  *
  *	 1. AVNET Azure Sphere Starter Kit.
  *   2. AVNET Azure Sphere Starter Kit Revision 2.
- *	 3. Seeed Studio Azure Sphere MT3620 Development Kit aka Reference Design Board or rdb.
- *	 4. Seeed Studio Seeed Studio MT3620 Mini Dev Board.
  *
  * ENABLE YOUR DEVELOPER BOARD
  *
@@ -25,24 +23,12 @@
  *
  * Follow these steps:
  *
- *	 1. Open CMakeLists.txt.
+ *	 1. Open azsphere_board.txt.
  *	 2. Uncomment the set command that matches your developer board.
  *	 3. Click File, then Save to auto-generate the CMake Cache.
  *
- *  How to use this sample
- *
- *    Developers can use this sample as a starting point for their DevX based Azure Sphere
- *    application.  It will connect to an Azure IoTHub, IOTCentral or Avnet's IoTConnect.
- *
- *    There are sections marked with "TODO" that the developer can review for hints on where
- *    to add code, or to enable code that may be needed for general support, such as sending
- *    telemetry.
- *
  ************************************************************************************************/
 #include "main.h"
-
-// Forwared declaration
-float calculateTargetTemp(void);
 
 /****************************************************************************************
  * Globals with defaults
@@ -56,7 +42,49 @@ static int overDoneDelta = 5;
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
-static void setDinnerStatusLed(Dinner_Status dinnerStatus)
+void sendTempTelemetry(float temp)
+{
+
+    if (dx_isAzureConnected()) {
+
+        // Serialize telemetry as JSON
+        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, DX_JSON_FLOAT, "tempF", temp);
+
+        if (serialization_result) {
+
+            Log_Debug("%s\n", msgBuffer);
+
+            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+
+        } else {
+            Log_Debug("JSON Serialization failed: Buffer too small\n");
+            dx_terminate(APP_ExitCode_Telemetry_Buffer_Too_Small);
+        }
+    }
+}
+
+void sendDinnerStatusTelemetry(dinnerStatusTelemetry status)
+{
+
+    if (dx_isAzureConnected()) {
+
+        // Serialize telemetry as JSON
+        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, DX_JSON_INT, "dinnerStatus", status);
+
+        if (serialization_result) {
+
+            Log_Debug("%s\n", msgBuffer);
+
+            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+
+        } else {
+            Log_Debug("JSON Serialization failed: Buffer too small\n");
+            dx_terminate(APP_ExitCode_Telemetry_Buffer_Too_Small);
+        }
+    }
+}
+
+static void setDinnerStatusLed(dinnerStatusLED dinnerStatus)
 {
 
     // Define an array of the led bindings so we can process the loop
@@ -102,48 +130,52 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
     IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_THERMO_CLICK_RT_TO_HL *)data_block;
 
     switch (messageData->cmd) {
-        case IC_THERMO_CLICK_READ_SENSOR:
-            // Pull the sensor data
-            currentTempF = (messageData->temperature * 9.0F / 5.0F) + 32.0F;
-            //Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempC: %.2f\n", messageData->temperature);
-            //Log_Debug("IC_THERMO_CLICK_READ_SENSOR: tempF: %.2f\n", currentTempF);
+    case IC_THERMO_CLICK_READ_SENSOR:
+        // Pull the sensor data
+        currentTempF = (messageData->temperature * 9.0F / 5.0F) + 32.0F;
 
-            // Drive the user interfaces based on the target meat temp and the current temp
-            currentTargetTemp = calculateTargetTemp();
+        // Drive the user interfaces based on the target meat temp and the current temp
+        currentTargetTemp = calculateTargetTemp();
 
-            // Dinner is still cooking
-            if (currentTempF < currentTargetTemp) {
+        // Dinner is still cooking
+        if (currentTempF < currentTargetTemp) {
 
-                setDinnerStatusLed(RGB_UNDER_TARGET_TEMP);
-                buzz_click_alarm(false, &pwm_buzz_click);
-            }
+            setDinnerStatusLed(RGB_UNDER_TARGET_TEMP);
+            buzz_click_alarm(false, &pwm_buzz_click);
+            sendDinnerStatusTelemetry(UNDER_TARGET_TEMP);
+        }
 
-            // Dinner is overdone!
-            else if (currentTempF > (currentTargetTemp + (float)overDoneDelta)) {
+        // Dinner is overdone!
+        else if (currentTempF > (currentTargetTemp + (float)overDoneDelta)) {
 
-                setDinnerStatusLed(RGB_OVER_DONE);
-                buzz_click_alarm(true, &pwm_buzz_click);
+            setDinnerStatusLed(RGB_OVER_DONE);
+            buzz_click_alarm(true, &pwm_buzz_click);
+            sendDinnerStatusTelemetry(OVER_DONE);
 
-                // Dinner is overdone!
-            } else if (currentTempF > currentTargetTemp) {
+            // Dinner is ready!
+        } else if (currentTempF > currentTargetTemp) {
 
-                setDinnerStatusLed(RGB_DINNER_READY);
-                buzz_click_alarm(true, &pwm_buzz_click);
+            setDinnerStatusLed(RGB_DINNER_READY);
+            buzz_click_alarm(true, &pwm_buzz_click);
+            sendDinnerStatusTelemetry(DINNER_READY);
 
-            } else {
-                Log_Debug("ERROR: temperature logic is broken\n");
-            }
+        } else {
+            Log_Debug("ERROR: temperature logic is broken\n");
+        }
 
-            // Send the current data to the OLED
-            oled_update(&oled_i2c, currentTargetTemp, currentTempF, SHOW_BBQ_STATUS);
+        // Send the current data to the OLED
+        oled_update(&oled_i2c, currentTargetTemp, currentTempF, SHOW_BBQ_STATUS);
 
-        // Handle the other cases by doing nothing
-        case IC_THERMO_CLICK_HEARTBEAT:
-        case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-        case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
-        case IC_THERMO_CLICK_UNKNOWN:
-        default:
-            break;
+        // Send telemetry data with the new temperature
+        sendTempTelemetry(currentTempF);
+
+    // Handle the other cases by doing nothing
+    case IC_THERMO_CLICK_HEARTBEAT:
+    case IC_THERMO_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+    case IC_THERMO_CLICK_SET_AUTO_TELEMETRY_RATE:
+    case IC_THERMO_CLICK_UNKNOWN:
+    default:
+        break;
     }
 }
 
@@ -152,9 +184,6 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 /// </summary>
 static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer)
 {
-
-    static Dinner_Status currentStatus = RGB_ALL_LEDS;
-    Log_Debug("currentStatus: 0X%x\n", currentStatus);
 
     if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
         dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
@@ -305,10 +334,6 @@ static void InitPeripheralsAndHandlers(void)
         oled_init(&oled_i2c);
         oled_update(&oled_i2c, 0.0, 0.0, SHOW_LOGO);
     }
-
-    // TODO: Update this call with a function pointer to a handler that will receive connection status updates
-    // see the azure_end_to_end example for an example
-    // dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
 }
 
 /// <summary>

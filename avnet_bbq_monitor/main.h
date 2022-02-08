@@ -63,7 +63,9 @@ typedef enum {
     RGB_UNDER_TARGET_TEMP = (1 << RGB_BLUE_INDEX),
     RGB_DINNER_READY = (1 << RGB_GREEN_INDEX),
     RGB_OVER_DONE = (1 << RGB_RED_INDEX)
-} Dinner_Status;
+} dinnerStatusLED;
+
+typedef enum { UNDER_TARGET_TEMP = 0, DINNER_READY, OVER_DONE } dinnerStatusTelemetry;
 
 /****************************************************************************************
  * Forward declarations
@@ -76,7 +78,8 @@ static void dt_target_temp_swine_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBindi
 static void dt_temp_over_done_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBinding);
 
 static void buzz_click_alarm(bool, DX_PWM_BINDING *);
-static void setDinnerStatusLed(Dinner_Status);
+static void setDinnerStatusLed(dinnerStatusLED);
+float calculateTargetTemp(void);
 
 // Timer Declarations
 static void read_and_process_sensor_data_handler(EventLoopTimer *eventLoopTimer);
@@ -89,17 +92,15 @@ static void receive_msg_handler(void *data_block, ssize_t message_length);
  ****************************************************************************************/
 
 // Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-// TODO: Remove comments to use the global message buffer for sending telemetry
-//#define JSON_MESSAGE_BYTES 256
-// static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
+#define JSON_MESSAGE_BYTES 32
+static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
-// TODO: Define telemetry message properties here, for example . . .
-// static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"},
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
+// Define telemetry message properties here, for example . . .
+static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "BBQ_Monitor"}, &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
+                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
 
-// TODO: Remove comments to define contentProperties for sending telemetry
-// static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+// Define contentProperties for sending telemetry
+static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
 
 // Data structures to manage messages to the real-time app (HL to RT) and data from the
 // real-time app (RT to HL)
@@ -143,12 +144,8 @@ static DX_I2C_BINDING oled_i2c = {.interfaceId = OLED_I2C, .name = "OLED", .spee
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-// TODO: Update each binding set below with the bindings defined above.  Add bindings by reference, i.e., &dt_desired_sample_rate
-// These sets are used by the initailization code.
-
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_target_meat, &dt_target_temp_steak, &dt_target_temp_polo, &dt_target_temp_swine, &dt_target_over_temp};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_read_and_process_sensor_data};
 static DX_PWM_BINDING *pwm_bindings[] = {&pwm_buzz_click};
-  
