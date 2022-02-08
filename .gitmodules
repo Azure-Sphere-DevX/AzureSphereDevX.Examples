@@ -148,3 +148,9 @@
 [submodule ".\\avnet_RTAppLab_app\\HardwareDefinitions"]
 	path = .\\avnet_RTAppLab_app\\HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_bbq_monitor/AzureSphereDevX"]
+	path = avnet_bbq_monitor/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_bbq_monitor/HardwareDefinitions"]
+	path = avnet_bbq_monitor/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
