@@ -40,11 +40,6 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
 {
     static GPIO_Value_Type buttonAState, buttonBState;
 
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
-
     char buttonAMsg[] = "This is a test, ButtonA!";
     char buttonBMsg[] = "This is a test, ButtonB!";
 
