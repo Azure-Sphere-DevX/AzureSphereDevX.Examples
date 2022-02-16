@@ -103,10 +103,6 @@ DX_TIMER_HANDLER_END
 
 static DX_TIMER_HANDLER(delete_gw_children_handler)
 {
-    if (ConsumeEventLoopTimerEvent(eventLoopTimer) != 0) {
-        dx_terminate(DX_ExitCode_ConsumeEventLoopTimeEvent);
-        return;
-    }
 
     if (dx_isAvnetConnected()) {
 

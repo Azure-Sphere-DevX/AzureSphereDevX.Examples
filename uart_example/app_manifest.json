@@ -9,7 +9,7 @@
       "$BUTTON_A",
       "$BUTTON_B"
     ],
-    "Uart": [ "$UART_CLICK1", "$UART_CLICK2" ],
+    "Uart": [ "$UART_CLICK1"],
     "AllowedApplicationConnections": []
   },
   "ApplicationType": "Default"

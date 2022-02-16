@@ -45,7 +45,7 @@ DX_UART_BINDING *uart_bindings[] = {&loopBackClick1};
  * Timer Bindings
  ****************************************************************************************/
 static DX_TIMER_BINDING buttonPressCheckTimer = {
-    .period = {0, ONE_MS}, .name = "buttonPressCheckTimer", .handler = ButtonPressCheckHandler};
+    .period = {0, ONE_MS*10}, .name = "buttonPressCheckTimer", .handler = ButtonPressCheckHandler};
 
 // All timers referenced in timer_bindings with be opened in the InitPeripheralsAndHandlers function
 DX_TIMER_BINDING *timer_bindings[] = {&buttonPressCheckTimer};
