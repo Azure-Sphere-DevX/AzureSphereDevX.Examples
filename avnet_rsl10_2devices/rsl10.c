@@ -32,6 +32,22 @@ SOFTWARE.
 #include "iotConnect.h"
 #endif
 
+/****************************************************************************************
+ * Telemetry message buffer property sets
+ ****************************************************************************************/
+
+// Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
+#define JSON_BUFFER_SIZE 512
+
+// Static buffer for telemetry data
+static char telemetryBuffer[JSON_BUFFER_SIZE] = {0};
+
+static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "Avnet RSL10 Demo"}, 
+                                                   &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
+                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
+
+static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+
 // Forward declaration
 bool isValidMsgHeader(char* messageID);
 
@@ -365,15 +381,15 @@ void getAccelReadings(RSL10Device_t* currentDevPtr, Rsl10MotionMessage_t* rxMess
 
     // Read and calculate the x component
     rawAccel =  (int16_t)(stringToInt(&rxMessage->accel_raw_x[2], 2) << 8) | (int16_t)(stringToInt(&rxMessage->accel_raw_x[0], 2) << 0);
-    currentDevPtr->lastAccel_raw_x = (float)rawAccel/RAW_TO_MPS_SQUARED*(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
+    currentDevPtr->lastAccel_raw_x = (float)rawAccel/RAW_TO_MPS_SQUARED*(float)(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
 
     // Read and calculate the y component
     rawAccel =  (int16_t)(stringToInt(&rxMessage->accel_raw_y[2], 2) << 8) | (int16_t)(stringToInt(&rxMessage->accel_raw_y[0], 2) << 0);
-    currentDevPtr->lastAccel_raw_y = (float)rawAccel/RAW_TO_MPS_SQUARED*(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
+    currentDevPtr->lastAccel_raw_y = (float)rawAccel/RAW_TO_MPS_SQUARED*(float)(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
 
     // Read and calculate the z component
     rawAccel =  (int16_t)(stringToInt(&rxMessage->accel_raw_z[2], 2) << 8) | (int16_t)(stringToInt(&rxMessage->accel_raw_z[0], 2) << 0);
-    currentDevPtr->lastAccel_raw_z = (float)rawAccel/RAW_TO_MPS_SQUARED*(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
+    currentDevPtr->lastAccel_raw_z = (float)rawAccel/RAW_TO_MPS_SQUARED*(float)(currentDevPtr->lastAccelRange*4)*MPS_SQUARED_TO_G;
 }
 
 void getOrientation(RSL10Device_t* currentDevPtr, Rsl10MotionMessage_t* rxMessage){
@@ -461,10 +477,6 @@ void rsl10SendTelemetry(void) {
     strncpy(Rsl10DeviceList[0].telemetryKey, "InsideDevice", 15);
     strncpy(Rsl10DeviceList[1].telemetryKey, "OutsideDevice", 15);
 
-    // Assume we'll be sending a message to Azure and allocate a buffer
-    #define JSON_BUFFER_SIZE 512
-    char telemetryBuffer[JSON_BUFFER_SIZE];
-
     // Iterate over the device list and if active send telemetry
     for(int currentDevice = 0; currentDevice < MAX_RSL10_DEVICES; currentDevice++){
 
@@ -514,8 +526,10 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastPressure);
                 // Send the telemetry message
-                SendTelemetry(telemetryBuffer, true);
-
+                dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
+                                    messageProperties, NELEMS(messageProperties),
+                                    &contentProperties);
+            
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
 
@@ -537,7 +551,9 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastBattery);
                 // Send the telemetry message
-                SendTelemetry(telemetryBuffer, true);
+                dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
+                                    messageProperties, NELEMS(messageProperties),
+                                    &contentProperties);
 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].batteryDataRefreshed = false;

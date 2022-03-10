@@ -34,9 +34,9 @@ This file implements routines requied to parse RSL10 advertisement messages rece
 #include <stdio.h>
 #include <applibs/log.h>
 #include <applibs/networking.h>
-#include "build_options.h"
-#include "exit_codes.h"
+#include "app_exit_codes.h"
 #include "signal.h"
+#include "dx_azure_iot.h"
 
 // Enable this define to send test messages to the parser from main.c line ~1190
 //#define ENABLE_MESSAGE_TESTING

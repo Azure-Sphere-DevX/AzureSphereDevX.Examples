@@ -9,8 +9,10 @@
 #include "dx_utilities.h"
 #include "dx_direct_methods.h"
 #include "dx_version.h"
+#include "dx_uart.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
+#include "rsl10.h"
 
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -37,38 +39,50 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
-// TODO: Add any application constants
+#define DEFAULT_TELEMETRY_TX_TIME 15
 
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
-// TODO: Add all Forward declarations here or in main.c
+// Declare device twin handlers
+static DX_DECLARE_DEVICE_TWIN_HANDLER(rsl10AuthorizedDTFunction);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(enableOnboardingDTFunction);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(telemetryTimerDTFunction);
 
-/****************************************************************************************
- * Telemetry message buffer property sets
- ****************************************************************************************/
-
-// Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-// TODO: Remove comments to use the global message buffer for sending telemetry
-//#define JSON_MESSAGE_BYTES 256
-//static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
-
-// TODO: Define telemetry message properties here, for example . . . 
-//static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"}, 
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
-
-// TODO: Remove comments to define contentProperties for sending telemetry
-//static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+// Declare timer handlers
+static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
 
 /****************************************************************************************
  * Bindings
  ****************************************************************************************/
-// TODO: Declare all bindings here, for example . . . 
+
+// Device Twin Bindings
+static DX_DEVICE_TWIN_BINDING dt_inside_rsl10 = {.propertyName = "insideMac",
+                                                  .twinType = DX_DEVICE_TWIN_STRING,
+                                                  .context = &Rsl10DeviceList[0],  // Address of first RSL10 structure
+                                                  .handler = rsl10AuthorizedDTFunction}; 
+
+static DX_DEVICE_TWIN_BINDING dt_outside_rsl10 = {.propertyName = "outsideMac",
+                                                  .twinType = DX_DEVICE_TWIN_STRING,
+                                                  .context = &Rsl10DeviceList[1],  // Address of second RSL10 structure
+                                                  .handler = rsl10AuthorizedDTFunction}; 
+
+static DX_DEVICE_TWIN_BINDING dt_enable_onboarding_rsl10 = {.propertyName = "enableRSL10Onboarding",
+                                                  .twinType = DX_DEVICE_TWIN_BOOL,
+                                                  .handler = enableOnboardingDTFunction}; 
+
+static DX_DEVICE_TWIN_BINDING dt_telemetry_polltime = {.propertyName = "telemetryPollPeriod",
+                                                  .twinType = DX_DEVICE_TWIN_INT,
+                                                  .handler = telemetryTimerDTFunction}; 
+
+// Timer Bindings
+static DX_TIMER_BINDING tmr_send_telemetry = {.period = {DEFAULT_TELEMETRY_TX_TIME, 0}, 
+                                              .name = "tmr_send_telemetry", 
+                                              .handler = send_telemetry_handler};
 
 //static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
 //static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
-//static DX_TIMER_BINDING tmr_publish_message = {.period = {4, 0}, .name = "tmr_publish_message", .handler = publish_message_handler};
+
 
 /****************************************************************************************
  * Binding sets
@@ -76,7 +90,10 @@ DX_USER_CONFIG dx_config;
 // TODO: Update each binding set below with the bindings defined above.  Add bindings by reference, i.e., &dt_desired_sample_rate
 // These sets are used by the initailization code.
 
-DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {};
+DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_inside_rsl10, 
+                                                  &dt_outside_rsl10, 
+                                                  &dt_enable_onboarding_rsl10 , 
+                                                  &dt_telemetry_polltime};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {};
-DX_TIMER_BINDING *timer_bindings[] = {};
+DX_TIMER_BINDING *timer_bindings[] = {&tmr_send_telemetry};
