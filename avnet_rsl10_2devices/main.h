@@ -41,6 +41,12 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 #define DEFAULT_TELEMETRY_TX_TIME 15
 
+DX_PROXY_PROPERTIES proxy = {.proxyAddress = "192.168.8.2",
+                             .proxyPort = 3128,
+                             .proxyUsername = NULL,
+                             .proxyPassword = NULL,
+                             .noProxyAdresses = NULL};
+
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/

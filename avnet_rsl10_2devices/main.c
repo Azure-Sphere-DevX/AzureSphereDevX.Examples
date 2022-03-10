@@ -285,6 +285,11 @@ static void uartEventHandler(DX_UART_BINDING *uartBinding)
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+
+    dx_azureConfigureProxy(&proxy);
+    dx_azureEnableProxy(true);
+
+    
 #ifdef USE_AVNET_IOTCONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
