@@ -149,8 +149,6 @@ typedef struct RSL10Device {
     bool batteryDataRefreshed;
 } RSL10Device_t;
 
-extern void SendTelemetry(const char *, bool);
-extern void TwinReportState(const char *jsonState);
 extern RSL10Device_t Rsl10DeviceList[MAX_RSL10_DEVICES];
 extern char authorizedDeviceList[MAX_RSL10_DEVICES][RSL10_ADDRESS_LEN];
 
@@ -179,5 +177,7 @@ bool addRsl10DeviceToList(char *, int8_t);
 int8_t getDeviceIndex(char* deviceToCheck);
 void processData(int, int);
 void rsl10SendTelemetry(void);
+
+void parseRsl10Message(char *msgToParse);
 
 #define NEW_DEVICE -1

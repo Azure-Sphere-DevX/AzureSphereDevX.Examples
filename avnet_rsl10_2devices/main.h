@@ -52,6 +52,9 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(telemetryTimerDTFunction);
 // Declare timer handlers
 static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
 
+// Uart handler
+static void uartEventHandler(DX_UART_BINDING *uartBinding);
+
 /****************************************************************************************
  * Bindings
  ****************************************************************************************/
@@ -80,6 +83,18 @@ static DX_TIMER_BINDING tmr_send_telemetry = {.period = {DEFAULT_TELEMETRY_TX_TI
                                               .name = "tmr_send_telemetry", 
                                               .handler = send_telemetry_handler};
 
+/****************************************************************************************
+ * UART Peripherals
+ ****************************************************************************************/
+static DX_UART_BINDING pmodUart = {.uart = SAMPLE_PMOD_UART,
+                                   .name = "PMOD UART",
+                                   .handler = uartEventHandler,
+                                   .uartConfig.baudRate = 115200,
+                                   .uartConfig.dataBits = UART_DataBits_Eight,
+                                   .uartConfig.parity = UART_Parity_None,
+                                   .uartConfig.stopBits = UART_StopBits_One,
+                                   .uartConfig.flowControl = UART_FlowControl_None};
+
 //static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
 //static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
 
@@ -97,3 +112,4 @@ DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_inside_rsl10,
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {};
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_send_telemetry};
+DX_UART_BINDING *uart_bindings[] = {&pmodUart};  

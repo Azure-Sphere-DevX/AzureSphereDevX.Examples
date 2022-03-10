@@ -128,7 +128,9 @@ void parseRsl10Message(char *msgToParse)
 
             snprintf(telemetryBuffer, sizeof(telemetryBuffer), Rsl10UnauthorizedTelemetryJson, bdAddress);
             // Send the telemetry message
-            SendTelemetry(telemetryBuffer, true);
+            dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
+                                    messageProperties, NELEMS(messageProperties),
+                                    &contentProperties);
 
         }
         return;
@@ -411,7 +413,7 @@ void getOrientation(RSL10Device_t* currentDevPtr, Rsl10MotionMessage_t* rxMessag
 
 bool addRsl10DeviceToList(char *newRsl10Address, int8_t currentIndex)
 {
-    // Increment the number of devies int he list and check to make sure the list is not already full, 
+    // Increment the number of devies in the list and check to make sure the list is not already full, 
     // if so return false (failure)
     if (numRsl10DevicesInList++ == MAX_RSL10_DEVICES) {
         return false;
@@ -503,6 +505,7 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastOrientation_w);
                 // Send the telemetry message
 //                SendTelemetry(telemetryBuffer, true);
+//                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
@@ -529,6 +532,7 @@ void rsl10SendTelemetry(void) {
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
                                     &contentProperties);
+                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
             
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
@@ -554,6 +558,8 @@ void rsl10SendTelemetry(void) {
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
                                     &contentProperties);
+                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
+
 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].batteryDataRefreshed = false;

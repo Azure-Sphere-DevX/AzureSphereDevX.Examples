@@ -6,6 +6,7 @@
   "CmdArgs": [ "--ScopeID", "0ne0008CB04" ],
   "Capabilities": {
     "Gpio": [],
+    "Uart": ["$SAMPLE_PMOD_UART"],
     "AllowedConnections": ["BW-IoTHub.azure-devices.net", 
       "global.azure-devices-provisioning.net" ],
     "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
