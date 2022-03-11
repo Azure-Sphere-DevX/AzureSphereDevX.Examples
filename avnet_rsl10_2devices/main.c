@@ -279,6 +279,56 @@ static void uartEventHandler(DX_UART_BINDING *uartBinding)
 #endif
 }
 
+// Using the networkStatus value, turn on/off the connection status LEDs
+static void setConnectionStatusLed(RGB_Status newNetworkStatus)
+{
+	static RGB_Status lastNetworkStatus = RGB_Invalid;
+
+	// Nothing to see here folks, move along . . .
+	if(lastNetworkStatus == newNetworkStatus){
+		return;
+	}
+
+	// Update the local static variable
+	lastNetworkStatus = newNetworkStatus;
+
+	// Turn off all the LED's then set the LED corresponding to the network status
+	dx_gpioOff(&red_led);
+	dx_gpioOff(&green_led);
+	dx_gpioOff(&blue_led);
+
+	switch (newNetworkStatus)
+	{
+		case RGB_No_Network: // RED LED on
+			dx_gpioOn(&red_led);
+			break;
+		case RGB_Network_Connected: // Green LED on
+			dx_gpioOn(&green_led);
+			break;
+		case RGB_IoT_Hub_Connected: // Blue LED on
+			dx_gpioOn(&blue_led);
+			break;
+		case RGB_Invalid:
+		default:	
+			break;		
+	}
+}
+
+static DX_TIMER_HANDLER(update_network_led_handler)
+{
+	// Assume we don't have a network connection
+    RGB_Status networkStatus = RGB_No_Network;
+
+	// Next check for Azure connectivity staus
+	if(dx_isAzureConnected()){
+		networkStatus = RGB_IoT_Hub_Connected;
+	}
+	else if (dx_isNetworkReady()){
+		networkStatus = RGB_Network_Connected;
+	}
+	setConnectionStatusLed(networkStatus);
+}
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
@@ -289,7 +339,6 @@ static void InitPeripheralsAndHandlers(void)
     dx_azureConfigureProxy(&proxy);
     dx_azureEnableProxy(true);
 
-    
 #ifdef USE_AVNET_IOTCONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     

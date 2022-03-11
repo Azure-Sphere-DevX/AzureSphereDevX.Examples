@@ -5,7 +5,10 @@
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "0ne0008CB04" ],
   "Capabilities": {
-    "Gpio": [],
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE"],
     "Uart": ["$SAMPLE_PMOD_UART"],
     "AllowedConnections": ["BW-IoTHub.azure-devices.net", 
       "global.azure-devices-provisioning.net" ],

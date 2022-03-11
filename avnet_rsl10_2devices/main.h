@@ -47,6 +47,15 @@ DX_PROXY_PROPERTIES proxy = {.proxyAddress = "192.168.8.2",
                              .proxyPassword = NULL,
                              .noProxyAdresses = NULL};
 
+// Enumeration to pass network status to setConectionStatusLed()
+typedef enum {
+	RGB_Invalid  = 0,
+    RGB_No_Network = 1,        // No network connection
+    RGB_Network_Connected = 2, // Connected to Azure, not authenticated
+    RGB_IoT_Hub_Connected = 3, // Connected and authenticated to IoT Hub
+
+} RGB_Status;
+
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
@@ -57,9 +66,13 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(telemetryTimerDTFunction);
 
 // Declare timer handlers
 static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
+static DX_DECLARE_TIMER_HANDLER(update_network_led_handler);
 
 // Uart handler
 static void uartEventHandler(DX_UART_BINDING *uartBinding);
+
+// RGB Network LED
+static void setConnectionStatusLed(RGB_Status newNetworkStatus);
 
 /****************************************************************************************
  * Bindings
@@ -89,6 +102,10 @@ static DX_TIMER_BINDING tmr_send_telemetry = {.period = {DEFAULT_TELEMETRY_TX_TI
                                               .name = "tmr_send_telemetry", 
                                               .handler = send_telemetry_handler};
 
+static DX_TIMER_BINDING tmr_update_network_led = {.period = {2, 0}, 
+                                              .name = "tmr_send_telemetry", 
+                                              .handler = update_network_led_handler};
+
 /****************************************************************************************
  * UART Peripherals
  ****************************************************************************************/
@@ -101,21 +118,32 @@ static DX_UART_BINDING pmodUart = {.uart = SAMPLE_PMOD_UART,
                                    .uartConfig.stopBits = UART_StopBits_One,
                                    .uartConfig.flowControl = UART_FlowControl_None};
 
-//static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
-//static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
-
+static DX_GPIO_BINDING red_led = {.pin = SAMPLE_RGBLED_RED, 
+                                   .name = "Red LED", 
+                                   .direction = DX_OUTPUT, 
+                                   .initialState = GPIO_Value_Low, 
+                                   .invertPin = true};
+                                   
+static DX_GPIO_BINDING green_led = {.pin = SAMPLE_RGBLED_GREEN, 
+                                   .name = "Green LED", 
+                                   .direction = DX_OUTPUT, 
+                                   .initialState = GPIO_Value_Low, 
+                                   .invertPin = true};
+static DX_GPIO_BINDING blue_led = {.pin = SAMPLE_RGBLED_BLUE, 
+                                   .name = "Blue LED", 
+                                   .direction = DX_OUTPUT, 
+                                   .initialState = GPIO_Value_Low, 
+                                   .invertPin = true};
 
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-// TODO: Update each binding set below with the bindings defined above.  Add bindings by reference, i.e., &dt_desired_sample_rate
-// These sets are used by the initailization code.
 
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_inside_rsl10, 
                                                   &dt_outside_rsl10, 
                                                   &dt_enable_onboarding_rsl10 , 
                                                   &dt_telemetry_polltime};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
-DX_GPIO_BINDING *gpio_bindings[] = {};
-DX_TIMER_BINDING *timer_bindings[] = {&tmr_send_telemetry};
+DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
+DX_TIMER_BINDING *timer_bindings[] = {&tmr_send_telemetry, &tmr_update_network_led};
 DX_UART_BINDING *uart_bindings[] = {&pmodUart};  
