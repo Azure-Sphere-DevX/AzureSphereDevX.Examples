@@ -37,6 +37,14 @@ This file implements routines requied to parse RSL10 advertisement messages rece
 #include "app_exit_codes.h"
 #include "signal.h"
 #include "dx_azure_iot.h"
+#include "build_options.h"
+#include "math.h"
+
+// Send the telemetry message
+#ifdef USE_IOT_CONNECT
+#include "dx_avnet_iot_connect.h"
+#endif
+
 
 // Enable this define to send test messages to the parser from main.c line ~1190
 //#define ENABLE_MESSAGE_TESTING

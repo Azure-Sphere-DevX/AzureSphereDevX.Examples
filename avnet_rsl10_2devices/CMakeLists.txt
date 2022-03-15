@@ -3,7 +3,7 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-project (azure_end_to_end C)
+project (AvnetRSL10Example C)
 
 # Check if there is a global azsphere_board.cmake file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
@@ -23,7 +23,7 @@ else()
     # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
 
     azsphere_configure_tools(TOOLS_REVISION "21.07")
-    azsphere_configure_api(TARGET_API_SET "11")
+    azsphere_configure_api(TARGET_API_SET "12")
 
 endif()
 

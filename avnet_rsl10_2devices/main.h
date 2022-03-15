@@ -13,6 +13,10 @@
 #include <applibs/log.h>
 #include <applibs/applications.h>
 #include "rsl10.h"
+#include "build_options.h"
+#ifdef USE_IOT_CONNECT
+#include "dx_avnet_iot_connect.h"
+#endif // USE_IOT_CONNECT
 
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -30,22 +34,17 @@
 DX_USER_CONFIG dx_config;
 
 /****************************************************************************************
- * Avnet IoTConnect Support
- ****************************************************************************************/
-// TODO: If the application will connect to Avnet's IoTConnect platform enable the 
-// #define below
-//#define USE_AVNET_IOTCONNECT
-
-/****************************************************************************************
  * Application defines
  ****************************************************************************************/
-#define DEFAULT_TELEMETRY_TX_TIME 15
 
-DX_PROXY_PROPERTIES proxy = {.proxyAddress = "192.168.8.2",
-                             .proxyPort = 3128,
-                             .proxyUsername = NULL,
-                             .proxyPassword = NULL,
-                             .noProxyAdresses = NULL};
+#ifdef USE_WEB_PROXY
+DX_PROXY_PROPERTIES proxy = {.proxyAddress = PROXY_ADDRESS,
+                             .proxyPort = PROXY_PORT,
+                             .proxyUsername = PROXY_USERNAME,
+                             .proxyPassword = PROXY_PASSWORD,
+                             .noProxyAdresses = NO_PROXY_ADDRESSES
+};
+#endif // USE_WEB_PROXY
 
 // Enumeration to pass network status to setConectionStatusLed()
 typedef enum {
@@ -98,7 +97,7 @@ static DX_DEVICE_TWIN_BINDING dt_telemetry_polltime = {.propertyName = "telemetr
                                                   .handler = telemetryTimerDTFunction}; 
 
 // Timer Bindings
-static DX_TIMER_BINDING tmr_send_telemetry = {.period = {DEFAULT_TELEMETRY_TX_TIME, 0}, 
+static DX_TIMER_BINDING tmr_send_telemetry = {.period = {TELEMETRY_SEND_PERIOD_SECONDS, 0}, 
                                               .name = "tmr_send_telemetry", 
                                               .handler = send_telemetry_handler};
 

@@ -130,7 +130,13 @@ DX_DEVICE_TWIN_HANDLER_END
 // Send telemetry
 static DX_TIMER_HANDLER(send_telemetry_handler)
 {
+
+    // Verify that we've connected to the IoTHub before sending any telemetry data
+#ifdef USE_IOT_CONNECT
+    if(!dx_isAvnetConnected()){
+#else  // !IoT Connect 
     if (!dx_isAzureConnected()) {
+#endif 
         Log_Debug("No IoTHub connection, not sending telemetry\n");
         return;
     }
@@ -336,10 +342,14 @@ DX_TIMER_HANDLER_END
 static void InitPeripheralsAndHandlers(void)
 {
 
+#ifdef USE_WEB_PROXY
+    // Configure and enable the web proxy feature
+    // Note that all proxy settings should be defined in build_options.h
     dx_azureConfigureProxy(&proxy);
     dx_azureEnableProxy(true);
+#endif // USE_WEB_PROXY
 
-#ifdef USE_AVNET_IOTCONNECT
+#ifdef USE_IOT_CONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
     dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
