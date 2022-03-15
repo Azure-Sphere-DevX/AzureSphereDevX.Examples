@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 1,
+  "Name": "AvnetRSL10Example",
+  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "" ],
+  "Capabilities": {
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE"],
+    "Uart": ["$SAMPLE_PMOD_UART"],
+    "AllowedConnections": ["global.azure-devices-provisioning.net",
+      "ENTER.IOT.HUB.HOSTNAME.net"],
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
+    "NetworkConfig": true
+  },
+  "ApplicationType": "Default"
+}

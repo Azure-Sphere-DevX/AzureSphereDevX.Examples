@@ -1,0 +1,109 @@
+{
+    "code": "RSL10Demo",
+    "name": "RSL10 Demo",
+    "authType": 2,
+    "description": "Template for two RSL10 demo",
+    "isIotEdgeEnable": false,
+    "attributes": [
+    {
+      "name": "unauthorizedMac",
+      "type": "STRING",
+      "description": "MAC address of unauthorized RSL10 device",
+      "unit": "dBm"
+    },
+    {
+      "name": "rssiInsideDevice",
+      "type": "DECIMAL",
+      "description": "Received signal strength from received RSL10",
+      "unit": "dBm"
+    },
+    {
+      "name": "batInsideDevice",
+      "type": "DECIMAL",
+      "description": "Measured battery voltage",
+      "unit": "V"
+    },
+    {
+      "name": "tempInsideDevice",
+      "type": "DECIMAL",
+      "description": "Temperature",
+      "unit": "C"
+    },
+    {
+      "name": "humidityInsideDevice",
+      "type": "DECIMAL",
+      "description": "Temperature",
+      "unit": "RH"
+    },
+    {
+      "name": "rssiOutsideDevice",
+      "type": "DECIMAL",
+      "description": "Received signal strength from received BT510 message",
+      "unit": "dBm"
+    },
+    {
+      "name": "batOutsideDevice",
+      "type": "DECIMAL",
+      "description": "Measured battery voltage",
+      "unit": "V"
+    },
+    {
+      "name": "tempOutsideDevice",
+      "type": "DECIMAL",
+      "description": "Temperature",
+      "unit": "C"
+    },
+    {
+      "name": "humidityOutsideDevice",
+      "type": "DECIMAL",
+      "description": "Temperature",
+      "unit": "RH"
+    },
+    {
+      "name": "pressureOutsideDevice",
+      "type": "DECIMAL",
+      "description": "Measured pressure from outside sensor device",
+      "unit": null
+    },
+    {
+      "name": "pressureInsideDevice",
+      "type": "DECIMAL",
+      "description": "Measured pressure from inside sensor device",
+      "unit": null
+    }
+  ],
+  "settings": [
+    {
+      "name": "Inside RSL10",
+      "type": "STRING",
+      "localName": "insideMac",
+      "defaultValue": "\"\"",
+      "isReadOnly": false
+    },
+    {
+      "name": "Enable RSL10 Onboarding",
+      "type": "STRING",
+      "localName": "enableRSL10Onboarding",
+      "defaultValue": "true",
+      "dataValidation": "true,false",
+      "isReadOnly": false
+    },
+    {
+      "name": "Outside RSL10",
+      "type": "STRING",
+      "localName": "outsideMac",
+      "defaultValue": "\"\"",
+      "isReadOnly": false
+    },
+    {
+      "name": "Telemetry Send Interval",
+      "type": "INTEGER",
+      "localName": "telemetryPollPeriod",
+      "isReadOnly": false
+    }
+  ],
+
+  "dataFrequency": 60,
+  "messageVersion": "2.1",
+  "msgCode": "1389JCR"
+}

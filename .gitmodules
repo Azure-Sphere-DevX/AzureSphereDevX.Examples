@@ -154,3 +154,9 @@
 [submodule "avnet_bbq_monitor/HardwareDefinitions"]
 	path = avnet_bbq_monitor/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule ".\\avnet_rsl10_2devices\\AzureSphereDevX"]
+	path = .\\avnet_rsl10_2devices\\AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule ".\\avnet_rsl10_2devices\\HardwareDefinitions"]
+	path = .\\avnet_rsl10_2devices\\HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
