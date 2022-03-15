@@ -58,4 +58,17 @@
 // Set this flag to send telemetry data using the DevX seralizer
 //#define USE_DEVX_SERIALIZATION
 
+// Set this flag to force the device/application to send all network traffic through a 
+// Proxy server.
+//#define USE_WEB_PROXY
+#ifdef USE_WEB_PROXY
+
+// Define the proxy settings here . . .
+#define PROXY_ADDRESS "192.168.8.2"
+#define PROXY_PORT 3128
+#define PROXY_USERNAME NULL
+#define PROXY_PASSWORD NULL
+#define NO_PROXY_ADDRESSES NULL
+#endif // USE_WEB_PROXY
+
 #endif 
