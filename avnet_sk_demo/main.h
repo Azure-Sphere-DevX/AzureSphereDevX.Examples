@@ -91,6 +91,16 @@ static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "ut
 /****************************************************************************************
  * Global Variables
  ****************************************************************************************/
+#ifdef USE_WEB_PROXY
+DX_PROXY_PROPERTIES proxy = {.proxyAddress = PROXY_ADDRESS,
+                             .proxyPort = PROXY_PORT,
+                             .proxyUsername = PROXY_USERNAME,
+                             .proxyPassword = PROXY_PASSWORD,
+                             .noProxyAdresses = NO_PROXY_ADDRESSES
+};
+#endif // USE_WEB_PROXY
+
+
 
 // Array with messages from Azure
 //                                123456789012345678901

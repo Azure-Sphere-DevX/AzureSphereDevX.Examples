@@ -3,7 +3,7 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-project (azure_end_to_end C)
+project (avnet_lightranger5_TMF8801_HLApp-V1 C)
 
 # Check if there is a global azsphere_board.cmake file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
@@ -23,7 +23,7 @@ else()
     # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
 
     azsphere_configure_tools(TOOLS_REVISION "21.07")
-    azsphere_configure_api(TARGET_API_SET "11")
+    azsphere_configure_api(TARGET_API_SET "12")
 
 endif()
 
@@ -51,19 +51,6 @@ if(AVNET_REV_2)
     message(STATUS "Azure Sphere board selected: AVNET REV 2")
 endif(AVNET_REV_2)
 
-if (SEEED_STUDIO_RDB)
-    MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
-    add_definitions( -DOEM_SEEED_STUDIO=TRUE )
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/mt3620_rdb" TARGET_DEFINITION "sample_appliance.json")
-    message(STATUS "Azure Sphere board selected: SEEED STUDIO RDB")
-endif()
-
-if (SEEED_STUDIO_MINI)
-    MATH(EXPR BOARD_COUNTER "${BOARD_COUNTER}+1")
-    add_definitions( -DOEM_SEEED_STUDIO_MINI=TRUE )    
-    azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "HardwareDefinitions/seeed_mt3620_mdb" TARGET_DEFINITION "sample_appliance.json")
-    message(STATUS "Azure Sphere board selected: SEEED STUDIO MINI")
-endif(SEEED_STUDIO_MINI)
 
 if(BOARD_COUNTER EQUAL 0)
     message(FATAL_ERROR "No Azure Sphere boards selected. Ensure one board set")

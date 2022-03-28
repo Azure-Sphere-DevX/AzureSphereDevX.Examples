@@ -599,6 +599,14 @@ switch (messageData->cmd) {
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+
+#ifdef USE_WEB_PROXY
+    // Configure and enable the web proxy feature
+    // Note that all proxy settings should be defined in build_options.h
+    dx_azureConfigureProxy(&proxy);
+    dx_azureEnableProxy(true);
+#endif // USE_WEB_PROXY
+
 #ifdef IOT_HUB_APPLICATION
 #ifdef USE_IOT_CONNECT
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
