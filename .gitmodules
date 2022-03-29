@@ -166,3 +166,9 @@
 [submodule "avnet_sensors_converge/avnet_lightranger5/HardwareDefinitions"]
 	path = avnet_sensors_converge/avnet_lightranger5/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_sensors_converge/avnet_tempHum13/AzureSphereDevX"]
+	path = avnet_sensors_converge/avnet_tempHum13/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_sensors_converge/avnet_tempHum13/HardwareDefinitions"]
+	path = avnet_sensors_converge/avnet_tempHum13/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
