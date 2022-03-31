@@ -26,23 +26,7 @@
 #define NETWORK_INTERFACE "wlan0"
 
 #define SAMPLE_VERSION_NUMBER "1.0"
-#define ONE_MS 1000000
-#define ONE_HUNDRED_MS 100000000
 
-#define DEFAULT_SENSOR_POLL_PERIOD_SECONDS 0
-#define DEFAULT_SENSOR_POLL_PERIOD_MS (ONE_MS * 50)
-
-#define DEFAULT_SEND_TELEMETRY_PERIOD_SECONDS 5
-
-#define MIN_POLL_TIME_MS 20
-#define MAX_POLL_TIME_MS 60*1000 // 1 Minute
-
-#define MIN_TELEMETRY_TX_PERIOD 1
-#define MAX_TELEMETRY_TX_PERIOD (60*60) // 1 Hour
-
-#define HISTORICAL_DATA_ARRAY_SIZE 64
-
-#define OVER_UNDER_RANGE 2 // Degrees C 
 
 DX_USER_CONFIG dx_config;
 
@@ -56,11 +40,23 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
-typedef enum {
-	RGB_INVALID = 0,
-    RGB_UNDER_ROOM_TEMP,
-    RGB_OVER_ROOM_TEMP
-} RGB_Status;
+#define ONE_MS 1000000
+#define ONE_HUNDRED_MS 100000000
+
+#define DEFAULT_SENSOR_POLL_PERIOD_SECONDS 0
+#define DEFAULT_SENSOR_POLL_PERIOD_MS (ONE_MS * 100)
+
+#define DEFAULT_SEND_TELEMETRY_PERIOD_SECONDS 5
+
+#define MIN_POLL_TIME_MS 20
+#define MAX_POLL_TIME_MS 60*1000 // 1 Minute
+
+#define MIN_TELEMETRY_TX_PERIOD 1
+#define MAX_TELEMETRY_TX_PERIOD (60*60) // 1 Hour
+
+#define HISTORICAL_DATA_ARRAY_SIZE 32
+
+#define OVER_UNDER_RANGE 2 // Degrees C 
 
 /****************************************************************************************
  * Forward declarations
@@ -68,6 +64,7 @@ typedef enum {
 static void receive_msg_handler(void *data_block, ssize_t message_length);
 static DX_DECLARE_TIMER_HANDLER(ReadSensorHandler);
 static DX_DECLARE_TIMER_HANDLER(SendTelemetryHandler);
+static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds);
 static void updateHistoricalTempData(float tempData);
@@ -127,14 +124,22 @@ static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate_ms = {.propertyName = "sens
 static DX_DEVICE_TWIN_BINDING dt_telemetry_tx_period_s = {.propertyName = "setTelemetrySendPeriod_seconds",
                                                            .twinType = DX_DEVICE_TWIN_INT,
                                                            .handler = dt_set_telemetemetry_period_seconds};
-                                                          
 
+static DX_TIMER_BINDING buttonPressCheckTimer = {
+    .period = {0, 1000000}, .name = "buttonPressCheckTimer", .handler = ButtonPressCheckHandler};                                                           
+
+static DX_GPIO_BINDING buttonA = {
+    .pin = SAMPLE_BUTTON_1, .name = "buttonA", .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW};
+
+static DX_GPIO_BINDING buttonB = {
+    .pin = SAMPLE_BUTTON_2, .name = "buttonB", .direction = DX_INPUT, .detect = DX_GPIO_DETECT_LOW};                                            
+                                                          
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_desired_sample_rate_ms,
                                                   &dt_telemetry_tx_period_s};
-DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
-DX_GPIO_BINDING *gpio_bindings[] = {};
-DX_TIMER_BINDING *timer_bindings[] = {&readSensorTimer}; //, &sendTelemetryTimer};
+static DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
+static DX_GPIO_BINDING *gpio_bindings[] = {&buttonA, &buttonB};
+static DX_TIMER_BINDING *timer_bindings[] = {&readSensorTimer, &sendTelemetryTimer, &buttonPressCheckTimer};
 static DX_PWM_BINDING *pwm_bindings[] = {&pwm_red_led, &pwm_green_led, &pwm_blue_led};

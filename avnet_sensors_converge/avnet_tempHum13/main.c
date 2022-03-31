@@ -49,6 +49,29 @@ static bool roomTempCalculated = false;
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+/// <summary>
+/// Handler to check for Button Presses
+/// </summary>
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
+{
+    static GPIO_Value_Type buttonAState;
+    static GPIO_Value_Type buttonBState;
+
+    // Check to see if either button was pressed
+    if (dx_gpioStateGet(&buttonA, &buttonAState) || dx_gpioStateGet(&buttonB, &buttonBState) ) {
+
+        // Turn the RBB LED on bright to indicate that we're sampling room temperature
+        dx_pwmSetDutyCycle(&pwm_red_led, 1000, 0);
+        dx_pwmSetDutyCycle(&pwm_green_led, 1000, 0);
+        dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 0);        
+
+        // Set the global flag to false so we calculate room temp again
+        roomTempCalculated = false;
+        calculatedRoomTemp = 0.0;
+    }
+}
+DX_TIMER_HANDLER_END
+
 static void updateHistoricalTempData(float tempData){
 
     static float historicalTempData[HISTORICAL_DATA_ARRAY_SIZE];
@@ -63,6 +86,7 @@ static void updateHistoricalTempData(float tempData){
         }
         calculatedRoomTemp = runningAverageSum/(double)HISTORICAL_DATA_ARRAY_SIZE;
         roomTempCalculated = true;
+        arrayIndex = 0; // Reset the index in case we recalcualte during run time
         Log_Debug("Room temperature captured as %.2fC\n", calculatedRoomTemp);
     }
     // We're still capturing data, update the next array location with the new temperature reading
@@ -116,28 +140,15 @@ DX_DEVICE_TWIN_HANDLER_END
 // Using the rangeStatus value, turn on/off the range indication LEDs
 static void setPwmStatusLed(float temp)
 {
-	static RGB_Status lastTempStatus = RGB_INVALID;
-    RGB_Status tempStatus = RGB_INVALID;
     static float lastTemp = -100.0;
     uint32_t dutyCycle = 100;
 
-    // Detmine if we're under of over the calculated room temperature
-    if(roomTempCalculated){
-        if(temp < calculatedRoomTemp){
-            tempStatus = RGB_UNDER_ROOM_TEMP;
-        }
-        else if(temp > calculatedRoomTemp){
-            tempStatus = RGB_OVER_ROOM_TEMP;
-        }
-    }
-
 	// Nothing to see here folks, move along . . .
-	if((lastTempStatus == tempStatus) && (lastTemp == temp)){
+	if(lastTemp == temp){
 		return;
 	}
 
-	// Update the local static variables
-	lastTempStatus = tempStatus;
+	// Update the local static variable
     lastTemp = temp;
 
 	// Turn off all the LED's then set the LED corresponding to the range status
@@ -146,23 +157,21 @@ static void setPwmStatusLed(float temp)
     dx_pwmSetDutyCycle(&pwm_green_led, 1000, 100);
     dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 100);
 
-	switch (tempStatus)
-	{
-        case RGB_UNDER_ROOM_TEMP: // Blue LED
-
-
-            //dutyCycle = (uint32_t)((float)(range-0)/(float)(closeRange-0)*100);
-            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp-OVER_UNDER_RANGE))/(float)(calculatedRoomTemp-(calculatedRoomTemp-OVER_UNDER_RANGE))*100);
+    // Detmine if we're under of over the calculated room temperature, then calculate the duty cycle
+    // 100% == LED Full Brightness
+    // 0% == LED Off
+    if(roomTempCalculated){
+        if(temp < calculatedRoomTemp){
+            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp-OVER_UNDER_RANGE))/
+                                  (float)(calculatedRoomTemp-(calculatedRoomTemp-OVER_UNDER_RANGE))*100);
             dx_pwmSetDutyCycle(&pwm_blue_led, 1000, dutyCycle);
-			break;
-		case RGB_OVER_ROOM_TEMP: // Red LED
-            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp+OVER_UNDER_RANGE))/(float)(calculatedRoomTemp-(calculatedRoomTemp+OVER_UNDER_RANGE))*100);
+        }
+        else if(temp > calculatedRoomTemp){
+            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp+OVER_UNDER_RANGE))/
+                                   (float)(calculatedRoomTemp-(calculatedRoomTemp+OVER_UNDER_RANGE))*100);
             dx_pwmSetDutyCycle(&pwm_red_led, 1000, dutyCycle);
-			break;
-		case RGB_INVALID:
-		default:	
-			break;		
-	}
+        }
+    }
 }
 
 /// <summary>
@@ -221,7 +230,7 @@ DX_TIMER_HANDLER_END
 static DX_TIMER_HANDLER(SendTelemetryHandler)
 {
 
-    snprintf(msgBuffer, sizeof(msgBuffer), "{\"temp\":%.2f, \"humidity\": %.2f}", lastTempMeasurement);                
+    snprintf(msgBuffer, sizeof(msgBuffer), "{\"temp\":%.2f, \"humidity\": %.2f}", lastTempMeasurement, lastHumMeasurement);                
     Log_Debug("%s\n", msgBuffer);
 
     if(dx_isAzureConnected()){
