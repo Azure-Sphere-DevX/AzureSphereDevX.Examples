@@ -41,75 +41,37 @@
  ************************************************************************************************/
 #include "main.h"
 
-static int coolRange = DEFAULT_COOL_TEMP;
-static int warmRange = DEFAULT_WARM_TEMP;
-static int hotRange = DEFAULT_HOT_TEMP;
-
-static float lastTempMeasurement = -100.0;
+static float lastTempMeasurement = -100.0F;
+static float lastHumMeasurement = -100.0F;
+static double calculatedRoomTemp = 0.0F;
+static bool roomTempCalculated = false;
 
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
-//static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms);
+static void updateHistoricalTempData(float tempData){
 
-static DX_DEVICE_TWIN_HANDLER(dt_red_led_set_limit, deviceTwinBinding)
-{
-    // validate data is sensible range before applying. 
-    if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue >= warmRange) {
+    static float historicalTempData[HISTORICAL_DATA_ARRAY_SIZE];
+    static int arrayIndex = 0;
+    double runningAverageSum = 0;
 
-        hotRange = *(int *)deviceTwinBinding->propertyValue;
-
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-
-    } else {
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_ERROR);
+    if(!roomTempCalculated && ++arrayIndex >= HISTORICAL_DATA_ARRAY_SIZE){
+        // Calculate room temperature based on the first HISTORICAL_DATA_ARRAY_SIZE
+        // temperature readings
+        for(int i = 0; i < HISTORICAL_DATA_ARRAY_SIZE; i++){
+            runningAverageSum = runningAverageSum + tempData;
+        }
+        calculatedRoomTemp = runningAverageSum/(double)HISTORICAL_DATA_ARRAY_SIZE;
+        roomTempCalculated = true;
+        Log_Debug("Room temperature captured as %.2fC\n", calculatedRoomTemp);
+    }
+    // We're still capturing data, update the next array location with the new temperature reading
+    else{
+        historicalTempData[arrayIndex] = tempData;
     }
 }
-DX_DEVICE_TWIN_HANDLER_END
-
-static DX_DEVICE_TWIN_HANDLER(dt_blue_led_set_limit, deviceTwinBinding)
-{
-    // validate data is sensible range before applying
-    if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue < warmRange) {
-
-        coolRange = *(int *)deviceTwinBinding->propertyValue;
-
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-
-    } else {
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_ERROR);
-    }
-}
-DX_DEVICE_TWIN_HANDLER_END
-
-static DX_DEVICE_TWIN_HANDLER(dt_green_led_set_limit, deviceTwinBinding)
-{
-    // validate data is sensible range before applying
-    if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue > coolRange &&
-        *(int *)deviceTwinBinding->propertyValue < hotRange) {
-
-        warmRange = *(int *)deviceTwinBinding->propertyValue;
-
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_COMPLETED);
-
-    } else {
-        dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
-                                     DX_DEVICE_TWIN_RESPONSE_ERROR);
-    }
-}
-DX_DEVICE_TWIN_HANDLER_END
-
 static DX_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms, deviceTwinBinding)
 {
-
     // validate data is sensible range before applying. 
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
         *(int *)deviceTwinBinding->propertyValue >= MIN_POLL_TIME_MS &&
@@ -151,13 +113,23 @@ static DX_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds, deviceTwinBin
 }
 DX_DEVICE_TWIN_HANDLER_END
 
-
 // Using the rangeStatus value, turn on/off the range indication LEDs
-static void setPwmStatusLed(RGB_Status tempStatus, float temp)
+static void setPwmStatusLed(float temp)
 {
 	static RGB_Status lastTempStatus = RGB_INVALID;
+    RGB_Status tempStatus = RGB_INVALID;
     static float lastTemp = -100.0;
     uint32_t dutyCycle = 100;
+
+    // Detmine if we're under of over the calculated room temperature
+    if(roomTempCalculated){
+        if(temp < calculatedRoomTemp){
+            tempStatus = RGB_UNDER_ROOM_TEMP;
+        }
+        else if(temp > calculatedRoomTemp){
+            tempStatus = RGB_OVER_ROOM_TEMP;
+        }
+    }
 
 	// Nothing to see here folks, move along . . .
 	if((lastTempStatus == tempStatus) && (lastTemp == temp)){
@@ -176,18 +148,15 @@ static void setPwmStatusLed(RGB_Status tempStatus, float temp)
 
 	switch (tempStatus)
 	{
-		case RGB_OUT_OF_RANGE:
-            break; // Leave the LEDs off
-        case RGB_COOL: // Blue LED
+        case RGB_UNDER_ROOM_TEMP: // Blue LED
+
+
             //dutyCycle = (uint32_t)((float)(range-0)/(float)(closeRange-0)*100);
+            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp-OVER_UNDER_RANGE))/(float)(calculatedRoomTemp-(calculatedRoomTemp-OVER_UNDER_RANGE))*100);
             dx_pwmSetDutyCycle(&pwm_blue_led, 1000, dutyCycle);
 			break;
-		case RGB_WARM: // Green LED
-            //dutyCycle = (uint32_t)(((float)(range-closeRange)/(float)(mediumRange - closeRange))*100);
-            dx_pwmSetDutyCycle(&pwm_green_led, 1000, dutyCycle);
-			break;
-		case RGB_HOT: // Red LED
-            //dutyCycle = (uint32_t)(((float)(range-mediumRange)/(float)(farRange - mediumRange))*100);
+		case RGB_OVER_ROOM_TEMP: // Red LED
+            dutyCycle = (uint32_t)((float)(temp-(calculatedRoomTemp+OVER_UNDER_RANGE))/(float)(calculatedRoomTemp-(calculatedRoomTemp+OVER_UNDER_RANGE))*100);
             dx_pwmSetDutyCycle(&pwm_red_led, 1000, dutyCycle);
 			break;
 		case RGB_INVALID:
@@ -209,27 +178,15 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 
     switch (messageData->cmd) {
         case IC_TEMPHUM_READ_SENSOR:
-            
-            if(messageData->temp == -1){
-                setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->temp);
+            if(roomTempCalculated){
+                setPwmStatusLed(messageData->temp);
             }
             else{
-                if(messageData->temp <= coolRange){
-                    setPwmStatusLed(RGB_COOL, messageData->temp);
-                }
-                else if (messageData->temp <= warmRange){
-                    setPwmStatusLed(RGB_WARM, messageData->temp);
-                }
-                else if (messageData->temp <= hotRange){
-                    setPwmStatusLed(RGB_HOT, messageData->temp);
-                }
-                else{
-                    setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->temp);
-                }
+                updateHistoricalTempData(messageData->temp);
             }
 
-            // Capture the last measurement in the global variable
             lastTempMeasurement = messageData->temp;
+            lastHumMeasurement = messageData->hum;
 
             break;
         // Handle the other cases by doing nothing
@@ -264,7 +221,7 @@ DX_TIMER_HANDLER_END
 static DX_TIMER_HANDLER(SendTelemetryHandler)
 {
 
-    snprintf(msgBuffer, sizeof(msgBuffer), "{\"rangeData\":%d}", lastTempMeasurement);                
+    snprintf(msgBuffer, sizeof(msgBuffer), "{\"temp\":%.2f, \"humidity\": %.2f}", lastTempMeasurement);                
     Log_Debug("%s\n", msgBuffer);
 
     if(dx_isAzureConnected()){
@@ -294,12 +251,12 @@ static void InitPeripheralsAndHandlers(void)
     dx_intercoreConnect(&intercore_tempHum13_click_binding);
     dx_pwmSetOpen(pwm_bindings, NELEMS(pwm_bindings));
  
-    // Turn off RGBLED - 100% duty cycle is off
-    dx_pwmSetDutyCycle(&pwm_red_led, 1000, 100);
-    dx_pwmSetDutyCycle(&pwm_green_led, 1000, 100);
-    dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 100);
+    // Turn on all RGBLEDs - 0% duty cycle is 100% on
+    dx_pwmSetDutyCycle(&pwm_red_led, 1000, 0);
+    dx_pwmSetDutyCycle(&pwm_green_led, 1000, 0);
+    dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 0);
 
-    Log_Debug("Lightranger5 Demo Starting . . . \n");
+    Log_Debug("Temp&Hum13 Demo Starting . . . \n");
 }
 
 /// <summary>
@@ -307,6 +264,12 @@ static void InitPeripheralsAndHandlers(void)
 /// </summary>
 static void ClosePeripheralsAndHandlers(void)
 {
+    
+    // Turn off RGBLEDs - 100% duty cycle is off
+    dx_pwmSetDutyCycle(&pwm_red_led, 1000, 100);
+    dx_pwmSetDutyCycle(&pwm_green_led, 1000, 100);
+    dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 100);
+
     dx_timerSetStop(timer_bindings, NELEMS(timer_bindings));
     dx_pwmSetClose(pwm_bindings, NELEMS(pwm_bindings));
     dx_deviceTwinUnsubscribe();

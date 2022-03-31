@@ -18,9 +18,6 @@
 #include "htu21d_rtapp.h"
 #include "dx_uart.h"
 
-// Use main.h to define all your application definitions, message properties/contentProperties,
-// bindings and binding sets.
-
 // https://docs.microsoft.com/en-us/azure/iot-pnp/overview-iot-plug-and-play
 #define IOT_PLUG_AND_PLAY_MODEL_ID "" 
 
@@ -43,9 +40,9 @@
 #define MIN_TELEMETRY_TX_PERIOD 1
 #define MAX_TELEMETRY_TX_PERIOD (60*60) // 1 Hour
 
-#define DEFAULT_COOL_TEMP 26
-#define DEFAULT_WARM_TEMP 30
-#define DEFAULT_HOT_TEMP 32
+#define HISTORICAL_DATA_ARRAY_SIZE 64
+
+#define OVER_UNDER_RANGE 2 // Degrees C 
 
 DX_USER_CONFIG dx_config;
 
@@ -61,10 +58,8 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 typedef enum {
 	RGB_INVALID = 0,
-    RGB_OUT_OF_RANGE,
-    RGB_COOL,  
-    RGB_WARM, 
-    RGB_HOT 
+    RGB_UNDER_ROOM_TEMP,
+    RGB_OVER_ROOM_TEMP
 } RGB_Status;
 
 /****************************************************************************************
@@ -73,11 +68,9 @@ typedef enum {
 static void receive_msg_handler(void *data_block, ssize_t message_length);
 static DX_DECLARE_TIMER_HANDLER(ReadSensorHandler);
 static DX_DECLARE_TIMER_HANDLER(SendTelemetryHandler);
-static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_red_led_set_limit);
-static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_blue_led_set_limit);
-static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_green_led_set_limit);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds);
+static void updateHistoricalTempData(float tempData);
 
 IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT ic_tx_block;
 IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL ic_rx_block;
@@ -120,22 +113,12 @@ static DX_PWM_CONTROLLER pwm_led_controller = {.controllerId = SAMPLE_LED_PWM_CO
 
 static DX_PWM_BINDING pwm_red_led = {
     .pwmController = &pwm_led_controller, .channelId = 0, .name = "red_led"};
+
 static DX_PWM_BINDING pwm_green_led = {
-    .pwmController = &pwm_led_controller, .channelId = 1, .name = "green led"};
+    .pwmController = &pwm_led_controller, .channelId = 1, .name = "green_led"};
+
 static DX_PWM_BINDING pwm_blue_led = {
     .pwmController = &pwm_led_controller, .channelId = 2, .name = "blue led"};                                         
-
-static DX_DEVICE_TWIN_BINDING dt_red_limit = {.propertyName = "redLimit_mm",
-                                             .twinType = DX_DEVICE_TWIN_INT,
-                                             .handler = dt_red_led_set_limit};
-
-static DX_DEVICE_TWIN_BINDING dt_green_limit = {.propertyName = "greenLimit_mm",
-                                                .twinType = DX_DEVICE_TWIN_INT,
-                                                .handler = dt_green_led_set_limit};
-
-static DX_DEVICE_TWIN_BINDING dt_blue_limit = {.propertyName = "blueLimit_mm",
-                                               .twinType = DX_DEVICE_TWIN_INT,
-                                               .handler = dt_blue_led_set_limit};
 
 static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate_ms = {.propertyName = "sensorPollPeriod_ms",
                                                            .twinType = DX_DEVICE_TWIN_INT,
@@ -149,10 +132,9 @@ static DX_DEVICE_TWIN_BINDING dt_telemetry_tx_period_s = {.propertyName = "setTe
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_red_limit, &dt_green_limit, &dt_blue_limit,
-                                                  &dt_desired_sample_rate_ms,
+DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_desired_sample_rate_ms,
                                                   &dt_telemetry_tx_period_s};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {};
-DX_TIMER_BINDING *timer_bindings[] = {&readSensorTimer, &sendTelemetryTimer};
+DX_TIMER_BINDING *timer_bindings[] = {&readSensorTimer}; //, &sendTelemetryTimer};
 static DX_PWM_BINDING *pwm_bindings[] = {&pwm_red_led, &pwm_green_led, &pwm_blue_led};
