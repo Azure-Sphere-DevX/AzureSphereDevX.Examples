@@ -41,11 +41,11 @@
  ************************************************************************************************/
 #include "main.h"
 
-static int closeRange = DEFAULT_CLOSE_RANGE;
-static int mediumRange = DEFAULT_MEDIUM_RANGE;
-static int farRange = DEFAULT_FAR_RANGE;
+static int coolRange = DEFAULT_COOL_TEMP;
+static int warmRange = DEFAULT_WARM_TEMP;
+static int hotRange = DEFAULT_HOT_TEMP;
 
-static int lastRangeMeasurement = -1;
+static float lastTempMeasurement = -100.0;
 
 /****************************************************************************************
  * Implementation
@@ -56,10 +56,9 @@ static DX_DEVICE_TWIN_HANDLER(dt_red_led_set_limit, deviceTwinBinding)
 {
     // validate data is sensible range before applying. 
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue >= MIN_CLOSE_RANGE &&
-        *(int *)deviceTwinBinding->propertyValue < mediumRange) {
+        *(int *)deviceTwinBinding->propertyValue >= warmRange) {
 
-        closeRange = *(int *)deviceTwinBinding->propertyValue;
+        hotRange = *(int *)deviceTwinBinding->propertyValue;
 
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
                                      DX_DEVICE_TWIN_RESPONSE_COMPLETED);
@@ -75,10 +74,9 @@ static DX_DEVICE_TWIN_HANDLER(dt_blue_led_set_limit, deviceTwinBinding)
 {
     // validate data is sensible range before applying
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue >=closeRange &&
-        *(int *)deviceTwinBinding->propertyValue < farRange) {
+        *(int *)deviceTwinBinding->propertyValue < warmRange) {
 
-        mediumRange = *(int *)deviceTwinBinding->propertyValue;
+        coolRange = *(int *)deviceTwinBinding->propertyValue;
 
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
                                      DX_DEVICE_TWIN_RESPONSE_COMPLETED);
@@ -94,10 +92,10 @@ static DX_DEVICE_TWIN_HANDLER(dt_green_led_set_limit, deviceTwinBinding)
 {
     // validate data is sensible range before applying
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
-        *(int *)deviceTwinBinding->propertyValue > mediumRange &&
-        *(int *)deviceTwinBinding->propertyValue < FAR_RANGE_MAX) {
+        *(int *)deviceTwinBinding->propertyValue > coolRange &&
+        *(int *)deviceTwinBinding->propertyValue < hotRange) {
 
-        farRange = *(int *)deviceTwinBinding->propertyValue;
+        warmRange = *(int *)deviceTwinBinding->propertyValue;
 
         dx_deviceTwinAckDesiredValue(deviceTwinBinding, deviceTwinBinding->propertyValue,
                                      DX_DEVICE_TWIN_RESPONSE_COMPLETED);
@@ -155,20 +153,20 @@ DX_DEVICE_TWIN_HANDLER_END
 
 
 // Using the rangeStatus value, turn on/off the range indication LEDs
-static void setPwmStatusLed(RGB_Status rangeStatus, int range)
+static void setPwmStatusLed(RGB_Status tempStatus, float temp)
 {
-	static RGB_Status lastRangeStatus = RGB_INVALID;
-    static int lastRange = -1;
+	static RGB_Status lastTempStatus = RGB_INVALID;
+    static float lastTemp = -100.0;
     uint32_t dutyCycle = 100;
 
 	// Nothing to see here folks, move along . . .
-	if((lastRangeStatus == rangeStatus) && (lastRange == range)){
+	if((lastTempStatus == tempStatus) && (lastTemp == temp)){
 		return;
 	}
 
 	// Update the local static variables
-	lastRangeStatus = rangeStatus;
-    lastRange = range;
+	lastTempStatus = tempStatus;
+    lastTemp = temp;
 
 	// Turn off all the LED's then set the LED corresponding to the range status
     // Turn off RGBLED - 100% duty cycle is off
@@ -176,21 +174,21 @@ static void setPwmStatusLed(RGB_Status rangeStatus, int range)
     dx_pwmSetDutyCycle(&pwm_green_led, 1000, 100);
     dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 100);
 
-	switch (rangeStatus)
+	switch (tempStatus)
 	{
 		case RGB_OUT_OF_RANGE:
             break; // Leave the LEDs off
-        case RGB_CLOSE: // Red LED
-            dutyCycle = (uint32_t)((float)(range-0)/(float)(closeRange-0)*100);
-            dx_pwmSetDutyCycle(&pwm_red_led, 1000, dutyCycle);
-			break;
-		case RGB_MEDIUM: // Blue LED
-            dutyCycle = (uint32_t)(((float)(range-closeRange)/(float)(mediumRange - closeRange))*100);
+        case RGB_COOL: // Blue LED
+            //dutyCycle = (uint32_t)((float)(range-0)/(float)(closeRange-0)*100);
             dx_pwmSetDutyCycle(&pwm_blue_led, 1000, dutyCycle);
 			break;
-		case RGB_FAR: // Green LED
-            dutyCycle = (uint32_t)(((float)(range-mediumRange)/(float)(farRange - mediumRange))*100);
+		case RGB_WARM: // Green LED
+            //dutyCycle = (uint32_t)(((float)(range-closeRange)/(float)(mediumRange - closeRange))*100);
             dx_pwmSetDutyCycle(&pwm_green_led, 1000, dutyCycle);
+			break;
+		case RGB_HOT: // Red LED
+            //dutyCycle = (uint32_t)(((float)(range-mediumRange)/(float)(farRange - mediumRange))*100);
+            dx_pwmSetDutyCycle(&pwm_red_led, 1000, dutyCycle);
 			break;
 		case RGB_INVALID:
 		default:	
@@ -207,38 +205,38 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 {
 
     // Cast the data block so we can index into the data
-    IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_RT_TO_HL*) data_block;
+    IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL*) data_block;
 
     switch (messageData->cmd) {
-        case IC_LIGHTRANGER5_CLICK_READ_SENSOR:
+        case IC_TEMPHUM_READ_SENSOR:
             
-            if(messageData->range_mm == -1){
-                setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->range_mm);
+            if(messageData->temp == -1){
+                setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->temp);
             }
             else{
-                if(messageData->range_mm <= closeRange){
-                    setPwmStatusLed(RGB_CLOSE, messageData->range_mm);
+                if(messageData->temp <= coolRange){
+                    setPwmStatusLed(RGB_COOL, messageData->temp);
                 }
-                else if (messageData->range_mm <= mediumRange){
-                    setPwmStatusLed(RGB_MEDIUM, messageData->range_mm);
+                else if (messageData->temp <= warmRange){
+                    setPwmStatusLed(RGB_WARM, messageData->temp);
                 }
-                else if (messageData->range_mm <= farRange){
-                    setPwmStatusLed(RGB_FAR, messageData->range_mm);
+                else if (messageData->temp <= hotRange){
+                    setPwmStatusLed(RGB_HOT, messageData->temp);
                 }
                 else{
-                    setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->range_mm);
+                    setPwmStatusLed(RGB_OUT_OF_RANGE, messageData->temp);
                 }
             }
 
             // Capture the last measurement in the global variable
-            lastRangeMeasurement = messageData->range_mm;
+            lastTempMeasurement = messageData->temp;
 
             break;
         // Handle the other cases by doing nothing
-        case IC_LIGHTRANGER5_CLICK_HEARTBEAT:
-        case IC_LIGHTRANGER5_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-        case IC_LIGHTRANGER5_CLICK_SET_AUTO_TELEMETRY_RATE:
-        case IC_LIGHTRANGER5_CLICK_UNKNOWN:
+        case IC_TEMPHUM_HEARTBEAT:
+        case IC_TEMPHUM_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        case IC_TEMPHUM_SET_TELEMETRY_SEND_RATE:
+        case IC_TEMPHUM_UNKNOWN:
         default:
             break;
     }
@@ -251,12 +249,12 @@ static DX_TIMER_HANDLER(ReadSensorHandler)
 {
     //Code to read the sensor data in your application
     // reset inter-core block
-    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_HL_TO_RT));
+    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT));
 
     // Send read sensor message to realtime core app one
-    ic_tx_block.cmd = IC_LIGHTRANGER5_CLICK_READ_SENSOR;
-    dx_intercorePublish(&intercore_lightranger5_click_binding, &ic_tx_block,
-                        sizeof(IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_HL_TO_RT));
+    ic_tx_block.cmd = IC_TEMPHUM_READ_SENSOR;
+    dx_intercorePublish(&intercore_tempHum13_click_binding, &ic_tx_block,
+                        sizeof(IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT));
 }
 DX_TIMER_HANDLER_END
 
@@ -266,7 +264,7 @@ DX_TIMER_HANDLER_END
 static DX_TIMER_HANDLER(SendTelemetryHandler)
 {
 
-    snprintf(msgBuffer, sizeof(msgBuffer), "{\"rangeData\":%d}", lastRangeMeasurement);                
+    snprintf(msgBuffer, sizeof(msgBuffer), "{\"rangeData\":%d}", lastTempMeasurement);                
     Log_Debug("%s\n", msgBuffer);
 
     if(dx_isAzureConnected()){
@@ -293,7 +291,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
-    dx_intercoreConnect(&intercore_lightranger5_click_binding);
+    dx_intercoreConnect(&intercore_tempHum13_click_binding);
     dx_pwmSetOpen(pwm_bindings, NELEMS(pwm_bindings));
  
     // Turn off RGBLED - 100% duty cycle is off

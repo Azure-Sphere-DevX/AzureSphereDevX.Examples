@@ -15,14 +15,14 @@
 #include <applibs/log.h>
 #include <applibs/applications.h>
 #include "dx_intercore.h"
-#include "lightranger5_click.h"
+#include "htu21d_rtapp.h"
 #include "dx_uart.h"
 
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
 
 // https://docs.microsoft.com/en-us/azure/iot-pnp/overview-iot-plug-and-play
-#define IOT_PLUG_AND_PLAY_MODEL_ID "dtmi:amsTmf8801Workshop:SphereTMF8801_5eg;1" 
+#define IOT_PLUG_AND_PLAY_MODEL_ID "" 
 
 // Details on how to connect your application using an ethernet adaptor
 // https://docs.microsoft.com/en-us/azure-sphere/network/connect-ethernet
@@ -43,12 +43,9 @@
 #define MIN_TELEMETRY_TX_PERIOD 1
 #define MAX_TELEMETRY_TX_PERIOD (60*60) // 1 Hour
 
-#define DEFAULT_CLOSE_RANGE 100
-#define DEFAULT_MEDIUM_RANGE 200
-#define DEFAULT_FAR_RANGE 300
-
-#define MIN_CLOSE_RANGE 30
-#define FAR_RANGE_MAX 500
+#define DEFAULT_COOL_TEMP 26
+#define DEFAULT_WARM_TEMP 30
+#define DEFAULT_HOT_TEMP 32
 
 DX_USER_CONFIG dx_config;
 
@@ -65,9 +62,9 @@ DX_USER_CONFIG dx_config;
 typedef enum {
 	RGB_INVALID = 0,
     RGB_OUT_OF_RANGE,
-    RGB_CLOSE,  
-    RGB_MEDIUM, 
-    RGB_FAR 
+    RGB_COOL,  
+    RGB_WARM, 
+    RGB_HOT 
 } RGB_Status;
 
 /****************************************************************************************
@@ -82,8 +79,8 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_green_led_set_limit);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds);
 
-IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_HL_TO_RT ic_tx_block;
-IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_RT_TO_HL ic_rx_block;
+IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT ic_tx_block;
+IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL ic_rx_block;
 
 /****************************************************************************************
  * Telemetry message buffer property sets
@@ -102,13 +99,13 @@ static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "ut
 /****************************************************************************************
  * Bindings
  ****************************************************************************************/
-DX_INTERCORE_BINDING intercore_lightranger5_click_binding = {
+DX_INTERCORE_BINDING intercore_tempHum13_click_binding = {
     .sockFd = -1,
     .nonblocking_io = true,
     .rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
     .interCoreCallback = receive_msg_handler,
     .intercore_recv_block = &ic_rx_block,
-    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_LIGHTRANGER5_CLICK_RT_TO_HL)}; 
+    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL)}; 
 
 static DX_TIMER_BINDING readSensorTimer = {
     .repeat = &(struct timespec){DEFAULT_SENSOR_POLL_PERIOD_SECONDS, DEFAULT_SENSOR_POLL_PERIOD_MS}, 

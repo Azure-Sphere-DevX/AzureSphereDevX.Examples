@@ -3,7 +3,7 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-project (avnet_lightranger5_TMF8801_HLApp-V1 C)
+project (avnet_TEMPHUM_TMF8801_HLApp-V1 C)
 
 # Check if there is a global azsphere_board.cmake file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
