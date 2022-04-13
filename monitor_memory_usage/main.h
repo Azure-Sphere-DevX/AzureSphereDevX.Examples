@@ -8,6 +8,7 @@
 #include "dx_timer.h"
 #include "dx_utilities.h"
 #include "dx_version.h"
+#include "dx_avnet_iot_connect.h"
 
 #include <applibs/log.h>
 #include <applibs/applications.h>
@@ -27,7 +28,7 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 // TODO: If the application will connect to Avnet's IoTConnect platform enable the 
 // #define below
-// #define USE_AVNET_IOTCONNECT
+//#define USE_AVNET_IOTCONNECT
 
 /****************************************************************************************
  * Application defines
