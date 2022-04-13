@@ -1,15 +1,16 @@
 {
   "SchemaVersion": 1,
-  "Name": "avnet_gateway_example",
-  "ComponentId": "353d8b5e-d3ab-43f7-b65a-10f14b766d21",
+  "Name": "avnet_end_to_end",
+  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
   "EntryPoint": "/bin/app",
-  "CmdArgs": ["--ScopeID", "REPLACE_WITH_YOUR_ID_SCOPE"],
+  "CmdArgs": [ "--ScopeID", "0ne001DB429" ],
   "Capabilities": {
+    "Gpio": [ "$NETWORK_CONNECTED_LED", "$LED2" ],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
-      "REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+      "poc-iotc-sphere-iothub-eu.azure-devices.net"
     ],
-    "DeviceAuthentication": "REPLACE_WITH_YOUR_AZURE_SPHERE_TENANT_ID"
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
   },
   "ApplicationType": "Default"
 }

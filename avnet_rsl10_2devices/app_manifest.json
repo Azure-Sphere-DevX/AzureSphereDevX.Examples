@@ -1,19 +1,21 @@
 {
   "SchemaVersion": 1,
-  "Name": "AvnetRSL10Example",
+  "Name": "avnet_end_to_end",
   "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
   "EntryPoint": "/bin/app",
-  "CmdArgs": [ "--ScopeID", "" ],
+  "CmdArgs": [ "--ScopeID", "0ne001DB429" ],
   "Capabilities": {
     "Gpio": [
       "$SAMPLE_RGBLED_RED",
       "$SAMPLE_RGBLED_GREEN",
       "$SAMPLE_RGBLED_BLUE"],
     "Uart": ["$SAMPLE_PMOD_UART"],
-    "AllowedConnections": ["global.azure-devices-provisioning.net",
-      "ENTER.IOT.HUB.HOSTNAME.net"],
-    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
-    "NetworkConfig": true
+    "NetworkConfig": true,
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "poc-iotc-sphere-iothub-eu.azure-devices.net"
+    ],
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
   },
   "ApplicationType": "Default"
 }
