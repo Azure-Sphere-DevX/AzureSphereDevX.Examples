@@ -49,17 +49,16 @@ static void publish_message_handler(EventLoopTimer *eventLoopTimer)
 
         // Serialize telemetry as JSON
         bool serialization_result =
-            dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), NULL, 4, DX_JSON_INT, "MsgId", msgId++, 
+            dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 4, DX_JSON_INT, "MsgId", msgId++, 
                 DX_JSON_DOUBLE, "Temperature", temperature, 
                 DX_JSON_DOUBLE, "Humidity", humidity, 
                 DX_JSON_DOUBLE, "Pressure", pressure);
-
 
         if (serialization_result) {
 
             Log_Debug("%s\n", msgBuffer);
 
-            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+            dx_avnetPublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
         } else {
             Log_Debug("JSON Serialization failed: Buffer too small\n");
@@ -100,6 +99,7 @@ static void dt_desired_temperature_handler(DX_DEVICE_TWIN_BINDING *deviceTwinBin
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_INFO); // Comment out to suppress IoTConnect Debug
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
     dx_timerSetStart(timers, NELEMS(timers));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
