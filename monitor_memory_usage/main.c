@@ -101,17 +101,18 @@ static DX_TIMER_HANDLER(monitor_memory_handler)
             Log_Debug("New Memory High Water Mark: %d Kb\n", newMemoryHighWaterMark);
             
             // Serialize telemetry as JSON
-#ifdef USE_AVNET_IOTCONNECT            
-            bool serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), NULL, 1, 
-                                        DX_JSON_INT, "MemoryHighWaterMark", newMemoryHighWaterMark); 
-#else
             bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
                                         DX_JSON_INT, "MemoryHighWaterMark", newMemoryHighWaterMark); 
-#endif 
             if (serialization_result) {
                 Log_Debug("%s\n", msgBuffer);
-                dx_azurePublish(msgBuffer, strlen(msgBuffer), memoryMessageProperties, NELEMS(memoryMessageProperties), &contentProperties);
 
+#ifdef USE_AVNET_IOTCONNECT            
+
+            dx_avnetPublish(msgBuffer, strlen(msgBuffer), memoryMessageProperties, NELEMS(memoryMessageProperties), &contentProperties, NULL);
+#else
+            dx_azurePublish(msgBuffer, strlen(msgBuffer), memoryMessageProperties, NELEMS(memoryMessageProperties), &contentProperties);
+
+#endif 
             } else {
                 Log_Debug("JSON Serialization failed: Buffer too small\n");
             }
@@ -126,6 +127,7 @@ DX_TIMER_HANDLER_END
 static void InitPeripheralsAndHandlers(void)
 {
 #ifdef USE_AVNET_IOTCONNECT
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_INFO);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
     dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
