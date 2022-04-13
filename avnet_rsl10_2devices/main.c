@@ -350,6 +350,7 @@ static void InitPeripheralsAndHandlers(void)
 #endif // USE_WEB_PROXY
 
 #ifdef USE_IOT_CONNECT
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_INFO); // Comment out to supress IoTConnect Debug
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
     dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
