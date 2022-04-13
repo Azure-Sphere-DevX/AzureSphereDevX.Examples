@@ -136,6 +136,7 @@ DX_TIMER_HANDLER_END
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_INFO); // Comment out to supress IoTConnect debug
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
     dx_timerSetStart(timers, NELEMS(timers));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
@@ -181,13 +182,13 @@ void sendChildDeviceTelemetry(const char* id, const char* key, float value){
 
     // Create serialized telemetry as JSON
     bool serialization_result = 
-        dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), dx_avnetFindChild(id),  1,
+        dx_jsonSerialize(msgBuffer, sizeof(msgBuffer),  1,
                             DX_JSON_DOUBLE, key, value);
 
     if (serialization_result) {
 
         Log_Debug("%s\n", msgBuffer);
-        dx_azurePublish(msgBuffer, strlen(msgBuffer), NULL, 0, NULL);
+        dx_avnetPublish(msgBuffer, strlen(msgBuffer), NULL, 0, NULL, dx_avnetFindChild(id));
 
     } else {
         Log_Debug("JSON Serialization failed: Buffer too small\n");
