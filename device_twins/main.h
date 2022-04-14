@@ -9,6 +9,7 @@
 #include "dx_terminate.h"
 #include "dx_timer.h"
 #include "dx_utilities.h"
+#include "dx_json_serializer.h"
 
 #include <applibs/log.h>
 #include <time.h>

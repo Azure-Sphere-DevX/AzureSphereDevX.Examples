@@ -4,6 +4,7 @@
 
 #include "app_exit_codes.h"
 #include "dx_azure_iot.h"
+#include "dx_avnet_iot_connect.h"
 #include "dx_config.h"
 #include "dx_json_serializer.h"
 #include "dx_terminate.h"

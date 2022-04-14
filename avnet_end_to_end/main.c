@@ -44,7 +44,7 @@ static DX_TIMER_HANDLER(publish_message_handler)
     if (dx_isAvnetConnected()) {
 
         // Serialize telemetry as JSON
-        bool serialization_result = dx_avnetJsonSerialize(msgBuffer, sizeof(msgBuffer), NULL, 4, 
+        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 4, 
             DX_JSON_INT, "MsgId", msgId++, 
             DX_JSON_DOUBLE, "Temperature", temperature, 
             DX_JSON_DOUBLE, "Humidity", humidity, 
@@ -54,7 +54,7 @@ static DX_TIMER_HANDLER(publish_message_handler)
 
             Log_Debug("%s\n", msgBuffer);
 
-            dx_azurePublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+            dx_avnetPublish(msgBuffer, strlen(msgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
         } else {
             Log_Debug("JSON Serialization failed: Buffer too small\n");
@@ -69,7 +69,7 @@ static DX_TIMER_HANDLER(report_properties_handler)
     float temperature = 25.05f;
     double humidity = 60.25;
 
-    if (dx_isAzureConnected()) {
+    if (dx_isAvnetConnected()) {
 
         // Update twin with current UTC (Universal Time Coordinate) in ISO format
         dx_deviceTwinReportValue(&dt_reported_utc, dx_getCurrentUtc(msgBuffer, sizeof(msgBuffer)));
@@ -152,6 +152,7 @@ static void NetworkConnectionState(bool connected)
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
 {
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE); // comment out to supress IoTConnect debug
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
