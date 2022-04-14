@@ -23,7 +23,7 @@ else()
     # https://docs.microsoft.com/en-us/azure-sphere/app-development/using-cmake-functions
 
     azsphere_configure_tools(TOOLS_REVISION "21.07")
-    azsphere_configure_api(TARGET_API_SET "10")
+    azsphere_configure_api(TARGET_API_SET "12")
 
 endif()
 

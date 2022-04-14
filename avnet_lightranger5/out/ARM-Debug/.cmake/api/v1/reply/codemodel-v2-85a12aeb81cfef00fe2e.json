@@ -1,0 +1,111 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"build" : "out",
+					"jsonFile" : "directory-out-Debug-8478fe2f81262ba5f698.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "AzureSphereDevX",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "avnet_lightranger5_TMF8801_HLApp-V1",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "azure_sphere_devx",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "MakeImage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MakeImage-Debug-91a07e7dc9d3b2be0d44.json",
+					"name" : "MakeImage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "avnet_lightranger5_TMF8801_HLApp-V1::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-avnet_lightranger5_TMF8801_HLApp-V1-Debug-d98dffec4d852fa2edf5.json",
+					"name" : "avnet_lightranger5_TMF8801_HLApp-V1",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "azure_sphere_devx::@ccee71f3f776d08d4a47",
+					"jsonFile" : "target-azure_sphere_devx-Debug-5d2cef62503a32b0f367.json",
+					"name" : "azure_sphere_devx",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug",
+		"source" : "C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}
