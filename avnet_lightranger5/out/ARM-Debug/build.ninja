@@ -56,8 +56,6 @@ build CMakeFiles/avnet_lightranger5_TMF8801_HLApp-V1.dir/main.c.obj: C_COMPILER_
   INCLUDES = -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/include -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/HardwareDefinitions/avnet_mt3620_sk_rev2/inc -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/HardwareDefinitions/inc" -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/HardwareDefinitions/inc/hw" -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = CMakeFiles\avnet_lightranger5_TMF8801_HLApp-V1.dir
   OBJECT_FILE_DIR = CMakeFiles\avnet_lightranger5_TMF8801_HLApp-V1.dir
-  TARGET_COMPILE_PDB = CMakeFiles\avnet_lightranger5_TMF8801_HLApp-V1.dir\
-  TARGET_PDB = avnet_lightranger5_TMF8801_HLApp-V1.out.pdb
 
 
 # =============================================================================
@@ -74,9 +72,8 @@ build avnet_lightranger5_TMF8801_HLApp-V1.out: C_EXECUTABLE_LINKER__avnet_lightr
   OBJECT_DIR = CMakeFiles\avnet_lightranger5_TMF8801_HLApp-V1.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_COMPILE_PDB = CMakeFiles\avnet_lightranger5_TMF8801_HLApp-V1.dir\
   TARGET_FILE = avnet_lightranger5_TMF8801_HLApp-V1.out
-  TARGET_PDB = avnet_lightranger5_TMF8801_HLApp-V1.out.pdb
+  TARGET_PDB = avnet_lightranger5_TMF8801_HLApp-V1.out.dbg
 
 
 #############################################
@@ -153,8 +150,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_azure_iot.c.obj: C_COMPILER__a
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_config.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_config.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -163,8 +158,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_config.c.obj: C_COMPILER__azur
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_device_twins.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_device_twins.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -173,8 +166,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_device_twins.c.obj: C_COMPILER
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_direct_methods.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_direct_methods.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -183,8 +174,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_direct_methods.c.obj: C_COMPIL
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/eventloop_timer_utilities.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/eventloop_timer_utilities.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -193,8 +182,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/eventloop_timer_utilities.c.obj: 
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_intercore.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_intercore.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -203,8 +190,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_intercore.c.obj: C_COMPILER__a
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/parson.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/parson.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -213,8 +198,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/parson.c.obj: C_COMPILER__azure_s
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_gpio.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_gpio.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -223,8 +206,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_gpio.c.obj: C_COMPILER__azure_
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_i2c.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_i2c.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -233,8 +214,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_i2c.c.obj: C_COMPILER__azure_s
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_pwm.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_pwm.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -243,8 +222,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_pwm.c.obj: C_COMPILER__azure_s
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_terminate.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_terminate.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -253,8 +230,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_terminate.c.obj: C_COMPILER__a
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_timer.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_timer.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -263,8 +238,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_timer.c.obj: C_COMPILER__azure
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_utilities.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_utilities.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -273,8 +246,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_utilities.c.obj: C_COMPILER__a
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_json_serializer.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_json_serializer.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -283,8 +254,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_json_serializer.c.obj: C_COMPI
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_deferred_update.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_deferred_update.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -293,8 +262,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_deferred_update.c.obj: C_COMPI
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_avnet_iot_connect.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_avnet_iot_connect.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -303,8 +270,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_avnet_iot_connect.c.obj: C_COM
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_uart.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_uart.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -313,8 +278,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_uart.c.obj: C_COMPILER__azure_
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 build out/CMakeFiles/azure_sphere_devx.dir/src/dx_proxy.c.obj: C_COMPILER__azure_sphere_devx_Debug C$:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/src/dx_proxy.c || cmake_object_order_depends_target_azure_sphere_devx
   DEFINES = -D_POSIX_C_SOURCE
@@ -323,8 +286,6 @@ build out/CMakeFiles/azure_sphere_devx.dir/src/dx_proxy.c.obj: C_COMPILER__azure
   INCLUDES = -I"C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include/azureiot" -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/intercore_contract -IC:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/AzureSphereDevX/./include -isystem "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/usr/include"
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   OBJECT_FILE_DIR = out\CMakeFiles\azure_sphere_devx.dir\src
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
-  TARGET_PDB = out\libazure_sphere_devx.pdb
 
 
 # =============================================================================
@@ -339,9 +300,8 @@ build out/libazure_sphere_devx.a: C_STATIC_LIBRARY_LINKER__azure_sphere_devx_Deb
   OBJECT_DIR = out\CMakeFiles\azure_sphere_devx.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_COMPILE_PDB = out\CMakeFiles\azure_sphere_devx.dir\azure_sphere_devx.pdb
   TARGET_FILE = out\libazure_sphere_devx.a
-  TARGET_PDB = out\libazure_sphere_devx.pdb
+  TARGET_PDB = azure_sphere_devx.a.dbg
 
 
 #############################################
@@ -400,14 +360,14 @@ build out/all: phony out/libazure_sphere_devx.a
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | ../../AzureSphereDevX/CMakeLists.txt ../../CMakeLists.txt ../../azsphere_board.txt C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphere.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereInternal.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchain.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchainBase.cmake C$:/source/repos/ActiveProjects/DevXUpdateModules/tools/cmake/azsphere_config.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCCompiler.cmake.in C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCCompilerABI.c C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCompilerIdDetection.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompileFeatures.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompilerABI.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompilerId.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeFindBinUtils.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeGenericSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeNinjaFindMake.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseImplicitIncludeInfo.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseImplicitLinkInfo.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseLibraryArchitecture.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystem.cmake.in C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeTestCCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeTestCompilerCommon.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ADSP-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ARMCC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ARMClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/AppleClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Borland-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Bruce-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Clang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Clang-DetermineCompilerInternal.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Compaq-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Cray-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Embarcadero-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Fujitsu-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GHS-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-FindBinUtils.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/HP-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IAR-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IBMClang-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Intel-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/LCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/MSVC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/NVHPC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/NVIDIA-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/PGI-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/PathScale-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SCO-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SDCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SunPro-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/TI-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Watcom-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/XL-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/XLClang-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/zOS-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Internal/FeatureTesting.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Platform/Generic.cmake CMakeCache.txt CMakeFiles/3.23.0-rc1/CMakeCCompiler.cmake CMakeFiles/3.23.0-rc1/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE | ../../AzureSphereDevX/CMakeLists.txt ../../CMakeLists.txt ../../azsphere_board.txt C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphere.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereInternal.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchain.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchainBase.cmake C$:/source/repos/ActiveProjects/DevXUpdateModules/tools/cmake/azsphere_config.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeGenericSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Platform/Generic.cmake CMakeCache.txt CMakeFiles/3.23.0-rc1/CMakeCCompiler.cmake CMakeFiles/3.23.0-rc1/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build ../../AzureSphereDevX/CMakeLists.txt ../../CMakeLists.txt ../../azsphere_board.txt C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphere.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereInternal.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchain.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchainBase.cmake C$:/source/repos/ActiveProjects/DevXUpdateModules/tools/cmake/azsphere_config.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCCompiler.cmake.in C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCCompilerABI.c C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCompilerIdDetection.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompileFeatures.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompilerABI.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineCompilerId.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeFindBinUtils.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeGenericSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeNinjaFindMake.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseImplicitIncludeInfo.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseImplicitLinkInfo.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeParseLibraryArchitecture.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystem.cmake.in C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeTestCCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeTestCompilerCommon.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ADSP-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ARMCC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/ARMClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/AppleClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Borland-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Bruce-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Clang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Clang-DetermineCompilerInternal.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Compaq-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Cray-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Embarcadero-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Fujitsu-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GHS-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-FindBinUtils.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/HP-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IAR-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IBMClang-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Intel-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/LCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/MSVC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/NVHPC-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/NVIDIA-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/PGI-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/PathScale-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SCO-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SDCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/SunPro-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/TI-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/Watcom-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/XL-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/XLClang-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/zOS-C-DetermineCompiler.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Internal/FeatureTesting.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Platform/Generic.cmake CMakeCache.txt CMakeFiles/3.23.0-rc1/CMakeCCompiler.cmake CMakeFiles/3.23.0-rc1/CMakeSystem.cmake: phony
+build ../../AzureSphereDevX/CMakeLists.txt ../../CMakeLists.txt ../../azsphere_board.txt C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphere.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereInternal.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchain.cmake C$:/Program$ Files$ (x86)/Microsoft$ Azure$ Sphere$ SDK/CMakeFiles/AzureSphereToolchainBase.cmake C$:/source/repos/ActiveProjects/DevXUpdateModules/tools/cmake/azsphere_config.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeGenericSystem.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU-C.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Compiler/GNU.cmake C$:/utils/buildUtils/CMake/share/cmake-3.23/Modules/Platform/Generic.cmake CMakeCache.txt CMakeFiles/3.23.0-rc1/CMakeCCompiler.cmake CMakeFiles/3.23.0-rc1/CMakeSystem.cmake: phony
 
 
 #############################################

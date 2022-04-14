@@ -154,10 +154,6 @@
 			"properties" : 
 			[
 				{
-					"name" : "ADVANCED",
-					"value" : "1"
-				},
-				{
 					"name" : "HELPSTRING",
 					"value" : "Path to the archiver in the selected API set targeting High-Level core"
 				}
@@ -283,10 +279,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "C compiler"
+					"value" : "Path to the C compiler in the selected API set targeting High-Level core"
 				}
 			],
-			"type" : "STRING",
+			"type" : "INTERNAL",
 			"value" : "C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-gcc.exe"
 		},
 		{
@@ -1095,11 +1091,11 @@
 			[
 				{
 					"name" : "HELPSTRING",
-					"value" : "The CMake toolchain file"
+					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "FILEPATH",
-			"value" : "C:/Program Files (x86)/Microsoft Azure Sphere SDK/CMakeFiles/AzureSphereToolchain.cmake"
+			"type" : "STRING",
+			"value" : "C:\\Program Files (x86)\\Microsoft Azure Sphere SDK\\/CMakeFiles/AzureSphereToolchain.cmake"
 		},
 		{
 			"name" : "CMAKE_TRY_COMPILE_TARGET_TYPE",

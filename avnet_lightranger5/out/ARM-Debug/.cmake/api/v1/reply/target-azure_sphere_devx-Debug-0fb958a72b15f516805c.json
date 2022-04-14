@@ -22,7 +22,7 @@
 		[
 			"AzureSphereDevX/CMakeLists.txt",
 			"C:/Program Files (x86)/Microsoft Azure Sphere SDK/CMakeFiles/AzureSphereToolchain.cmake",
-			"C:/utils/buildUtils/CMake/share/cmake-3.23/Modules/CMakeDetermineSystem.cmake",
+			"out/ARM-Debug/CMakeFiles/3.23.0-rc1/CMakeSystem.cmake",
 			"CMakeLists.txt"
 		],
 		"nodes" : 
@@ -52,7 +52,7 @@
 			{
 				"command" : 2,
 				"file" : 2,
-				"line" : 124,
+				"line" : 6,
 				"parent" : 4
 			},
 			{

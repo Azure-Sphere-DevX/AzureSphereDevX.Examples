@@ -23,9 +23,6 @@ CMAKE_ADDR2LINE:FILEPATH=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysro
 //No help, variable specified on the command line.
 CMAKE_BUILD_TYPE:STRING=Debug
 
-//C compiler
-CMAKE_C_COMPILER:STRING=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-gcc.exe
-
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
 CMAKE_C_COMPILER_AR:FILEPATH=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-gcc-ar.exe
@@ -173,8 +170,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 //Path to a program.
 CMAKE_STRIP:FILEPATH=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-strip.exe
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=C:/Program Files (x86)/Microsoft Azure Sphere SDK/CMakeFiles/AzureSphereToolchain.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:STRING=C:\Program Files (x86)\Microsoft Azure Sphere SDK\/CMakeFiles/AzureSphereToolchain.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -230,8 +227,6 @@ AZURE_SPHERE_MAKE_IMAGE_FILE:INTERNAL=C:/Program Files (x86)/Microsoft Azure Sph
 AZURE_SPHERE_SDK_PATH:INTERNAL=C:/Program Files (x86)/Microsoft Azure Sphere SDK
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_AR
-CMAKE_AR-ADVANCED:INTERNAL=1
 //Path to the archiver in the selected API set targeting High-Level
 // core
 CMAKE_AR:INTERNAL=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-ar.exe
@@ -254,6 +249,9 @@ CMAKE_CTEST_COMMAND:INTERNAL=C:/utils/buildUtils/CMake/bin/ctest.exe
 CMAKE_CXX_COMPILER:INTERNAL=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-g++.exe
 //ADVANCED property for variable: CMAKE_C_COMPILER
 CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
+//Path to the C compiler in the selected API set targeting High-Level
+// core
+CMAKE_C_COMPILER:INTERNAL=C:/Program Files (x86)/Microsoft Azure Sphere SDK/Sysroots/12/tools/gcc/arm-poky-linux-musleabi-gcc.exe
 //ADVANCED property for variable: CMAKE_C_COMPILER_AR
 CMAKE_C_COMPILER_AR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_C_COMPILER_RANLIB

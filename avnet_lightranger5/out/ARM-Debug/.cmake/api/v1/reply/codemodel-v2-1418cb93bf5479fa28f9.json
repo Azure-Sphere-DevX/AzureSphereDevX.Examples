@@ -83,14 +83,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "avnet_lightranger5_TMF8801_HLApp-V1::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-avnet_lightranger5_TMF8801_HLApp-V1-Debug-d98dffec4d852fa2edf5.json",
+					"jsonFile" : "target-avnet_lightranger5_TMF8801_HLApp-V1-Debug-7e4de52f5b1c992bd1f9.json",
 					"name" : "avnet_lightranger5_TMF8801_HLApp-V1",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "azure_sphere_devx::@ccee71f3f776d08d4a47",
-					"jsonFile" : "target-azure_sphere_devx-Debug-5d2cef62503a32b0f367.json",
+					"jsonFile" : "target-azure_sphere_devx-Debug-0fb958a72b15f516805c.json",
 					"name" : "azure_sphere_devx",
 					"projectIndex" : 1
 				}
