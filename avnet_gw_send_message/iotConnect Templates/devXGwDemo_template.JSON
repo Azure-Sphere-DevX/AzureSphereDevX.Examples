@@ -1,0 +1,34 @@
+{
+    "code": "devXDemo",
+    "name": "devXDemo",
+    "tag": "spheregwdevice",
+    "authType": 2,
+    "description": null,
+    "isIotEdgeEnable": false,
+    "attributes": [
+        {
+            "name": "temperature",
+            "type": "NUMBER",
+            "tag": "temperaturechilddevice",
+            "description": null,
+            "unit": "C"
+        },
+        {
+            "name": "humidity",
+            "type": "NUMBER",
+            "tag": "humiditychilddevice",
+            "description": null,
+            "unit": "% moisture"
+        },
+        {
+            "name": "pressure",
+            "type": "NUMBER",
+            "tag": "pressurechilddevice",
+            "description": null,
+            "unit": "psi"
+        }
+    ],
+    "dataFrequency": 60,
+    "messageVersion": "1.0",
+    "msgCode": "1389TEE"
+}

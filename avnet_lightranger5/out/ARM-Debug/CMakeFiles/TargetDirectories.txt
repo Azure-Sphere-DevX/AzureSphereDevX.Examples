@@ -1,7 +1,0 @@
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/CMakeFiles/avnet_lightranger5_TMF8801_HLApp-V1.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/CMakeFiles/MakeImage.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/CMakeFiles/edit_cache.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/CMakeFiles/rebuild_cache.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/out/CMakeFiles/azure_sphere_devx.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/out/CMakeFiles/edit_cache.dir
-C:/source/repos/ActiveProjects/DevXUpdateModules/avnet_lightranger5/out/ARM-Debug/out/CMakeFiles/rebuild_cache.dir
