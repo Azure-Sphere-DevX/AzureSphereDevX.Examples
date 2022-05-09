@@ -172,3 +172,9 @@
 [submodule "avnet_rsl10_2devices/HardwareDefinitions"]
 	path = avnet_rsl10_2devices/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "async_example/AzureSphereDevX"]
+	path = async_example/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "async_example/HardwareDefinitions"]
+	path = async_example/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
