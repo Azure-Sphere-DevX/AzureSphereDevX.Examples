@@ -48,8 +48,8 @@ static DX_TIMER_BINDING blinkLedTimer = {
 
 static DX_TIMER_BINDING tmr_led = {.name = "tmr_led", .handler = led_handler};
 
-static DX_ASYNC_BINDING async_test = {.handler = async_test_handler};
-static DX_ASYNC_BINDING async_test2 = {.handler = async_test2_handler};
+static DX_ASYNC_BINDING async_test = {.name = "async_test", .handler = async_test_handler};
+static DX_ASYNC_BINDING async_test2 = {.name = "async_test2", .handler = async_test2_handler};
 
 // All timers referenced in timers with be opened in the InitPeripheralsAndHandlers function
 DX_TIMER_BINDING *timerSet[] = {&buttonPressCheckTimer, &ledOffOneShotTimer, &blinkLedTimer, &tmr_led};
