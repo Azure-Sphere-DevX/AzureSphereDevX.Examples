@@ -11,6 +11,7 @@
     "files.associations": {
         "dx_avnet_iot_connect.h": "c",
         "dx_json_serializer.h": "c",
-        "persistantconfig.h": "c"
+        "persistantconfig.h": "c",
+        "dx_gpio.h": "c"
     }
 }

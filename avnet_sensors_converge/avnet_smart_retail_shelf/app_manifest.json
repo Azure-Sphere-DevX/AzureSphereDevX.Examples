@@ -5,7 +5,15 @@
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "0ne001DB429" ],
   "Capabilities": {
-    "Gpio": [],
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE",
+      "$SAMPLE_BUTTON_1",
+      "$SAMPLE_BUTTON_2",
+      "$SAMPLE_WIFI_LED",
+      "$SAMPLE_APP_LED"
+    ],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
       "poc-iotc-sphere-iothub-eu.azure-devices.net",

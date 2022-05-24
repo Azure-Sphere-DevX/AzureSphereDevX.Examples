@@ -11,7 +11,6 @@
  *
   ************************************************************************************************/
 #include "main.h"
-#include "persistantConfig.h"
 
 /****************************************************************************************
  * Implementation
@@ -115,6 +114,43 @@ void printConfig(void)
 }
 
 /// <summary>
+/// Handler to check for Button Presses
+/// </summary>
+static DX_TIMER_HANDLER(ButtonPressCheckHandler)
+{
+    // Assume the device comes up with the buttons at rest
+    static GPIO_Value_Type buttonAState = GPIO_Value_High;
+    static GPIO_Value_Type buttonBState = GPIO_Value_High;
+
+    // Meaure shelf #1 empty depth
+    if(dx_gpioStateGet(&buttonA, &buttonAState)){
+
+        // Turn on the App LED to indicate that we're measureing and updating the persistant config        
+        dx_gpioOn(&wifiLed);
+        productShelf1.shelfHeight_mm = 200;
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
+        Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
+        sleep(1);
+        dx_gpioOff(&wifiLed);
+        return;
+    }
+
+    // Meaure shelf #1 empty depth
+    if(dx_gpioStateGet(&buttonB, &buttonBState)){
+    
+        dx_gpioOn(&appLed);
+        productShelf2.shelfHeight_mm = 100;
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
+        Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
+        sleep(1);
+        dx_gpioOff(&appLed);
+        return;
+    }
+}
+DX_TIMER_HANDLER_END
+
+
+/// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
 /// </summary>
 static void InitPeripheralsAndHandlers(void)
@@ -132,7 +168,6 @@ static void InitPeripheralsAndHandlers(void)
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
-    printConfig();
     update_config_from_mutable_storage(&productShelf1, &productShelf2, &lowPowerEnabled, &lowPowerSleepTime);
     printConfig();
 
