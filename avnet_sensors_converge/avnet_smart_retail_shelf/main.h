@@ -12,8 +12,10 @@
 #include "dx_version.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
+#include <applibs/storage.h>
+#include <errno.h>
 
-// Use main.h to define all your application definitions, message properties/contentProperties,
+// Define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
 
 // https://docs.microsoft.com/en-us/azure/iot-pnp/overview-iot-plug-and-play
@@ -70,15 +72,18 @@ typedef struct
  * Global Variables
  ****************************************************************************************/
 int lowPowerSleepTime = 3600; // 1 hour
+bool lowPowerEnabled = false;
 
 productShelf_t productShelf1 = {.name = "Shelf 1",
                                 .productHeight_mm = 32,
                                 .productReserve = 1,
-                                .lastProductCount = -1};
+                                .lastProductCount = -1,
+                                .shelfHeight_mm = 150};
 productShelf_t productShelf2 = {.name = "Shelf 2",
                                 .productHeight_mm = 32,
                                 .productReserve = 1,
-                                .lastProductCount = -1};
+                                .lastProductCount = -1,
+                                .shelfHeight_mm = 150};
 
 /****************************************************************************************
  * Forward declarations
@@ -87,6 +92,12 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_low_power_mode_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_low_power_sleep_period_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_height_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_reserve_handler);
+
+bool read_config_from_mutable_storage(persistantMemory_t* persistantConfig);
+bool write_config_to_mutable_storage(void);
+void update_config_from_mutable_storage(void);
+bool updateConfigInMutableStorage(void);
+void printConfig(void);
 
 /****************************************************************************************
  * Telemetry message buffer property sets
