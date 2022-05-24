@@ -10,6 +10,7 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "files.associations": {
         "dx_avnet_iot_connect.h": "c",
-        "dx_json_serializer.h": "c"
+        "dx_json_serializer.h": "c",
+        "persistantconfig.h": "c"
     }
 }

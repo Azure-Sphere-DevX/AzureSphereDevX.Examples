@@ -1,3 +1,4 @@
+#pragma once
 
 #include "hw/sample_appliance.h" // Hardware definition
 #include "app_exit_codes.h"
@@ -14,6 +15,7 @@
 #include <applibs/applications.h>
 #include <applibs/storage.h>
 #include <errno.h>
+#include "persistantConfig.h"
 
 // Define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -38,35 +40,6 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
-typedef struct
-{
-    int shelfHeight_mm;
-    int productHeight_mm;
-    int productReserve;
-    int currentProductCount;
-    int lastProductCount;
-    char* name;
-} productShelf_t;
-
-typedef struct
-{
-    productShelf_t shelf1Copy;
-    productShelf_t shelf2Copy;
-    bool lowPowerModeEnabled;
-    int sleepTime;
-} persistantMemory_t;
-
-#define MIN_SHELF_HEIGHT_MM 100
-#define MAX_SHELF_HEIGHT_MM 200
-
-#define MIN_PRODUCT_HEIGHT_MM 20
-#define MAX_PRODUCT_HEIGHT_MM 50
-
-#define MIN_PRODUCT_RESERVE 1
-#define MAX_PRODUCT_RESERVE 10
-
-#define MIN_SLEEP_PERIOD 60*5       // 5 Minutes
-#define MAX_SLEEP_PERIOD (60*60*12) // 12 Hours
 
 /****************************************************************************************
  * Global Variables
@@ -75,15 +48,15 @@ int lowPowerSleepTime = 3600; // 1 hour
 bool lowPowerEnabled = false;
 
 productShelf_t productShelf1 = {.name = "Shelf 1",
-                                .productHeight_mm = 32,
+                                .productHeight_mm = 30,
                                 .productReserve = 1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = 150};
+                                .shelfHeight_mm = -1};
 productShelf_t productShelf2 = {.name = "Shelf 2",
-                                .productHeight_mm = 32,
+                                .productHeight_mm = 30,
                                 .productReserve = 1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = 150};
+                                .shelfHeight_mm = -1};
 
 /****************************************************************************************
  * Forward declarations
@@ -93,10 +66,6 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_low_power_sleep_period_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_height_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_reserve_handler);
 
-bool read_config_from_mutable_storage(persistantMemory_t* persistantConfig);
-bool write_config_to_mutable_storage(void);
-void update_config_from_mutable_storage(void);
-bool updateConfigInMutableStorage(void);
 void printConfig(void);
 
 /****************************************************************************************
@@ -105,9 +74,9 @@ void printConfig(void);
 
 // Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
 #define JSON_MESSAGE_BYTES 256
-static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
+//static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
-static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+//static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
 
 /****************************************************************************************
  * Bindings

@@ -11,6 +11,7 @@
  *
   ************************************************************************************************/
 #include "main.h"
+#include "persistantConfig.h"
 
 /****************************************************************************************
  * Implementation
@@ -23,8 +24,10 @@ static DX_DEVICE_TWIN_HANDLER(dt_low_power_mode_handler, deviceTwinBinding)
         Log_Debug("Low Power Mode %s\n", *(bool*)deviceTwinBinding->propertyValue ? "enabled" : "Disabled");
         // BW implement low power shutdown
 
+        lowPowerEnabled = *(bool*)deviceTwinBinding->propertyValue;
+
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
-        updateConfigInMutableStorage();
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
     }
 }
 DX_DEVICE_TWIN_HANDLER_END
@@ -40,7 +43,7 @@ static DX_DEVICE_TWIN_HANDLER(dt_low_power_sleep_period_handler, deviceTwinBindi
             Log_Debug("New low power sleep time: %d seconds\n", lowPowerSleepTime);
     
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);   
-        updateConfigInMutableStorage();
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
     }
 }
 DX_DEVICE_TWIN_HANDLER_END
@@ -65,7 +68,7 @@ static DX_DEVICE_TWIN_HANDLER(dt_product_height_handler, deviceTwinBinding)
         }
 
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
-        updateConfigInMutableStorage();
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
     }
 }
 DX_DEVICE_TWIN_HANDLER_END
@@ -89,167 +92,10 @@ static DX_DEVICE_TWIN_HANDLER(dt_product_reserve_handler, deviceTwinBinding)
         }
     
         dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);    
-        updateConfigInMutableStorage();
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
     }        
 }
 DX_DEVICE_TWIN_HANDLER_END
-
-bool read_config_from_mutable_storage(persistantMemory_t* persistantConfig){
-
-    int fd = Storage_OpenMutableFile();
-    if (fd == -1) {
-        Log_Debug("ERROR: Could not open mutable file!\n");
-        dx_terminate(APP_ExitCode_OpenMutableFileFailed);
-        return false;
-    }
-
-    int ret = read(fd, persistantConfig, sizeof(*persistantConfig));
-    if (ret == -1) {
-        Log_Debug("ERROR: An error occurred while reading file!\n");
-        dx_terminate(APP_ExitCode_ReadFile_ReadFailed);
-    }
-    close(fd);
-
-    if (ret < sizeof(*persistantConfig)) {
-        return false;
-    }
-
-    return true;
-}
-
-bool write_config_to_mutable_storage(void){
-    
-    int fd = Storage_OpenMutableFile();
-    if(fd == -1){
-        Log_Debug("Error opening mutable storage!\n");
-        dx_terminate(APP_ExitCode_OpenMutableFileFailed);
-        return false;
-    }
-
-    Log_Debug("Updating Mutable Storage!\n");
-
-    // Copy all the current config data for both shelfs and low power mode into the 
-    // local structure
-
-    persistantMemory_t persistantConfig;
-
-    // Low power Config
-    persistantConfig.sleepTime = lowPowerSleepTime;
-    persistantConfig.lowPowerModeEnabled = lowPowerEnabled;
-    
-    // Shelf #1 Config
-    persistantConfig.shelf1Copy.productHeight_mm = productShelf1.productHeight_mm;
-    persistantConfig.shelf1Copy.productReserve = productShelf1.productReserve;
-    persistantConfig.shelf1Copy.shelfHeight_mm = productShelf1.shelfHeight_mm;
-
-    // Shelf #2 Config
-    persistantConfig.shelf2Copy.productHeight_mm = productShelf2.productHeight_mm;
-    persistantConfig.shelf2Copy.productReserve = productShelf2.productReserve;
-    persistantConfig.shelf2Copy.shelfHeight_mm = productShelf2.shelfHeight_mm;
-
-    // Write the global structure to persistant memory
-    int ret = write(fd, &persistantConfig, sizeof(persistantConfig));
-    
-    if (ret == -1) {
-        Log_Debug("ERROR: An error occurred while writing to mutable file\n");
-        dx_terminate(APP_ExitCode_WriteFileWriteFailed);
-
-    } else if (ret < sizeof(persistantConfig)) {
-        Log_Debug("ERROR: Only wrote %d of %d bytes requested\n", ret, (int)sizeof(persistantConfig));
-        dx_terminate(APP_ExitCode_WriteFileWriteFailed);
-    }
-    close(fd);
-    return true;
-}
-
-bool updateConfigInMutableStorage(void){
-
-    // Determine if the configuration has changed, if so update mutable storage
-    persistantMemory_t localConfigCopy;
-    if(read_config_from_mutable_storage(&localConfigCopy)){
-
-        // Start to check each configuration item, if we find one that's been updated,
-        // then write the new config and exit
-
-        // Low power mode config
-        if(localConfigCopy.lowPowerModeEnabled != lowPowerEnabled){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        if(localConfigCopy.sleepTime != lowPowerSleepTime){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        // Shelf #1 config
-        if(localConfigCopy.shelf1Copy.productHeight_mm != productShelf1.productHeight_mm){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        if(localConfigCopy.shelf1Copy.productReserve != productShelf1.productReserve){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        if(localConfigCopy.shelf1Copy.shelfHeight_mm != productShelf1.shelfHeight_mm){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        // Shelf #1 config
-        if(localConfigCopy.shelf2Copy.productHeight_mm != productShelf2.productHeight_mm){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        if(localConfigCopy.shelf2Copy.productReserve != productShelf2.productReserve){
-            write_config_to_mutable_storage();
-            return true;
-        }
-
-        if(localConfigCopy.shelf2Copy.shelfHeight_mm != productShelf2.shelfHeight_mm){
-            write_config_to_mutable_storage();
-            return true;
-        }
-    }
-
-    Log_Debug("Config not updated, no changes detected\n");
-    return false;
-}
-
-void update_config_from_mutable_storage(void){
-
-    int fd = Storage_OpenMutableFile();
-    if(fd == -1){
-        Log_Debug("Error opening mutable storage!\n");
-        dx_terminate(APP_ExitCode_OpenMutableFileFailed);
-    }
-
-    Log_Debug("Updating Config from Mutable Storage!\n");
-
-    // Read the persistant config
-    persistantMemory_t localConfigCopy;
-    if(read_config_from_mutable_storage(&localConfigCopy)){
-
-        // Low power Config
-        lowPowerSleepTime = localConfigCopy.sleepTime;
-        lowPowerEnabled = localConfigCopy.lowPowerModeEnabled;
-        
-        // Shelf #1 Config
-        productShelf1.productHeight_mm = localConfigCopy.shelf1Copy.productHeight_mm;
-        productShelf1.productReserve = localConfigCopy.shelf1Copy.productReserve;
-        productShelf1.shelfHeight_mm = localConfigCopy.shelf1Copy.shelfHeight_mm;
-
-        // Shelf #2 Config
-        productShelf2.productHeight_mm = localConfigCopy.shelf2Copy.productHeight_mm;
-        productShelf2.productReserve = localConfigCopy.shelf2Copy.productReserve;
-        productShelf2.shelfHeight_mm = localConfigCopy.shelf2Copy.shelfHeight_mm;
-
-        close(fd);
-    }
-}
 
 void printConfig(void)
 {
@@ -267,7 +113,6 @@ void printConfig(void)
     Log_Debug(" Product Reserve: %d units\n", productShelf2.productReserve);
     Log_Debug(" Shelf Height: %d mm\n\n", productShelf2.shelfHeight_mm);
 }
-
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
@@ -288,7 +133,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
     printConfig();
-    update_config_from_mutable_storage();
+    update_config_from_mutable_storage(&productShelf1, &productShelf2, &lowPowerEnabled, &lowPowerSleepTime);
     printConfig();
 
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
