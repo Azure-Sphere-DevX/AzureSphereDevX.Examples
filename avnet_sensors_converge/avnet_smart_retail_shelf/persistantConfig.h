@@ -1,7 +1,6 @@
 #pragma once
 
 #include <applibs/log.h>
-//#include <applibs/applications.h>
 #include <applibs/storage.h>
 #include "app_exit_codes.h"
 #include "dx_terminate.h"
@@ -36,5 +35,14 @@ typedef struct
     int sleepTime;
 } persistantMemory_t;
 
-bool updateConfigInMutableStorage(productShelf_t shelf1, productShelf_t shelf2, bool lowPowerEnabled, int lowPowerSleepPeriod );
-void update_config_from_mutable_storage(productShelf_t* shelf1, productShelf_t* shelf2, bool* lowPowerEnabled, int* lowPowerSleepPeriod );
+bool updateConfigInMutableStorage(productShelf_t shelf1, 
+                                  productShelf_t shelf2, 
+                                  bool lowPowerEnabled, 
+                                  int lowPowerSleepPeriod);
+
+void update_config_from_mutable_storage(productShelf_t* shelf1, 
+                                        productShelf_t* shelf2, 
+                                        bool* lowPowerEnabled, 
+                                        int* lowPowerSleepPeriod);
+
+bool initPersistantMemory(void);

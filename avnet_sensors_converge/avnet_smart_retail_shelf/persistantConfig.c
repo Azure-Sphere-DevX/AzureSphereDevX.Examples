@@ -1,7 +1,10 @@
 
 #include "persistantConfig.h"
 
-static bool write_config_to_mutable_storage(productShelf_t shelf1, productShelf_t shelf2, bool lowPowerEnabled, int lowPowerSleepPeriod ){
+static bool write_config_to_mutable_storage(productShelf_t shelf1, 
+                                            productShelf_t shelf2, 
+                                            bool lowPowerEnabled, 
+                                            int lowPowerSleepPeriod){
     
     int fd = Storage_OpenMutableFile();
     if(fd == -1){
@@ -67,7 +70,10 @@ static bool read_config_from_mutable_storage(persistantMemory_t* persistantConfi
     return true;
 }
 
-bool updateConfigInMutableStorage(productShelf_t shelf1, productShelf_t shelf2, bool lowPowerEnabled, int lowPowerSleepPeriod ){
+bool updateConfigInMutableStorage(productShelf_t shelf1, 
+                                   productShelf_t shelf2, 
+                                   bool lowPowerEnabled, 
+                                   int lowPowerSleepTime){
 
     // Determine if the configuration has changed, if so update mutable storage
     persistantMemory_t localConfigCopy;
@@ -78,49 +84,49 @@ bool updateConfigInMutableStorage(productShelf_t shelf1, productShelf_t shelf2, 
 
         // Low power mode config
         if(localConfigCopy.lowPowerModeEnabled != lowPowerEnabled){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
-        if(localConfigCopy.sleepTime != lowPowerSleepPeriod){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+        if(localConfigCopy.sleepTime != lowPowerSleepTime){
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         // Shelf #1 config
         if(localConfigCopy.shelf1Copy.productHeight_mm != shelf1.productHeight_mm){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         if(localConfigCopy.shelf1Copy.productReserve != shelf1.productReserve){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         if(localConfigCopy.shelf1Copy.shelfHeight_mm != shelf1.shelfHeight_mm){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         // Shelf #2 config
         if(localConfigCopy.shelf2Copy.productHeight_mm != shelf2.productHeight_mm){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         if(localConfigCopy.shelf2Copy.productReserve != shelf2.productReserve){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
 
         if(localConfigCopy.shelf2Copy.shelfHeight_mm != shelf2.shelfHeight_mm){
-            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepPeriod);
+            write_config_to_mutable_storage( shelf1, shelf2, lowPowerEnabled, lowPowerSleepTime);
             return true;
         }
     }
 
-    Log_Debug("Config not updated, no changes detected\n");
+//    Log_Debug("Config not updated, no changes detected\n");
     return false;
 }
 
@@ -153,5 +159,28 @@ void update_config_from_mutable_storage(productShelf_t* shelf1, productShelf_t* 
         shelf2->shelfHeight_mm = localConfigCopy.shelf2Copy.shelfHeight_mm;
 
         close(fd);
+    }
+}
+
+bool initPersistantMemory(void){
+
+    persistantMemory_t localConfigCopy;
+
+    // Read the persistant memory, if the call returns false, then we 
+    // do not have any data stored and we need to write the first record
+    // Determine if the configuration has changed, if so update mutable storage
+    if(!read_config_from_mutable_storage(&localConfigCopy)){
+
+        Log_Debug("Creating Persistant file!!\n");
+        // Write dummy data to establish the "file"
+        write_config_to_mutable_storage(localConfigCopy.shelf1Copy,
+                                        localConfigCopy.shelf2Copy, 
+                                        false,
+                                        0);
+        return false;
+    }
+    else{
+        Log_Debug("Persistant file exists!\n");
+        return true;
     }
 }

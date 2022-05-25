@@ -13,11 +13,14 @@
 #include "dx_direct_methods.h"
 #include "dx_version.h"
 #include "dx_timer.h"
+#include "dx_intercore.h"
 #include <applibs/log.h>
+#include "dx_deferred_update.h"
 #include <applibs/applications.h>
 #include <applibs/storage.h>
 #include <errno.h>
 #include "persistantConfig.h"
+#include "avnetSmartShelfInterface.h"
 
 // Define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -43,26 +46,43 @@ DX_USER_CONFIG dx_config;
  * Application defines
  ****************************************************************************************/
 
+#define SENSOR_READ_PERIOD_SECONDS 10
+
 /****************************************************************************************
  * Global Variables
  ****************************************************************************************/
 int lowPowerSleepTime = 3600; // 1 hour
 bool lowPowerEnabled = false;
 
+typedef struct
+{
+    float temp;
+    float hum;
+    float pressure;
+} phtData_t;
+
+phtData_t pht = {.hum = -1,
+                 .temp = -1,
+                 .pressure = -1};
+
 productShelf_t productShelf1 = {.name = "Shelf 1",
-                                .productHeight_mm = 30,
+                                .productHeight_mm = 33,
                                 .productReserve = 1,
-                                .lastProductCount = -1,
-                                .shelfHeight_mm = -1};
+                                .lastProductCount = -1160,
+                                .shelfHeight_mm = 160};
 productShelf_t productShelf2 = {.name = "Shelf 2",
-                                .productHeight_mm = 30,
+                                .productHeight_mm = 33,
                                 .productReserve = 1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = -1};
+                                .shelfHeight_mm = 160};
+
+
 
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
+
+static int calculateStockLevel(productShelf_t* shelf, int range_mm);
 
 /****************************************************************************************
  * Device Twins
@@ -76,10 +96,14 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_reserve_handler);
  * Timers
  ****************************************************************************************/
 static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
-//static DX_DECLARE_TIMER_HANDLER(monitor_wifi_network_handler);
-//static DX_DECLARE_TIMER_HANDLER(read_sensors_handler);
+static DX_DECLARE_TIMER_HANDLER(read_sensors_handler);
+static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
 
 void printConfig(void);
+//static void receive_msg_handler(void *data_block, ssize_t message_length);
+
+IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT ic_tx_block;
+IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL ic_rx_block;
 
 /****************************************************************************************
  * Telemetry message buffer property sets
@@ -87,9 +111,9 @@ void printConfig(void);
 
 // Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
 #define JSON_MESSAGE_BYTES 256
-//static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
+static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
-//static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
 
 /****************************************************************************************
  * Bindings
@@ -126,8 +150,12 @@ static DX_DEVICE_TWIN_BINDING dt_product_reserve_shelf2 = {.propertyName = "Prod
                                                         .handler = dt_product_reserve_handler,
                                                         .context = &productShelf2};
 
-static DX_DEVICE_TWIN_BINDING dt_measured_shelf_height = {.propertyName = "MeasuredEmptyShelfHeight",
+static DX_DEVICE_TWIN_BINDING dt_measured_shelf1_height = {.propertyName = "MeasuredEmptyShelf1Height",
                                                         .twinType = DX_DEVICE_TWIN_INT};
+
+static DX_DEVICE_TWIN_BINDING dt_measured_shelf2_height = {.propertyName = "MeasuredEmptyShelf2Height",
+                                                        .twinType = DX_DEVICE_TWIN_INT};
+
 
 /****************************************************************************************
  * GPIO Peripherals
@@ -143,9 +171,30 @@ static DX_GPIO_BINDING appLed =       {.pin = SAMPLE_APP_LED,      .name = "appL
 /****************************************************************************************
  * Timers
  ****************************************************************************************/
-//static DX_TIMER_BINDING tmr_monitor_wifi_network = {.period = {30, 0}, .name = "tmr_monitor_wifi_network", .handler = monitor_wifi_network_handler};
-//static DX_TIMER_BINDING tmr_read_sensors = {.period = {SENSOR_READ_PERIOD_SECONDS, 0}, .name = "tmr_read_sensors", .handler = read_sensors_handler};
-static DX_TIMER_BINDING buttonPressCheckTimer = {.period = {0, ONE_MS*10}, .name = "buttonPressCheckTimer", .handler = ButtonPressCheckHandler};
+
+static DX_TIMER_BINDING tmr_button_monitor = {.period = {0, ONE_MS*10}, 
+                                              .name = "tmr_button_monitor", 
+                                              .handler = ButtonPressCheckHandler};
+
+static DX_TIMER_BINDING tmr_read_sensors = {.period = {1, 0}, 
+                                            .name = "tmr_read_sensors", 
+                                            .handler = read_sensors_handler};
+
+static DX_TIMER_BINDING tmr_send_telemetry = {.delay = &(struct timespec){2, 500 * ONE_MS}, 
+                                              .name = "tmr_send_telemetry", 
+                                              .handler = send_telemetry_handler};
+
+/****************************************************************************************
+ * Inter Core Bindings
+ *****************************************************************************************/
+DX_INTERCORE_BINDING intercore_smart_shelf_binding = {
+    .sockFd = -1,
+    .nonblocking_io = true,
+    .rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
+    .interCoreCallback = NULL,
+    .intercore_recv_block = &ic_rx_block,
+    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL)
+};
 
 /****************************************************************************************
  * Binding sets
@@ -153,8 +202,7 @@ static DX_TIMER_BINDING buttonPressCheckTimer = {.period = {0, ONE_MS*10}, .name
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_low_power_mode, &dt_low_power_sleep_period,
                                                 &dt_product_height_shelf1, &dt_product_height_shelf2, 
                                                 &dt_product_reserve_shelf1, &dt_product_reserve_shelf2, 
-                                                &dt_measured_shelf_height};
-DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
+                                                &dt_measured_shelf1_height, &dt_measured_shelf2_height};
 DX_GPIO_BINDING *gpio_bindings[] = {&buttonA, &buttonB, &userLedRed, 
                                     &userLedGreen, &userLedBlue, &wifiLed, &appLed};
-DX_TIMER_BINDING *timer_bindings[] = {&buttonPressCheckTimer}; //, &tmr_monitor_wifi_network, &tmr_read_sensors};
+DX_TIMER_BINDING *timer_bindings[] = {&tmr_button_monitor, &tmr_read_sensors, &tmr_send_telemetry};
