@@ -47,4 +47,4 @@ void update_config_from_mutable_storage(productShelf_t* shelf1,
                                         bool* lowPowerEnabled, 
                                         int* lowPowerSleepPeriod);
 
-bool initPersistantMemory(void);
+bool initPersistantMemory(productShelf_t shefl1, productShelf_t shelf2, bool lowPowerModeEnabled, int lowPowerSleepPeriod);

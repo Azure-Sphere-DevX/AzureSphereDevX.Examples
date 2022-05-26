@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hw/sample_appliance.h" // Hardware definition
+#include "persistantConfig.h"
 #include "dx_gpio.h"
 #include "app_exit_codes.h"
 #include "dx_azure_iot.h"
@@ -19,7 +20,6 @@
 #include <applibs/applications.h>
 #include <applibs/storage.h>
 #include <errno.h>
-#include "persistantConfig.h"
 #include "avnetSmartShelfInterface.h"
 
 // Define all your application definitions, message properties/contentProperties,
@@ -68,14 +68,14 @@ phtData_t pht = {.hum = -1,
 productShelf_t productShelf1 = {.name = "StockLevelShelf1",
                                 .alertName = "LowStockAlertShelf1",
                                 .productHeight_mm = 33,
-                                .productReserve = -1,
-                                .lastProductCount = -1160,
+                                .productReserve = 1,
+                                .lastProductCount = -1,
                                 .shelfHeight_mm = 160,
                                 .stockLevelAlertSent = false};
 productShelf_t productShelf2 = {.name = "StockLevelShelf2",
                                 .alertName = "LowStockAlertShelf2",
                                 .productHeight_mm = 33,
-                                .productReserve = -1,
+                                .productReserve = 1,
                                 .lastProductCount = -1,
                                 .shelfHeight_mm = 160,
                                 .stockLevelAlertSent = false};

@@ -20,7 +20,7 @@ void sendTelemetryBuffer(void){
     // Only send telemetry if we're connected to IoTConnect
     if (dx_isAvnetConnected()){
 
-        Log_Debug("%s\n", msgBuffer);
+        Log_Debug("TX: %s\n", msgBuffer);
         dx_avnetPublish(msgBuffer, strnlen(msgBuffer, sizeof(msgBuffer)), NULL, 0, &contentProperties, NULL);
     }
 }
@@ -138,6 +138,7 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
         // Turn on the App LED to indicate that we're measureing and updating the persistant config        
         dx_gpioOn(&wifiLed);
         productShelf1.shelfHeight_mm = 160;
+        Log_Debug("BW Fix: Add logic to read height!!!!!!!!!!!!!!!!!!!!!\n");
         updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
         Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
         dx_deviceTwinReportValue(&dt_measured_shelf1_height, &productShelf1.shelfHeight_mm);
@@ -151,6 +152,7 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
     
         dx_gpioOn(&appLed);
         productShelf2.shelfHeight_mm = 160;
+        Log_Debug("BW Fix: Add logic to read height!!!!!!!!!!!!!!!!!!!!!\n");
         updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
         Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
         dx_deviceTwinReportValue(&dt_measured_shelf2_height, &productShelf2.shelfHeight_mm);
@@ -347,10 +349,10 @@ static void InitPeripheralsAndHandlers(void){
     // The persistant memory logic will always try to read the existing configuration from mutable storage before
     // making any updates.  If the application is running for the very first time, the record will not exist.
     // The call to initPersistantMemory() will check for this condition and write an initial record if needed.
-//    if(initPersistantMemory()){
-//        update_config_from_mutable_storage(&productShelf1, &productShelf2, &lowPowerEnabled, &lowPowerSleepTime);
-//        printConfig();
-//    }
+    if(initPersistantMemory(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime)){
+        update_config_from_mutable_storage(&productShelf1, &productShelf2, &lowPowerEnabled, &lowPowerSleepTime);
+        printConfig();
+    }
 
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
     // see the azure_end_to_end example for an example

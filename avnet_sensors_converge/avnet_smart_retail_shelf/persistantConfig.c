@@ -162,7 +162,7 @@ void update_config_from_mutable_storage(productShelf_t* shelf1, productShelf_t* 
     }
 }
 
-bool initPersistantMemory(void){
+bool initPersistantMemory(productShelf_t shefl1, productShelf_t shelf2, bool lowPowerModeEnabled, int lowPowerSleepPeriod){
 
     persistantMemory_t localConfigCopy;
 
@@ -172,11 +172,9 @@ bool initPersistantMemory(void){
     if(!read_config_from_mutable_storage(&localConfigCopy)){
 
         Log_Debug("Creating Persistant file!!\n");
-        // Write dummy data to establish the "file"
-        write_config_to_mutable_storage(localConfigCopy.shelf1Copy,
-                                        localConfigCopy.shelf2Copy, 
-                                        false,
-                                        0);
+
+        // Write the default data to establish the "file"
+        write_config_to_mutable_storage(shefl1, shelf2, lowPowerModeEnabled, lowPowerSleepPeriod);
         return false;
     }
     else{
