@@ -65,24 +65,37 @@ phtData_t pht = {.hum = -1,
                  .temp = -1,
                  .pressure = -1};
 
-productShelf_t productShelf1 = {.name = "Shelf 1",
+productShelf_t productShelf1 = {.name = "StockLevelShelf1",
+                                .alertName = "LowStockAlertShelf1",
                                 .productHeight_mm = 33,
-                                .productReserve = 1,
+                                .productReserve = -1,
                                 .lastProductCount = -1160,
-                                .shelfHeight_mm = 160};
-productShelf_t productShelf2 = {.name = "Shelf 2",
+                                .shelfHeight_mm = 160,
+                                .stockLevelAlertSent = false};
+productShelf_t productShelf2 = {.name = "StockLevelShelf2",
+                                .alertName = "LowStockAlertShelf2",
                                 .productHeight_mm = 33,
-                                .productReserve = 1,
+                                .productReserve = -1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = 160};
+                                .shelfHeight_mm = 160,
+                                .stockLevelAlertSent = false};
 
+#define STOCK_HISTORY_DEPTH 4
+#define STOCK_HISTORY_DEPTH_MASK 0x03
 
+typedef struct
+{
+    int historyIndex;
+    int historyArray[STOCK_HISTORY_DEPTH];
+} stockHistory_t;
 
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
 
 static int calculateStockLevel(productShelf_t* shelf, int range_mm);
+bool checkShelfStock(productShelf_t* shelfData, stockHistory_t* shelfHistory);
+void checkStockReserveLevel(productShelf_t* shelfData, char* lowStockTelemetryKey);
 
 /****************************************************************************************
  * Device Twins
@@ -98,6 +111,7 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_reserve_handler);
 static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 static DX_DECLARE_TIMER_HANDLER(read_sensors_handler);
 static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
+static DX_DECLARE_TIMER_HANDLER(shelf_stock_check_handler);
 
 void printConfig(void);
 //static void receive_msg_handler(void *data_block, ssize_t message_length);
@@ -184,6 +198,10 @@ static DX_TIMER_BINDING tmr_send_telemetry = {.delay = &(struct timespec){2, 500
                                               .name = "tmr_send_telemetry", 
                                               .handler = send_telemetry_handler};
 
+static DX_TIMER_BINDING tmr_check_shelf_stock = {.period = {1, 0}, 
+                                            .name = "tmr_check_shelf_stock", 
+                                            .handler = shelf_stock_check_handler};
+
 /****************************************************************************************
  * Inter Core Bindings
  *****************************************************************************************/
@@ -199,10 +217,24 @@ DX_INTERCORE_BINDING intercore_smart_shelf_binding = {
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_low_power_mode, &dt_low_power_sleep_period,
-                                                &dt_product_height_shelf1, &dt_product_height_shelf2, 
-                                                &dt_product_reserve_shelf1, &dt_product_reserve_shelf2, 
-                                                &dt_measured_shelf1_height, &dt_measured_shelf2_height};
-DX_GPIO_BINDING *gpio_bindings[] = {&buttonA, &buttonB, &userLedRed, 
-                                    &userLedGreen, &userLedBlue, &wifiLed, &appLed};
-DX_TIMER_BINDING *timer_bindings[] = {&tmr_button_monitor, &tmr_read_sensors, &tmr_send_telemetry};
+DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_low_power_mode, 
+                                                  &dt_low_power_sleep_period,
+                                                  &dt_product_height_shelf1, 
+                                                  &dt_product_height_shelf2, 
+                                                  &dt_product_reserve_shelf1, 
+                                                  &dt_product_reserve_shelf2, 
+                                                  &dt_measured_shelf1_height, 
+                                                  &dt_measured_shelf2_height};
+
+DX_GPIO_BINDING *gpio_bindings[] = {&buttonA, 
+                                    &buttonB, 
+                                    &userLedRed, 
+                                    &userLedGreen, 
+                                    &userLedBlue, 
+                                    &wifiLed, 
+                                    &appLed};
+
+DX_TIMER_BINDING *timer_bindings[] = {&tmr_button_monitor, 
+                                      &tmr_read_sensors, 
+                                      &tmr_send_telemetry, 
+                                      &tmr_check_shelf_stock};

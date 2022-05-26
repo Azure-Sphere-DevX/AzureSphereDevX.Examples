@@ -15,6 +15,16 @@
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+void sendTelemetryBuffer(void){
+
+    // Only send telemetry if we're connected to IoTConnect
+    if (dx_isAvnetConnected()){
+
+        Log_Debug("%s\n", msgBuffer);
+        dx_avnetPublish(msgBuffer, strnlen(msgBuffer, sizeof(msgBuffer)), NULL, 0, &contentProperties, NULL);
+    }
+}
+
 static DX_DEVICE_TWIN_HANDLER(dt_low_power_mode_handler, deviceTwinBinding)
 {
     // validate data is sensible range before applying
@@ -196,25 +206,14 @@ static DX_TIMER_HANDLER(send_telemetry_handler)
     // Send PHT telemetry.  The PHT sensor data is updated every 1 seconds.  Pull the most
     // recent data and send it up to the IoTConnect solution.
         
-    // Only send telemetry if we're connected to IoTConnect
-    if (dx_isAvnetConnected()){
+    // Serialize telemetry as JSON
+    bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 3, 
+        DX_JSON_FLOAT, "pressure", pht.pressure, 
+        DX_JSON_FLOAT, "humidity", pht.hum, 
+        DX_JSON_FLOAT, "temperature", pht.temp);
 
-        // Serialize telemetry as JSON
-        bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 3, 
-            DX_JSON_FLOAT, "pressure", pht.pressure, 
-            DX_JSON_FLOAT, "humidity", pht.hum, 
-            DX_JSON_FLOAT, "temperature", pht.temp);
-
-        if (serialization_result) {
-
-            Log_Debug("%s\n", msgBuffer);
-
-            dx_avnetPublish(msgBuffer, strnlen(msgBuffer, sizeof(msgBuffer)), NULL, 0, &contentProperties, NULL);
-
-        } else {
-            Log_Debug("JSON Serialization failed: Buffer too small\n");
-            dx_terminate(APP_ExitCode_Telemetry_Buffer_Too_Small);
-        }
+    if (serialization_result) {    
+        sendTelemetryBuffer();
     }
 
     // Restart the one shot timer using the desred telemetry period from IoTConnect
@@ -222,6 +221,25 @@ static DX_TIMER_HANDLER(send_telemetry_handler)
 
 }
 DX_TIMER_HANDLER_END
+
+// This handler examines the current stock levels for both shelfs and if there is a change the logic . . .
+// 1. Verifies that the shelf data is consistant for at least 5 entries into the handler
+// 2. Sends the new stock level up to IoTConnect as telemetry
+// 3. If the new stock level is below the reserve stock level sends up telemetry showing the low stock alert
+static DX_TIMER_HANDLER(shelf_stock_check_handler)
+{
+
+    static stockHistory_t historyShelf1 = {.historyIndex = 0,
+                                           .historyArray = {-1, -2, -3, -4}};
+
+    static stockHistory_t historyShelf2 = {.historyIndex = 0,
+                                           .historyArray = {-1, -2, -3, -4}};
+
+    checkShelfStock(&productShelf1, &historyShelf1);
+    checkShelfStock(&productShelf2, &historyShelf2);
+}
+DX_TIMER_HANDLER_END
+
 
 static int calculateStockLevel(productShelf_t* shelf, int range_mm){
 
@@ -238,15 +256,84 @@ static int calculateStockLevel(productShelf_t* shelf, int range_mm){
     return (shelf->currentProductCount);
 }
 
+bool checkShelfStock(productShelf_t* shelfData, stockHistory_t* shelfHistory){
+    
+    bool sendStockAlert = false;
+    bool lowStock;
+
+    // Examine shelf data to see if the stock level changed
+    if(shelfData->currentProductCount != shelfData->lastProductCount){
+
+        // Copy the latest product count value into the next items in the history array
+        shelfHistory->historyArray[shelfHistory->historyIndex++] = shelfData->currentProductCount;
+        shelfHistory->historyIndex &= STOCK_HISTORY_DEPTH_MASK;
+
+        // Check to see if all elemements in the array are the same as the current product count
+        if(shelfHistory->historyArray[0] == shelfData->currentProductCount &&
+           shelfHistory->historyArray[1] == shelfData->currentProductCount &&
+           shelfHistory->historyArray[2] == shelfData->currentProductCount &&
+           shelfHistory->historyArray[3] == shelfData->currentProductCount){
+
+            Log_Debug("Stock on %s changed from %d to %d\n", shelfData->name, shelfData->lastProductCount, shelfData->currentProductCount);
+            
+            // Check to see if we added enough stock to get at or above the reserve level
+            if((shelfData->currentProductCount >= shelfData->productReserve) &&
+               (shelfData->lastProductCount < shelfData->productReserve)){
+                    
+                // Send a clear low stock alert
+                sendStockAlert = true;
+                lowStock = false;
+
+            } // Check to see if we are below the low stock level
+            else if((shelfData->currentProductCount < shelfData->productReserve) &&
+                    (shelfData->lastProductCount >= shelfData->productReserve)){
+
+                // Send a low stock alert
+                sendStockAlert = true;
+                lowStock = true;
+            }
+            
+            if(sendStockAlert){
+
+                // Serialize telemetry as JSON
+                bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
+                DX_JSON_BOOL, shelfData->alertName, lowStock);
+
+                if (serialization_result) {
+
+                    if (serialization_result) {    
+                        sendTelemetryBuffer();
+                    }
+                }
+            }            
+
+            // Update the data structure with the new product count
+            shelfData->lastProductCount = shelfData->currentProductCount;
+
+            // Serialize telemetry as JSON
+            bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
+            DX_JSON_INT, shelfData->name, shelfData->currentProductCount);
+
+            if (serialization_result) {
+
+                if (serialization_result) {    
+                    sendTelemetryBuffer();
+                }
+            }
+            // Inform the calling routine that the stock level changed.
+            return true;
+        }
+    }   
+    return false;
+}
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
 /// </summary>
-static void InitPeripheralsAndHandlers(void)
-{
+static void InitPeripheralsAndHandlers(void){
 #ifdef USE_AVNET_IOTCONNECT
     dx_avnetSetApiVersion(AVT_API_VERSION_2_1);
-    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
+    //dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
 //    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
@@ -254,8 +341,7 @@ static void InitPeripheralsAndHandlers(void)
     
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
-    //dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
-    //dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
+    dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_intercoreConnect(&intercore_smart_shelf_binding);
 
     // The persistant memory logic will always try to read the existing configuration from mutable storage before

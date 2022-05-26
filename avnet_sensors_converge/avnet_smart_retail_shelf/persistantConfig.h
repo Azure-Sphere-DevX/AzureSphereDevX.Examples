@@ -24,7 +24,9 @@ typedef struct
     int productReserve;
     int currentProductCount;
     int lastProductCount;
-    char* name;
+    bool stockLevelAlertSent;
+    const char* name;
+    const char* alertName;
 } productShelf_t;
 
 typedef struct
