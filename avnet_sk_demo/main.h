@@ -76,9 +76,6 @@ DX_USER_CONFIG dx_config;
 #ifdef IOT_HUB_APPLICATION
 static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 #endif // IOT_HUB_APPLICATION        
-#ifdef USE_IOT_CONNECT
-static char avtMsgBuffer[JSON_MESSAGE_BYTES + DX_AVNET_IOT_CONNECT_METADATA] = {0};
-#endif //USE_IOT_CONNECT
 
 #ifdef IOT_HUB_APPLICATION
 static DX_MESSAGE_PROPERTY *messageProperties[] =   {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "SK-Demo"}, 
