@@ -500,11 +500,9 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastOrientation_w);
 
                 Log_Debug("Send telemetry: %s\n", telemetryBuffer);
-
 #ifdef USE_IOT_CONNECT
 
-                // Send the telemetry message
-                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties,NULL);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
@@ -536,21 +534,21 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastHumidity,
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastPressure);
+
                 Log_Debug("Send telemetry: %s\n", telemetryBuffer);
 
 #ifdef USE_IOT_CONNECT
 
-                // Send the telemetry message
-                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties,NULL);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
                 // Send the telemetry message
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
-                                    &contentProperties);                
-#endif                 
-    
+                                    &contentProperties);     
+                
+#endif     
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
 
@@ -573,21 +571,21 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastRssi,
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastBattery);
+
                 Log_Debug("Send telemetry: %s\n", telemetryBuffer);
 
 #ifdef USE_IOT_CONNECT
 
-                // Send the telemetry message
-                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties,NULL);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
                 // Send the telemetry message
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
-                                    &contentProperties);                
-#endif                 
-
+                                    &contentProperties);
+                
+#endif 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].batteryDataRefreshed = false;
 
