@@ -36,10 +36,6 @@ SOFTWARE.
 // Static buffer for telemetry data
 static char telemetryBuffer[JSON_BUFFER_SIZE] = {0};
 
-#ifdef USE_IOT_CONNECT
-static char avtMsgBuffer[JSON_BUFFER_SIZE + DX_AVNET_IOT_CONNECT_METADATA] = {0};
-#endif //USE_IOT_CONNECT
-
 static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "Avnet RSL10 Demo"}, 
                                                    &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
                                                    &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
@@ -503,12 +499,10 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastOrientation_z,
                                                                    Rsl10DeviceList[currentDevice].lastOrientation_w);
 
+                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
 #ifdef USE_IOT_CONNECT
 
-                // Add the IoTConnect metadata to the seralized telemetry
-                dx_avnetJsonSerializePayload(telemetryBuffer, avtMsgBuffer, sizeof(avtMsgBuffer), NULL);
-                Log_Debug("%s\n", avtMsgBuffer);
-                dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
@@ -516,7 +510,6 @@ void rsl10SendTelemetry(void) {
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
                                     &contentProperties);                
-                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
 #endif                 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
@@ -541,12 +534,12 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastHumidity,
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastPressure);
+
+                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
+
 #ifdef USE_IOT_CONNECT
 
-                // Add the IoTConnect metadata to the seralized telemetry
-                dx_avnetJsonSerializePayload(telemetryBuffer, avtMsgBuffer, sizeof(avtMsgBuffer), NULL);
-                Log_Debug("%s\n", avtMsgBuffer);
-                dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
@@ -554,7 +547,7 @@ void rsl10SendTelemetry(void) {
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
                                     &contentProperties);     
-                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
+                
 #endif     
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].movementDataRefreshed = false;
@@ -578,12 +571,12 @@ void rsl10SendTelemetry(void) {
                                                                    Rsl10DeviceList[currentDevice].lastRssi,
                                                                    Rsl10DeviceList[currentDevice].telemetryKey,
                                                                    Rsl10DeviceList[currentDevice].lastBattery);
+
+                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
+
 #ifdef USE_IOT_CONNECT
 
-                // Add the IoTConnect metadata to the seralized telemetry
-                dx_avnetJsonSerializePayload(telemetryBuffer, avtMsgBuffer, sizeof(avtMsgBuffer), NULL);
-                Log_Debug("%s\n", avtMsgBuffer);
-                dx_azurePublish(avtMsgBuffer, strlen(avtMsgBuffer), messageProperties, NELEMS(messageProperties), &contentProperties);
+                dx_avnetPublish(telemetryBuffer, strlen(telemetryBuffer), messageProperties, NELEMS(messageProperties), &contentProperties, NULL);
 
 #else // !USE_IOT_CONNECT
 
@@ -591,7 +584,7 @@ void rsl10SendTelemetry(void) {
                 dx_azurePublish(telemetryBuffer, strnlen(telemetryBuffer, JSON_BUFFER_SIZE),
                                     messageProperties, NELEMS(messageProperties),
                                     &contentProperties);
-                Log_Debug("Send telemetry: %s\n", telemetryBuffer);
+                
 #endif 
                 // Clear the flag so we don't send this data again
                 Rsl10DeviceList[currentDevice].batteryDataRefreshed = false;

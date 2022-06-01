@@ -22,7 +22,6 @@
 // If this is a IoT Conect build, make sure to enable the IOT Hub application code
 #ifdef USE_IOT_CONNECT
 #define IOT_HUB_APPLICATION
-#define IOT_CONNECT_API_VERSION 1
 #undef USE_PNP // Disable PNP device twins responses
 #endif 
 
