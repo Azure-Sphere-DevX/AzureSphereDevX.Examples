@@ -47,12 +47,18 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 
 #define SENSOR_READ_PERIOD_SECONDS 10
+#define MINIMUM_SHELF_TIME 3
+
+#define MIN_SHELF_TIME 2   // 2 Seconds
+#define MAX_SHELF_TIME 60  // 60 Seconds
+
 
 /****************************************************************************************
  * Global Variables
  ****************************************************************************************/
 int lowPowerSleepTime = 3600; // 1 hour
 bool lowPowerEnabled = false;
+int min_shelf_time_for_detection = MIN_SHELF_TIME;
 
 typedef struct
 {
@@ -96,6 +102,7 @@ typedef struct
 static int calculateStockLevel(productShelf_t* shelf, int range_mm);
 bool checkShelfStock(productShelf_t* shelfData, stockHistory_t* shelfHistory);
 void checkStockReserveLevel(productShelf_t* shelfData, char* lowStockTelemetryKey);
+static void processPeopleData(int rangePeople_mm);
 
 /****************************************************************************************
  * Device Twins
@@ -104,6 +111,8 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_low_power_mode_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_low_power_sleep_period_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_height_handler);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_product_reserve_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_shelf_time_handler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_simulate_shelf_data_handler);
 
 /****************************************************************************************
  * Timers
@@ -170,6 +179,17 @@ static DX_DEVICE_TWIN_BINDING dt_measured_shelf1_height = {.propertyName = "Meas
 static DX_DEVICE_TWIN_BINDING dt_measured_shelf2_height = {.propertyName = "MeasuredEmptyShelf2Height",
                                                         .twinType = DX_DEVICE_TWIN_INT};
 
+static DX_DEVICE_TWIN_BINDING dt_customer_shelf_time = {.propertyName = "shelfTimeThreshold",
+                                                        .twinType = DX_DEVICE_TWIN_INT,
+                                                        .handler = dt_shelf_time_handler};
+
+static DX_DEVICE_TWIN_BINDING dt_simulate_shelf_data = {.propertyName = "simulateShelfData",
+                                                        .twinType = DX_DEVICE_TWIN_BOOL,
+                                                        .handler = dt_simulate_shelf_data_handler};
+
+
+
+
 
 /****************************************************************************************
  * GPIO Peripherals
@@ -224,7 +244,9 @@ DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_low_power_mode,
                                                   &dt_product_reserve_shelf1, 
                                                   &dt_product_reserve_shelf2, 
                                                   &dt_measured_shelf1_height, 
-                                                  &dt_measured_shelf2_height};
+                                                  &dt_measured_shelf2_height,
+                                                  &dt_customer_shelf_time,
+                                                  &dt_simulate_shelf_data};
 
 DX_GPIO_BINDING *gpio_bindings[] = {&buttonA, 
                                     &buttonB, 

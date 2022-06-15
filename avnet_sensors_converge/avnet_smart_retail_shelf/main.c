@@ -25,12 +25,95 @@ void sendTelemetryBuffer(void){
     }
 }
 
+bool readShelfHeight(int* shelf1Height, int* shelf2Height ){
+
+    // reset inter-core block
+    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT));
+
+    // Send read sensor message to realtime core app one
+    ic_tx_block.cmd = IC_SMART_SHELF_READ_SENSOR;
+
+    // Intercore syncronise publish request then wait for read pattern with 1000 microsecond
+    // timeout. Typical turn around time is 100 to 250 microseconds
+    if (dx_intercorePublishThenRead(&intercore_smart_shelf_binding, &ic_tx_block, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT)) < 0) {
+        Log_Debug("Intercore message request/response failed\n");
+    } else {
+
+        // Cast the data block so we can index into the data
+        IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL*)intercore_smart_shelf_binding.intercore_recv_block;
+
+        // Verify we have received the expected response
+        if(messageData->cmd == IC_SMART_SHELF_READ_SENSOR) {
+
+            *shelf1Height = messageData->rangeShelf1_mm;
+            *shelf2Height = messageData->rangeShelf2_mm;
+            return true;
+
+        }
+    }
+    return false;
+}
+
+static DX_DEVICE_TWIN_HANDLER(dt_shelf_time_handler, deviceTwinBinding)
+{
+    // validate data is sensible range before applying
+    if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_INT &&
+        *(int *)deviceTwinBinding->propertyValue >= MIN_SHELF_TIME &&
+        *(int *)deviceTwinBinding->propertyValue <= MAX_SHELF_TIME) {
+
+            min_shelf_time_for_detection = *(int*)deviceTwinBinding->propertyValue;
+            Log_Debug("New minimum shelf time: %d seconds\n", min_shelf_time_for_detection);
+    
+        dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);   
+    }
+}
+DX_DEVICE_TWIN_HANDLER_END
+
+
+
+static DX_DEVICE_TWIN_HANDLER(dt_simulate_shelf_data_handler, deviceTwinBinding)
+{
+    // validate data is sensible range before applying
+    if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_BOOL) {
+
+        Log_Debug("Simulated Shelf Data %s\n", *(bool*)deviceTwinBinding->propertyValue ? "Enabled" : "Disabled");
+        // BW implement low power shutdown
+
+        // reset inter-core block
+        memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT));
+
+        // Send read sensor message to realtime core app one
+        ic_tx_block.cmd = IC_SMART_SHELF_SIMULATE_DATA;
+        ic_tx_block.simulateShelfData = *(bool*)deviceTwinBinding->propertyValue;
+
+        // Intercore syncronise publish request then wait for read pattern with 1000 microsecond
+        // timeout. Typical turn around time is 100 to 250 microseconds
+        if (dx_intercorePublishThenRead(&intercore_smart_shelf_binding, &ic_tx_block, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT)) < 0) {
+            Log_Debug("Intercore message request/response failed\n");
+        } else {
+
+            // Cast the data block so we can index into the data
+            IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL*)intercore_smart_shelf_binding.intercore_recv_block;
+
+            // Verify we have received the expected response
+            if(messageData->cmd == IC_SMART_SHELF_SIMULATE_DATA) {
+
+                Log_Debug("Simulated Shelf Data set to %s\n", messageData->simulateShelfData ? "Enabled" : "Disabled");
+            }
+        }
+
+        dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
+    }
+}
+DX_DEVICE_TWIN_HANDLER_END
+
+
 static DX_DEVICE_TWIN_HANDLER(dt_low_power_mode_handler, deviceTwinBinding)
 {
     // validate data is sensible range before applying
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_BOOL) {
 
-        Log_Debug("Low Power Mode %s\n", *(bool*)deviceTwinBinding->propertyValue ? "enabled" : "Disabled");
+        Log_Debug("Low Power Mode %s\n", *(bool*)deviceTwinBinding->propertyValue ? "Enabled" : "Disabled");
         // BW implement low power shutdown
 
         lowPowerEnabled = *(bool*)deviceTwinBinding->propertyValue;
@@ -56,7 +139,6 @@ static DX_DEVICE_TWIN_HANDLER(dt_low_power_sleep_period_handler, deviceTwinBindi
     }
 }
 DX_DEVICE_TWIN_HANDLER_END
-
 
 static DX_DEVICE_TWIN_HANDLER(dt_product_height_handler, deviceTwinBinding)
 {
@@ -132,17 +214,23 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
     static GPIO_Value_Type buttonAState = GPIO_Value_High;
     static GPIO_Value_Type buttonBState = GPIO_Value_High;
 
+    int shelf1Height = -1;
+    int shelf2Height = -1;
+
     // Meaure shelf #1 empty depth
     if(dx_gpioStateGet(&buttonA, &buttonAState)){
 
         // Turn on the App LED to indicate that we're measureing and updating the persistant config        
         dx_gpioOn(&wifiLed);
-        productShelf1.shelfHeight_mm = 160;
-        Log_Debug("BW Fix: Add logic to read height!!!!!!!!!!!!!!!!!!!!!\n");
-        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
-        Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
-        dx_deviceTwinReportValue(&dt_measured_shelf1_height, &productShelf1.shelfHeight_mm);
-        sleep(1);
+
+        if(readShelfHeight(&shelf1Height, &shelf2Height)){
+        
+            productShelf1.shelfHeight_mm = shelf1Height;
+            updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
+            Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
+            dx_deviceTwinReportValue(&dt_measured_shelf1_height, &productShelf1.shelfHeight_mm);
+            sleep(1);
+        }
         dx_gpioOff(&wifiLed);
         return;
     }
@@ -151,12 +239,16 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
     if(dx_gpioStateGet(&buttonB, &buttonBState)){
     
         dx_gpioOn(&appLed);
-        productShelf2.shelfHeight_mm = 160;
-        Log_Debug("BW Fix: Add logic to read height!!!!!!!!!!!!!!!!!!!!!\n");
-        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
-        Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
-        dx_deviceTwinReportValue(&dt_measured_shelf2_height, &productShelf2.shelfHeight_mm);
-        sleep(1);
+
+        if(readShelfHeight(&shelf1Height, &shelf2Height)){
+        
+            productShelf2.shelfHeight_mm = shelf2Height;
+            updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
+            Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
+            dx_deviceTwinReportValue(&dt_measured_shelf2_height, &productShelf2.shelfHeight_mm);
+            sleep(1);
+        }
+
         dx_gpioOff(&appLed);
         return;
     }
@@ -170,7 +262,7 @@ DX_TIMER_HANDLER_END
 /// </summary>
 static DX_TIMER_HANDLER(read_sensors_handler)
 {
- 
+
     // reset inter-core block
     memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT));
 
@@ -194,9 +286,11 @@ static DX_TIMER_HANDLER(read_sensors_handler)
             pht.hum = messageData->hum;
             pht.temp = messageData->temp;
 
+            processPeopleData(messageData->rangePeople_mm);
+
             // Update the shelf data
             calculateStockLevel(&productShelf1, messageData->rangeShelf1_mm);
-            calculateStockLevel(&productShelf2, messageData->rangeShelf1_mm);
+            calculateStockLevel(&productShelf2, messageData->rangeShelf2_mm);
         }
     }
 }
@@ -219,7 +313,7 @@ static DX_TIMER_HANDLER(send_telemetry_handler)
     }
 
     // Restart the one shot timer using the desred telemetry period from IoTConnect
-    dx_timerOneShotSet(&tmr_send_telemetry, &(struct timespec){dx_avnetGetDataFrequency(), 0});
+    dx_timerOneShotSet(&tmr_send_telemetry, &(struct timespec){ dx_avnetGetDataFrequency(), 0});
 
 }
 DX_TIMER_HANDLER_END
@@ -231,17 +325,63 @@ DX_TIMER_HANDLER_END
 static DX_TIMER_HANDLER(shelf_stock_check_handler)
 {
 
-    static stockHistory_t historyShelf1 = {.historyIndex = 0,
-                                           .historyArray = {-1, -2, -3, -4}};
+    // Only check stock if we're connected to IoTConnect
+    if(dx_isAvnetConnected()){
 
-    static stockHistory_t historyShelf2 = {.historyIndex = 0,
-                                           .historyArray = {-1, -2, -3, -4}};
+        static stockHistory_t historyShelf1 = {.historyIndex = 0,
+                                            .historyArray = {-1, -2, -3, -4}};
 
-    checkShelfStock(&productShelf1, &historyShelf1);
-    checkShelfStock(&productShelf2, &historyShelf2);
+        static stockHistory_t historyShelf2 = {.historyIndex = 0,
+                                            .historyArray = {-1, -2, -3, -4}};
+
+        checkShelfStock(&productShelf1, &historyShelf1);
+        checkShelfStock(&productShelf2, &historyShelf2);
+    }
 }
 DX_TIMER_HANDLER_END
 
+static void processPeopleData(int rangePeople_mm){
+
+    static int startTimeSec = -1;
+    static bool measuringAttentionTime = false;
+    int totalShelfAttentionTime = 0;
+
+    // Someone is standing in front of the shelf
+    if((rangePeople_mm > 0) && (!measuringAttentionTime)){
+
+
+        struct timespec now = {0, 0};
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        // Did someone just walk in front of the shelf?
+        startTimeSec = now.tv_sec;
+        measuringAttentionTime = true;
+    }
+    
+    // Someone was in front of the shelf and they left
+    else if ((rangePeople_mm < 0) && (measuringAttentionTime)){
+
+        // If the flag is true, then a person was in front of the 
+        // shelf, and has just left.  Capture the totel time
+        
+        struct timespec now = {0, 0};
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        int timeNowSec = now.tv_sec;
+
+        totalShelfAttentionTime = timeNowSec - startTimeSec;
+        measuringAttentionTime = false;
+        if(totalShelfAttentionTime >= MINIMUM_SHELF_TIME){
+
+            // Serialize telemetry as JSON
+            bool serialization_result = dx_jsonSerialize(msgBuffer, sizeof(msgBuffer), 1, 
+                DX_JSON_INT, "shelfTime", totalShelfAttentionTime);
+
+            if (serialization_result) {    
+                sendTelemetryBuffer();
+            }
+        }
+    }
+}
 
 static int calculateStockLevel(productShelf_t* shelf, int range_mm){
 
