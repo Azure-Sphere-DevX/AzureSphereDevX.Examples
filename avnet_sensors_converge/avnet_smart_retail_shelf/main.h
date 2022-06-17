@@ -73,17 +73,17 @@ phtData_t pht = {.hum = -1,
 
 productShelf_t productShelf1 = {.name = "StockLevelShelf1",
                                 .alertName = "LowStockAlertShelf1",
-                                .productHeight_mm = 33,
+                                .productHeight_mm = 32,
                                 .productReserve = 1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = 160,
+                                .shelfHeight_mm = 172,
                                 .stockLevelAlertSent = false};
 productShelf_t productShelf2 = {.name = "StockLevelShelf2",
                                 .alertName = "LowStockAlertShelf2",
-                                .productHeight_mm = 33,
+                                .productHeight_mm = 32,
                                 .productReserve = 1,
                                 .lastProductCount = -1,
-                                .shelfHeight_mm = 160,
+                                .shelfHeight_mm = 172,
                                 .stockLevelAlertSent = false};
 
 #define STOCK_HISTORY_DEPTH 4
@@ -103,6 +103,9 @@ static int calculateStockLevel(productShelf_t* shelf, int range_mm);
 bool checkShelfStock(productShelf_t* shelfData, stockHistory_t* shelfHistory);
 void checkStockReserveLevel(productShelf_t* shelfData, char* lowStockTelemetryKey);
 static void processPeopleData(int rangePeople_mm);
+static DX_DIRECT_METHOD_RESPONSE_CODE measureShelfHeightHandler(
+    JSON_Value *json, DX_DIRECT_METHOD_BINDING *directMethodBinding, char **responseMsg);
+
 
 /****************************************************************************************
  * Device Twins
@@ -127,6 +130,13 @@ void printConfig(void);
 
 IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT ic_tx_block;
 IC_COMMAND_BLOCK_SMART_SHELF_RT_TO_HL ic_rx_block;
+
+/****************************************************************************************
+ * Azure IoT Direct Method Bindings
+ ****************************************************************************************/
+static DX_DIRECT_METHOD_BINDING dm_measure_shelf_height = {.methodName = "measureEmptyShelf",
+                                                    .handler = measureShelfHeightHandler};
+
 
 /****************************************************************************************
  * Telemetry message buffer property sets
@@ -260,3 +270,5 @@ DX_TIMER_BINDING *timer_bindings[] = {&tmr_button_monitor,
                                       &tmr_read_sensors, 
                                       &tmr_send_telemetry, 
                                       &tmr_check_shelf_stock};
+
+DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {&dm_measure_shelf_height};

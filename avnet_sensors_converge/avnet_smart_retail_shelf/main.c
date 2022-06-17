@@ -25,6 +25,7 @@ void sendTelemetryBuffer(void){
     }
 }
 
+
 bool readShelfHeight(int* shelf1Height, int* shelf2Height ){
 
     // reset inter-core block
@@ -54,6 +55,36 @@ bool readShelfHeight(int* shelf1Height, int* shelf2Height ){
     return false;
 }
 
+// Direct method name = LightControl, json payload = {"State": true, "Duration":2} or {"State":
+// false, "Duration":2}
+static DX_DIRECT_METHOD_HANDLER(measureShelfHeightHandler, json, directMethodBinding, responseMsg)
+{
+
+    int emptyShelf1Height = -1;
+    int emptyShelf2Height = -1;
+
+    // Meaure shelfes empty depth
+    if(readShelfHeight(&emptyShelf1Height, &emptyShelf2Height)){
+    
+        // Update the shelf structs
+        productShelf1.shelfHeight_mm = emptyShelf1Height;
+        productShelf2.shelfHeight_mm = emptyShelf2Height;
+
+        // Write the new configuration to persistant memory
+        updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
+
+        Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
+        Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
+
+        // Report the new shelf depths to IoTConnect
+        dx_deviceTwinReportValue(&dt_measured_shelf1_height, &productShelf1.shelfHeight_mm);
+        dx_deviceTwinReportValue(&dt_measured_shelf2_height, &productShelf2.shelfHeight_mm);
+    }
+
+    return DX_METHOD_SUCCEEDED;
+}
+DX_DIRECT_METHOD_HANDLER_END
+
 static DX_DEVICE_TWIN_HANDLER(dt_shelf_time_handler, deviceTwinBinding)
 {
     // validate data is sensible range before applying
@@ -69,15 +100,17 @@ static DX_DEVICE_TWIN_HANDLER(dt_shelf_time_handler, deviceTwinBinding)
 }
 DX_DEVICE_TWIN_HANDLER_END
 
-
-
 static DX_DEVICE_TWIN_HANDLER(dt_simulate_shelf_data_handler, deviceTwinBinding)
 {
+
     // validate data is sensible range before applying
     if (deviceTwinBinding->twinType == DX_DEVICE_TWIN_BOOL) {
 
         Log_Debug("Simulated Shelf Data %s\n", *(bool*)deviceTwinBinding->propertyValue ? "Enabled" : "Disabled");
-        // BW implement low power shutdown
+
+        // Reset the last count so we'll send new shelf data
+        productShelf1.lastProductCount = -1;
+        productShelf2.lastProductCount = -1;
 
         // reset inter-core block
         memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_SMART_SHELF_HL_TO_RT));
@@ -214,41 +247,19 @@ static DX_TIMER_HANDLER(ButtonPressCheckHandler)
     static GPIO_Value_Type buttonAState = GPIO_Value_High;
     static GPIO_Value_Type buttonBState = GPIO_Value_High;
 
-    int shelf1Height = -1;
-    int shelf2Height = -1;
-
-    // Meaure shelf #1 empty depth
     if(dx_gpioStateGet(&buttonA, &buttonAState)){
 
         // Turn on the App LED to indicate that we're measureing and updating the persistant config        
         dx_gpioOn(&wifiLed);
-
-        if(readShelfHeight(&shelf1Height, &shelf2Height)){
-        
-            productShelf1.shelfHeight_mm = shelf1Height;
-            updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
-            Log_Debug("Shelf 1 height recorded in persistant memory as %d mm\n", productShelf1.shelfHeight_mm);
-            dx_deviceTwinReportValue(&dt_measured_shelf1_height, &productShelf1.shelfHeight_mm);
-            sleep(1);
-        }
+        sleep(1);
         dx_gpioOff(&wifiLed);
         return;
     }
 
-    // Meaure shelf #2 empty depth
     if(dx_gpioStateGet(&buttonB, &buttonBState)){
     
         dx_gpioOn(&appLed);
-
-        if(readShelfHeight(&shelf1Height, &shelf2Height)){
-        
-            productShelf2.shelfHeight_mm = shelf2Height;
-            updateConfigInMutableStorage(productShelf1, productShelf2, lowPowerEnabled, lowPowerSleepTime);
-            Log_Debug("Shelf 2 height recorded in persistant memory as %d mm\n", productShelf2.shelfHeight_mm);
-            dx_deviceTwinReportValue(&dt_measured_shelf2_height, &productShelf2.shelfHeight_mm);
-            sleep(1);
-        }
-
+        sleep(1);
         dx_gpioOff(&appLed);
         return;
     }
@@ -394,7 +405,7 @@ static int calculateStockLevel(productShelf_t* shelf, int range_mm){
            return 0; 
     }
 
-    shelf->currentProductCount = (shelf->shelfHeight_mm - range_mm) / (shelf->productHeight_mm);
+    shelf->currentProductCount = (shelf->shelfHeight_mm - range_mm) / (shelf->productHeight_mm + 3);
     return (shelf->currentProductCount);
 }
 
@@ -416,7 +427,7 @@ bool checkShelfStock(productShelf_t* shelfData, stockHistory_t* shelfHistory){
            shelfHistory->historyArray[2] == shelfData->currentProductCount &&
            shelfHistory->historyArray[3] == shelfData->currentProductCount){
 
-            Log_Debug("Stock on %s changed from %d to %d\n", shelfData->name, shelfData->lastProductCount, shelfData->currentProductCount);
+            //Log_Debug("Stock on %s changed from %d to %d\n", shelfData->name, shelfData->lastProductCount, shelfData->currentProductCount);
             
             // Check to see if we added enough stock to get at or above the reserve level
             if((shelfData->currentProductCount >= shelfData->productReserve) &&
@@ -485,6 +496,7 @@ static void InitPeripheralsAndHandlers(void){
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_intercoreConnect(&intercore_smart_shelf_binding);
+    dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
 
     // The persistant memory logic will always try to read the existing configuration from mutable storage before
     // making any updates.  If the application is running for the very first time, the record will not exist.
