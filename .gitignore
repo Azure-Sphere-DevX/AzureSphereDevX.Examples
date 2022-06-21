@@ -1,2 +1,14 @@
 build/*
 out/*
+avnet_sensors_converge/avnet_smart_retail_shelf/build/*
+avnet_sensors_converge/avnet_smart_retail_shelf/out/*
+avnet_sensors_converge/avnet_tempHum13/build/*
+avnet_sensors_converge/avnet_tempHum13/out/*
+deferred_update/build/*
+deferred_update/out/*
+timer_example/build/*
+timer_example/out/*
+avnet_sk_demo/build/*
+avnet_sk_demo/out/*
+gpio_example/build/*
+gpio_example/out/*

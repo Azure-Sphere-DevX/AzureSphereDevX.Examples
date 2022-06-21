@@ -1,0 +1,27 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Avnet_smart_retail_shelf_V1",
+  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "0ne001DB429" ],
+  "Capabilities": {
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE",
+      "$SAMPLE_BUTTON_1",
+      "$SAMPLE_BUTTON_2",
+      "$SAMPLE_WIFI_LED",
+      "$SAMPLE_APP_LED"
+    ],
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "poc-iotc-sphere-iothub-eu.azure-devices.net",
+      "BW-IoTHub.azure-devices.net"
+    ],
+    "AllowedApplicationConnections": [ "f6768b9a-e086-4f5a-8219-5ffe9684b001" ],
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68",
+    "MutableStorage": { "SizeKB": 8 }
+  },
+  "ApplicationType": "Default"
+}
