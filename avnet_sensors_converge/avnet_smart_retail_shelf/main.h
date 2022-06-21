@@ -52,6 +52,7 @@ DX_USER_CONFIG dx_config;
 #define MIN_SHELF_TIME 2   // 2 Seconds
 #define MAX_SHELF_TIME 60  // 60 Seconds
 
+//#define INCLUDE_PEOPLE_DETECT_SENSOR
 
 /****************************************************************************************
  * Global Variables
@@ -124,6 +125,7 @@ static DX_DECLARE_TIMER_HANDLER(ButtonPressCheckHandler);
 static DX_DECLARE_TIMER_HANDLER(read_sensors_handler);
 static DX_DECLARE_TIMER_HANDLER(send_telemetry_handler);
 static DX_DECLARE_TIMER_HANDLER(shelf_stock_check_handler);
+static DX_DECLARE_TIMER_HANDLER(check_network_handler);
 
 void printConfig(void);
 //static void receive_msg_handler(void *data_block, ssize_t message_length);
@@ -206,7 +208,11 @@ static DX_DEVICE_TWIN_BINDING dt_simulate_shelf_data = {.propertyName = "simulat
  ****************************************************************************************/
 static DX_GPIO_BINDING buttonA =      {.pin = SAMPLE_BUTTON_1,     .name = "buttonA",      .direction = DX_INPUT,   .detect = DX_GPIO_DETECT_LOW};
 static DX_GPIO_BINDING buttonB =      {.pin = SAMPLE_BUTTON_2,     .name = "buttonB",      .direction = DX_INPUT,   .detect = DX_GPIO_DETECT_LOW};
+#ifdef INCLUDE_PEOPLE_DETECT_SENSOR
+static DX_GPIO_BINDING userLedRed =   {.pin = SAMPLE_RGBLED_RED,   .name = "userLedRed",   .direction = DX_OUTPUT,  .initialState = GPIO_Value_High, .invertPin = true};
+#else
 static DX_GPIO_BINDING userLedRed =   {.pin = SAMPLE_RGBLED_RED,   .name = "userLedRed",   .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
+#endif
 static DX_GPIO_BINDING userLedGreen = {.pin = SAMPLE_RGBLED_GREEN, .name = "userLedGreen", .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
 static DX_GPIO_BINDING userLedBlue =  {.pin = SAMPLE_RGBLED_BLUE,  .name = "userLedBlue",  .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
 static DX_GPIO_BINDING wifiLed =      {.pin = SAMPLE_WIFI_LED,     .name = "WifiLed",      .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
@@ -231,6 +237,10 @@ static DX_TIMER_BINDING tmr_send_telemetry = {.delay = &(struct timespec){2, 500
 static DX_TIMER_BINDING tmr_check_shelf_stock = {.period = {1, 0}, 
                                             .name = "tmr_check_shelf_stock", 
                                             .handler = shelf_stock_check_handler};
+
+static DX_TIMER_BINDING tmr_check_network = {.period = {1, 0}, 
+                                            .name = "tmr_check_network", 
+                                            .handler = check_network_handler};
 
 /****************************************************************************************
  * Inter Core Bindings
@@ -269,6 +279,7 @@ DX_GPIO_BINDING *gpio_bindings[] = {&buttonA,
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_button_monitor, 
                                       &tmr_read_sensors, 
                                       &tmr_send_telemetry, 
-                                      &tmr_check_shelf_stock};
+                                      &tmr_check_shelf_stock,
+                                      &tmr_check_network};
 
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {&dm_measure_shelf_height};

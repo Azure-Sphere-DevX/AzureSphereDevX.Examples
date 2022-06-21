@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Name": "TODO_Add_app_name_here",
+  "Name": "Avnet_smart_retail_shelf_V1",
   "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "0ne001DB429" ],

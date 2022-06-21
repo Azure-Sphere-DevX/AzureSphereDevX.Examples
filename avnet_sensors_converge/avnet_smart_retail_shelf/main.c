@@ -12,9 +12,54 @@
   ************************************************************************************************/
 #include "main.h"
 
+#define RGB_LED1_INDEX 0
+#define RGB_LED2_INDEX 1
+
+#define RGB_NUM_LEDS 2
+
+// Define which LED to light up for each case
+typedef enum {
+    RGB_No_Connections = 0b000,
+    RGB_Wifi_Network = 0b001,        // No WiFi connection
+    RGB_IoT_Hub_Connected = 0b011, // Connected to IoT Hub
+} RGB_Status;
+
+void updateConnectionStatusLed(bool connected);
+void setConnectionStatusLed(RGB_Status networkStatus);
+
 /****************************************************************************************
  * Implementation
  ****************************************************************************************/
+
+//  RGB LEDs
+static DX_GPIO_BINDING* gpioConnectionStateLeds[RGB_NUM_LEDS] = {&wifiLed, &appLed};
+
+// Determine the network status and call the routine to set the status LEDs
+void updateConnectionStatusLed(bool connected)
+{
+    RGB_Status networkStatus;
+
+    networkStatus = dx_isNetworkReady() ? (connected ? RGB_IoT_Hub_Connected : RGB_Wifi_Network) : RGB_No_Connections;
+
+    // Set the LEDs based on the current status
+    setConnectionStatusLed(networkStatus);
+}
+
+App_Exit_Code network_status_init(void)
+{
+
+    dx_azureRegisterConnectionChangedNotification(updateConnectionStatusLed);
+    return DX_ExitCode_Success;
+}
+
+// Using the bits set in networkStatus, turn on/off the status LEDs
+void setConnectionStatusLed(RGB_Status networkStatus)
+{
+
+    (networkStatus & (1 << RGB_LED1_INDEX)) ? dx_gpioOn(gpioConnectionStateLeds[RGB_LED1_INDEX]) : dx_gpioOff(gpioConnectionStateLeds[RGB_LED1_INDEX]);
+    (networkStatus & (1 << RGB_LED2_INDEX)) ? dx_gpioOn(gpioConnectionStateLeds[RGB_LED2_INDEX]) : dx_gpioOff(gpioConnectionStateLeds[RGB_LED2_INDEX]);
+}
+
 void sendTelemetryBuffer(void){
 
     // Only send telemetry if we're connected to IoTConnect
@@ -351,6 +396,17 @@ static DX_TIMER_HANDLER(shelf_stock_check_handler)
 }
 DX_TIMER_HANDLER_END
 
+static DX_TIMER_HANDLER(check_network_handler)
+{
+    RGB_Status networkStatus;
+
+    networkStatus = dx_isNetworkReady() ? (dx_isAvnetConnected() ? RGB_IoT_Hub_Connected : RGB_Wifi_Network) : RGB_No_Connections;
+
+    // Set the LEDs based on the current status
+    setConnectionStatusLed(networkStatus);
+}
+DX_TIMER_HANDLER_END
+
 static void processPeopleData(int rangePeople_mm){
 
     static int startTimeSec = -1;
@@ -360,6 +416,10 @@ static void processPeopleData(int rangePeople_mm){
     // Someone is standing in front of the shelf
     if((rangePeople_mm > 0) && (!measuringAttentionTime)){
 
+
+        // Turn on the Red LED
+        dx_gpioOff(&userLedGreen);
+        dx_gpioOn(&userLedRed);
 
         struct timespec now = {0, 0};
         clock_gettime(CLOCK_MONOTONIC, &now);
@@ -374,7 +434,7 @@ static void processPeopleData(int rangePeople_mm){
 
         // If the flag is true, then a person was in front of the 
         // shelf, and has just left.  Capture the totel time
-        
+
         struct timespec now = {0, 0};
         clock_gettime(CLOCK_MONOTONIC, &now);
         int timeNowSec = now.tv_sec;
@@ -391,6 +451,11 @@ static void processPeopleData(int rangePeople_mm){
                 sendTelemetryBuffer();
             }
         }
+
+        // Turn on the Green LED
+        dx_gpioOn(&userLedGreen);
+        dx_gpioOff(&userLedRed);
+
     }
 }
 
