@@ -465,7 +465,7 @@ static int calculateStockLevel(productShelf_t* shelf, int range_mm){
     if((shelf->shelfHeight_mm < 0       ) ||
        (shelf->productHeight_mm < 0     ) ||
        (range_mm < 0                    ) ||
-       (range_mm > shelf->shelfHeight_mm)){
+       (range_mm > shelf->shelfHeight_mm+5)){ 
            
            return 0; 
     }
