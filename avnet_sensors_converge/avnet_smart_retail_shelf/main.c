@@ -62,12 +62,25 @@ void setConnectionStatusLed(RGB_Status networkStatus)
 
 void sendTelemetryBuffer(void){
 
+#ifdef USE_AVNET_IOTCONNECT
+
     // Only send telemetry if we're connected to IoTConnect
     if (dx_isAvnetConnected()){
 
         Log_Debug("TX: %s\n", msgBuffer);
         dx_avnetPublish(msgBuffer, strnlen(msgBuffer, sizeof(msgBuffer)), NULL, 0, &contentProperties, NULL);
     }
+
+#else
+
+    // Only send telemetry if we're connected to the IoTHub
+    if (dx_isAzureConnected()){
+
+        Log_Debug("TX: %s\n", msgBuffer);
+        dx_azurePublish(msgBuffer, strnlen(msgBuffer, sizeof(msgBuffer)), NULL, 0, &contentProperties);
+    }
+
+#endif 
 }
 
 
@@ -425,7 +438,7 @@ static void processPeopleData(int rangePeople_mm){
         clock_gettime(CLOCK_MONOTONIC, &now);
 
         // Did someone just walk in front of the shelf?
-        startTimeSec = now.tv_sec;
+        startTimeSec = (int)now.tv_sec;
         measuringAttentionTime = true;
     }
     
@@ -437,7 +450,7 @@ static void processPeopleData(int rangePeople_mm){
 
         struct timespec now = {0, 0};
         clock_gettime(CLOCK_MONOTONIC, &now);
-        int timeNowSec = now.tv_sec;
+        int timeNowSec = (int)now.tv_sec;
 
         totalShelfAttentionTime = timeNowSec - startTimeSec;
         measuringAttentionTime = false;
@@ -554,7 +567,7 @@ static void InitPeripheralsAndHandlers(void){
     //dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
-//    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
+    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
 #endif     
     
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));

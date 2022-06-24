@@ -1,0 +1,124 @@
+{
+    "code": "SmartShelf",
+    "name": "SmartShelf",
+    "authType": 2,
+    "isIotEdgeEnable": false,
+    "attributes": [
+        {
+            "name": "StockLevelShelf1",
+            "type": "INTEGER",
+            "description": "Current stock level for shelf #1",
+            "unit": null
+        },
+        {
+            "name": "LowStockAlertShelf1",
+            "type": "BOOLEAN",
+            "description": "Alert sent when stock shelf drops below preconfigured level: shelf #1.",
+            "unit": null
+        },
+        {
+            "name": "StockLevelShelf2",
+            "type": "INTEGER",
+            "description": "Current stock level for shelf #2",
+            "unit": "Units"
+        },
+        {
+            "name": "LowStockAlertShelf2",
+            "type": "BOOLEAN",
+            "description": "Alert sent when stock shelf drops below preconfigured level: shelf #2.",
+            "unit": null
+        },
+        {
+            "name": "temperature",
+            "type": "DECIMAL",
+            "description": "Measured temperature in smart shelf",
+            "unit": "c"
+        },
+        {
+            "name": "humidity",
+            "type": "DECIMAL",
+            "description": "Measured humidity in smart shelf",
+            "unit": "%"
+        },
+        {
+            "name": "pressure",
+            "type": "DECIMAL",
+            "description": "Measured pressure in smart shelf",
+            "unit": "mbar"
+        },
+        {
+            "name": "shelfTime",
+            "type": "INTEGER",
+            "description": "Duration that a customer stood in front of the shelf in seconds.",
+            "unit": "Seconds"
+        }
+    ],
+    "settings": [
+        {
+            "name": "MeasuredEmptyShelf1Height",
+            "type": "INTEGER",
+            "localName": "MeasuredEmptyShelf1Height",
+            "defaultValue": "0",
+            "isReadOnly": true
+        },
+        {
+            "name": "ProductHeightShelf1",
+            "type": "INTEGER",
+            "localName": "ProductHeightShelf1",
+            "defaultValue": "32",
+            "isReadOnly": false
+        },
+        {
+            "name": "MeasuredEmptyShelf2Height",
+            "type": "INTEGER",
+            "localName": "MeasuredEmptyShel21Height",
+            "defaultValue": "0",
+            "isReadOnly": true
+        },
+        {
+            "name": "simulateShelfData",
+            "type": "BOOLEAN",
+            "localName": "simulateShelfData",
+            "defaultValue": "true",
+            "dataValidation": "true, false",
+            "isReadOnly": false
+        },
+        {
+            "name": "ProductReserveShelf1",
+            "type": "INTEGER",
+            "localName": "ProductReserveShelf1",
+            "defaultValue": "2",
+            "isReadOnly": false
+        },
+        {
+            "name": "ProductReserveShelf2",
+            "type": "INTEGER",
+            "localName": "ProductReserveShelf2",
+            "defaultValue": "2",
+            "isReadOnly": false
+        },
+        {
+            "name": "ProductHeightShelf2",
+            "type": "INTEGER",
+            "localName": "ProductHeightShelf2",
+            "defaultValue": "42",
+            "isReadOnly": false
+        }
+    ],
+    "directMethods": [
+        {
+            "methodName": "measureEmptyShelf",
+            "responseTimeout": "30"
+        }
+    ],
+    "messageVersion": "2.1",
+    "msgCode": "1389XTR",
+    "properties": {
+        "description": null,
+        "dataFrequency": "60",
+        "fileSupport": false
+    },
+    "_meta": {
+        "version": "2.0"
+    }
+}
