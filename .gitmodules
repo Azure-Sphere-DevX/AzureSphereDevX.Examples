@@ -184,3 +184,9 @@
 [submodule "avnet_sensors_converge/avnet_smart_retail_shelf/HardwareDefinitions"]
 	path = avnet_sensors_converge/avnet_smart_retail_shelf/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_sensors_converge/avnet_PHT/HardwareDefinitions"]
+	path = avnet_sensors_converge/avnet_PHT/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_sensors_converge/avnet_PHT/AzureSphereDevX"]
+	path = avnet_sensors_converge/avnet_PHT/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
