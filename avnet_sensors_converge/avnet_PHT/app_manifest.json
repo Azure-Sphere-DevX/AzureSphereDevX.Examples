@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 1,
-  "Name": "avnet_TEMPHUM_TMF8801_HLApp-V1",
+  "Name": "avnet_PHT_HLApp-V1",
   "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "0ne00000000" ],

@@ -43,6 +43,7 @@
 
 static float lastTempMeasurement = -100.0F;
 static float lastHumMeasurement = -100.0F;
+static float lastPressureMeasurement = -100.0F;
 static double calculatedRoomTemp = 0.0F;
 static bool roomTempCalculated = false;
 
@@ -137,7 +138,7 @@ static DX_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds, deviceTwinBin
 }
 DX_DEVICE_TWIN_HANDLER_END
 
-// Using the rangeStatus value, turn on/off the range indication LEDs
+// Using the temp value, turn on/off the temperature indication LEDs
 static void setPwmStatusLed(float temp)
 {
     static float lastTemp = -100.0;
@@ -183,10 +184,10 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 {
 
     // Cast the data block so we can index into the data
-    IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL*) data_block;
+    IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL*) data_block;
 
     switch (messageData->cmd) {
-        case IC_TEMPHUM_READ_SENSOR:
+        case IC_PHT_CLICK_READ_SENSOR:
             if(roomTempCalculated){
                 setPwmStatusLed(messageData->temp);
             }
@@ -196,13 +197,14 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 
             lastTempMeasurement = messageData->temp;
             lastHumMeasurement = messageData->hum;
+            lastPressureMeasurement = messageData->pressure;
 
             break;
         // Handle the other cases by doing nothing
-        case IC_TEMPHUM_HEARTBEAT:
-        case IC_TEMPHUM_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-        case IC_TEMPHUM_SET_TELEMETRY_SEND_RATE:
-        case IC_TEMPHUM_UNKNOWN:
+        case IC_PHT_CLICK_HEARTBEAT:
+        case IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+        case IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE:
+        case IC_PHT_CLICK_UNKNOWN:
         default:
             break;
     }
@@ -215,12 +217,12 @@ static DX_TIMER_HANDLER(ReadSensorHandler)
 {
     //Code to read the sensor data in your application
     // reset inter-core block
-    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT));
+    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
 
     // Send read sensor message to realtime core app one
-    ic_tx_block.cmd = IC_TEMPHUM_READ_SENSOR;
+    ic_tx_block.cmd = IC_PHT_CLICK_READ_SENSOR;
     dx_intercorePublish(&intercore_tempHum13_click_binding, &ic_tx_block,
-                        sizeof(IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT));
+                        sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
 }
 DX_TIMER_HANDLER_END
 
@@ -230,7 +232,10 @@ DX_TIMER_HANDLER_END
 static DX_TIMER_HANDLER(SendTelemetryHandler)
 {
 
-    snprintf(msgBuffer, sizeof(msgBuffer), "{\"temp\":%.2f, \"humidity\": %.2f}", lastTempMeasurement, lastHumMeasurement);                
+    snprintf(msgBuffer, sizeof(msgBuffer), "{\"temp\":%.2f, \"humidity\": %.2f, \"pressure\": %.2f}", 
+                                            lastTempMeasurement, 
+                                            lastHumMeasurement, 
+                                            lastPressureMeasurement);                
     Log_Debug("%s\n", msgBuffer);
 
     if(dx_isAzureConnected()){
@@ -265,7 +270,7 @@ static void InitPeripheralsAndHandlers(void)
     dx_pwmSetDutyCycle(&pwm_green_led, 1000, 0);
     dx_pwmSetDutyCycle(&pwm_blue_led, 1000, 0);
 
-    Log_Debug("Temp&Hum13 Demo Starting . . . \n");
+    Log_Debug("PHT Demo Starting . . . \n");
 }
 
 /// <summary>

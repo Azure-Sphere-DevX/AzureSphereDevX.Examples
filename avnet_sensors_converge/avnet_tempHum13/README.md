@@ -1,17 +1,6 @@
-# Azure IoT Starter Project (empty)
+# Avnet Demo App for the Temp&Hum13 Sensors Converge Sphere Workshop
 
-This is an empty (starter) project that can be used for new Azure Sphere applications based on the DevX library.  The project connects to an Azure IoTHub,
-IoTCentral, or Avnet's IoTConnect and nothing more.  Use the other examples in this folder to help you see how to build out the project to meet your requirements.  Search the project for "TODO" to see where to add definitions, declarations and code.
-## Config app_manifest.json sample
+This simple application interfaces with an Azure RTOS app running on one of the M4 cores.  This app simply opens a socket to the real-time app and requests sensor data.  When the sensor data is received it applies the data to one of three ranges and sets a PWM output to indicate the temperature measured.
 
-1. Set ID Scope
-1. Set Allowed connections
-1. Set DeviceAuthentication
+Pressing either of the User buttons on the starter kit will "reset" the base temperature.
 
-For more information refer to:
-
-1. [Adding the Azure Sphere DevX library](https://github.com/gloveboxes/AzureSphereDevX/wiki/Adding-the-DevX-Library)
-1. [Azure Messaging](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Sending-messages)
-1. [Device Twins](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Device-Twins)
-1. [Direct Methods](https://github.com/gloveboxes/AzureSphereDevX/wiki/IoT-Hub-Direct-Methods)
-1. [GPIO](https://github.com/gloveboxes/AzureSphereDevX/wiki/Working-with-GPIO)

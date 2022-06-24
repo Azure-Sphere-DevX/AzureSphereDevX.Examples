@@ -69,15 +69,15 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_sensor_polling_period_ms);
 static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_set_telemetemetry_period_seconds);
 static void updateHistoricalTempData(float tempData);
 
-IC_COMMAND_BLOCK_TEMPHUM_HL_TO_RT ic_tx_block;
-IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL ic_rx_block;
+IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT ic_tx_block;
+IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL ic_rx_block;
 
 /****************************************************************************************
  * Telemetry message buffer property sets
  ****************************************************************************************/
 
 // Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-#define JSON_MESSAGE_BYTES 32
+#define JSON_MESSAGE_BYTES 64
 static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
 static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "TMF8801"}, 
@@ -95,7 +95,7 @@ DX_INTERCORE_BINDING intercore_tempHum13_click_binding = {
     .rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
     .interCoreCallback = receive_msg_handler,
     .intercore_recv_block = &ic_rx_block,
-    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_TEMPHUM_RT_TO_HL)}; 
+    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL)}; 
 
 static DX_TIMER_BINDING readSensorTimer = {
     .repeat = &(struct timespec){DEFAULT_SENSOR_POLL_PERIOD_SECONDS, DEFAULT_SENSOR_POLL_PERIOD_MS}, 
