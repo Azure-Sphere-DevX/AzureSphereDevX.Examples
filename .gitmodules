@@ -190,3 +190,9 @@
 [submodule "avnet_sensors_converge/avnet_PHT/AzureSphereDevX"]
 	path = avnet_sensors_converge/avnet_PHT/AzureSphereDevX
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_smart_parking/AzureSphereDevX"]
+	path = avnet_smart_parking/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_smart_parking/HardwareDefinitions"]
+	path = avnet_smart_parking/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
