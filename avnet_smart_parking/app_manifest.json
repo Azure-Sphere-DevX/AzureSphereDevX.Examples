@@ -5,7 +5,11 @@
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "REPLACE_WITH_YOUR_ID_SCOPE" ],
   "Capabilities": {
-    "Gpio": [],
+    "Gpio": [ "$SAMPLE_RGBLED_RED",
+              "$SAMPLE_RGBLED_GREEN",
+              "$SAMPLE_RGBLED_BLUE",
+              "$SAMPLE_BUTTON_1",
+              "$SAMPLE_BUTTON_2"],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
       "REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL.net"
@@ -14,7 +18,8 @@
       "f6768b9a-e086-4f5a-8219-5ffe9684b001",
       "f6768b9a-e086-4f5a-8219-5ffe9684b002"
     ],
-    "DeviceAuthentication": "f6768b9a-e086-4f5a-8219-5ffe9684b002"
+    "DeviceAuthentication": "f6768b9a-e086-4f5a-8219-5ffe9684b002",
+    "MutableStorage": { "SizeKB": 8 }
   },
   "ApplicationType": "Default"
 }

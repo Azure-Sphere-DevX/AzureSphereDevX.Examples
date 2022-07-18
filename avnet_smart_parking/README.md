@@ -1,28 +1,35 @@
-# Generic RTApp Interface
+# Avnet Azure Sphere Smart Parking application
 
-This example works in conjunction with the Azure RTOS applications in the GitHub repo [here](https://github.com/Avnet/avnet-azure-sphere-AzureRTOS).  I wanted to develop a collection of real-time applications that could be pre-built and then either side loaded or deployed to an Azure Sphere Device OTA.  This application looks for up to two real-time applications running on the device.  It assumes that the Component IDs are either "f6768b9a-e086-4f5a-8219-5ffe9684b001" for real-time app #1, or  "f6768b9a-e086-4f5a-8219-5ffe9684b002" for real-time app #2.  
+ Simple non-IoT Connected smart parking application to help you pull into your garage featuring the ams OSRAM TMF8801 Time-of-Flight sensor.
+ 
+ 1. Install a Lightranger5 click board into your starter kit
+ 1. The RTAppBinary/AvnetLightRanger5Click-Rev1-Click1-App1-V2.imagepackage binary assumes
+    a Rev1 Avnet Starter Kit with the Lightranger5 board in click socket #1.  If you want to 
+    use a Rev2 board find the appropriate RTApp binary in [this](https://github.com/Avnet/avnet-azure-sphere-AzureRTOS/tree/main/binaries/RTApp-1-Images) repo.  
+ 1. Sideload the RTApp binary 
+     1. ```azsphere device sideload deploy -p RTAppBinary/AvnetLightRanger5Click-Rev1-Click1-App1-V2.imagepackage```
+ 1. Build and load this high level application
+ 1. Install the Starter Kit in your garage in front of your vehicle
+     1. If you have a hard time getting the range to work properly you can connect a Serial Port device to the dedicated M4 TX uart to see the range values that the Lightranger5 device is reporting
+     1. My installation had issues when using the grill (with open slots) so I located the device to measure the range of the corner of my car.
+ 1. Park the vehicle where you want it to stop
+ 1. Press the user button A to set the target distance between your vehicle and the Starter Kit
+     1. The target distance is stored in persistant memory to retain value across device resets
+ 1. Avnet assumes no libility or responsibility for any damage that occurs using this sample application. 
+ 
+ # Expected Behavior
+ Once the device is installed and the target distance set (User Button A) the application will use the onboard RGB LED to indicate parking status.
 
-The high level application sends a generic command to the real-time applications to read their sensors and return JSON telemetry strings containing the sensor data.  The telemetry strings are received at the high level application and forwarded to the IoTHub.  See the README.md file in the Azure RTOS repo for all the details.  The real-time applications can be swapped out to utilize different sensors.
+The application defines three different ranges, near, medium and far. These ranges are based on the target range.
 
-This application assumes that it will connect to an IoTHub.  The app_manifest.json file needs to be updated with the IoTHub hostname, the DPS Scope ID, and the Azure Sphere Tenant GUID.
+ * No car in range: Solid Green
+ * Car in long range: Blinking Green
+ * Car in medium range: Blinking Blue
+ * Car in close range: Fast blinking Red
+ * Car <= target range: Solid Red
 
-The application implements three Device Twins . . .
+![Installed Device](./media/IMG_1561.jpg)
 
-* "telemetryTimerAllApps"
-    * Requests each real time application to read their sensors and return telemetry JSON at the interval requested 
-    * Takes an integer >= 0
-    * 0 == Don't request any telemetry
-    * integer > 0 requests telemetry every X seconds
-    * The timer default is to request telemetry data ever 15 seconds
-* "rtApp1AutoTelemetryTimer"
-    * Requests real time application #1 to automatically read its sensors and return telemetry JSON at the interval requested 
-    * Takes an integer >= 0
-    * 0 == Stop the auto telemetry function
-    * Integer > 0 requests telemetry every X seconds
-    * The default is 0, off
-* "rtApp2AutoTelemetryTimer"
-    * Requests real time application #2 to automatically read its sensors and return telemetry JSON at the interval requested 
-    * Takes an integer >= 0
-    * 0 == Stop the auto telemetry function
-    * Integer > 0 requests telemetry every X seconds
-    * The default is 0, off
+![Installed Device](./media/IMG_1562.jpg)
+
+ 

@@ -10,5 +10,7 @@
 /// 150 - 254.
 /// </summary>
 typedef enum {
-	APP_ExitCode_Telemetry_Buffer_Too_Small = 1
+	APP_ExitCode_Telemetry_Buffer_Too_Small = 1,
+   APP_ExitCode_OpenMutableFileFailed      = 2,
+   APP_ExitCode_WriteFileWriteFailed       = 3
 } App_Exit_Code;
