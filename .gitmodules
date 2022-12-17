@@ -196,3 +196,9 @@
 [submodule "avnet_smart_parking/HardwareDefinitions"]
 	path = avnet_smart_parking/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_low_power_temp_hum/AzureSphereDevX"]
+	path = avnet_low_power_temp_hum/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_low_power_temp_hum/HardwareDefinitions"]
+	path = avnet_low_power_temp_hum/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
