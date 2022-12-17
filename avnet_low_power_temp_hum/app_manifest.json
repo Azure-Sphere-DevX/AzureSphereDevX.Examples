@@ -1,7 +1,7 @@
 {
   "SchemaVersion": 1,
   "Name": "TODO_Add_app_name_here",
-  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "TODO_REPLACE_WITH_YOUR_ID_SCOPE" ],
   "Capabilities": {
@@ -10,7 +10,8 @@
       "global.azure-devices-provisioning.net",
       "TODO_REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
     ],
-    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000"
+    "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
+    "AllowedApplicationConnections": [ "f6768b9a-e086-4f5a-8219-5ffe9684b001" ]
   },
   "ApplicationType": "Default"
 }

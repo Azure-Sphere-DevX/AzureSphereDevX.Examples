@@ -41,10 +41,46 @@
  ************************************************************************************************/
 #include "main.h"
 
-/****************************************************************************************
- * Implementation
- ****************************************************************************************/
-// TODO: Add all your handlers and helper functions here
+/****************************************************************************************/
+
+/// <summary>
+/// receive_msg_handler()
+/// This handler is called when the high level application receives a raw data read response from the 
+/// PHT CLICK real time application.
+/// </summary>
+static void receive_msg_handler(void *data_block, ssize_t message_length)
+{
+    // Cast the data block so we can index into the data
+    IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL*) data_block;
+
+    switch (messageData->cmd) {
+        case IC_PHT_CLICK_READ_SENSOR:
+            // Pull the sensor data 
+            Log_Debug("IC_PHT_CLICK_READ_SENSOR: tempC: %.2f, pressure: %.2f, hum: %.2f\n", 
+                     messageData->temp, messageData->pressure, messageData->hum);
+            break;
+        case IC_PHT_CLICK_HEARTBEAT:
+            Log_Debug("IC_PHT_CLICK_HEARTBEAT\n");
+            break;
+        case IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
+            Log_Debug("IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+
+            // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
+            if(dx_isAzureConnected()){
+ //           dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), 
+ //                       messageProperties, NELEMS(messageProperties), &contentProperties);
+
+//            }
+            break;
+        case IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE:
+            Log_Debug("IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
+            break;
+        case IC_PHT_CLICK_UNKNOWN:
+        default:
+            break;
+        }
+    }
+}
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
@@ -61,6 +97,17 @@ static void InitPeripheralsAndHandlers(void)
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
+
+    dx_intercoreConnect(&intercore_pht_click_binding);
+
+    // Code to request the real time app to automatically send telemetry data every 5 seconds
+    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
+
+    // Send read sensor message to realtime app
+    ic_tx_block.cmd = IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE;
+    ic_tx_block.telemtrySendRate = 5;
+    dx_intercorePublish(&intercore_pht_click_binding, &ic_tx_block,
+                            sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT)); 
 
     // TODO: Update this call with a function pointer to a handler that will receive connection status updates
     // see the azure_end_to_end example for an example

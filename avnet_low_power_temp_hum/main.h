@@ -12,6 +12,9 @@
 #include <applibs/log.h>
 #include <applibs/applications.h>
 
+#include "dx_intercore.h"
+#include "pht_click.h"
+
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
 
@@ -42,7 +45,12 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
-// TODO: Add all Forward declarations here or in main.c
+static void receive_msg_handler(void *data_block, ssize_t message_length);
+
+
+// Memory blocks for intercore comms
+IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT ic_tx_block;
+IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL ic_rx_block;
 
 /****************************************************************************************
  * Telemetry message buffer property sets
@@ -64,10 +72,21 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Bindings
  ****************************************************************************************/
-// TODO: Declare all bindings here, for example . . . 
+
+/****************************************************************************************
+ * Inter Core Bindings
+ *****************************************************************************************/
+DX_INTERCORE_BINDING intercore_pht_click_binding = {
+    .sockFd = -1,
+    .nonblocking_io = true,
+    .rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
+    .interCoreCallback = receive_msg_handler,
+    .intercore_recv_block = &ic_rx_block,
+    .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL)};
 
 //static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
 //static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
+
 //static DX_TIMER_BINDING tmr_publish_message = {.period = {4, 0}, .name = "tmr_publish_message", .handler = publish_message_handler};
 
 /****************************************************************************************
