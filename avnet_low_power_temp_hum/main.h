@@ -15,6 +15,8 @@
 #include "dx_intercore.h"
 #include "pht_click.h"
 
+#include "dx_avnet_iot_connect.h"
+
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
 
@@ -35,7 +37,7 @@ DX_USER_CONFIG dx_config;
  ****************************************************************************************/
 // TODO: If the application will connect to Avnet's IoTConnect platform enable the 
 // #define below
-//#define USE_AVNET_IOTCONNECT
+#define USE_AVNET_IOTCONNECT
 
 /****************************************************************************************
  * Application defines

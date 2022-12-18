@@ -66,11 +66,10 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
             Log_Debug("IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
 
             // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
-            if(dx_isAzureConnected()){
- //           dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), 
- //                       messageProperties, NELEMS(messageProperties), &contentProperties);
+            if(dx_isAvnetConnected()){
+                dx_avnetPublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), NULL, 0, NULL, NULL);
 
-//            }
+            }
             break;
         case IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE:
             Log_Debug("IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
@@ -79,7 +78,6 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
         default:
             break;
         }
-    }
 }
 
 /// <summary>
@@ -88,6 +86,9 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 static void InitPeripheralsAndHandlers(void)
 {
 #ifdef USE_AVNET_IOTCONNECT
+
+    dx_avnetSetApiVersion(AVT_API_VERSION_1_0);
+    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
 //    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
