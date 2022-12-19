@@ -12,10 +12,20 @@
 #include <applibs/log.h>
 #include <applibs/applications.h>
 
+// PHT Click
 #include "dx_intercore.h"
 #include "pht_click.h"
 
+// Avnet IoT Connect
 #include "dx_avnet_iot_connect.h"
+
+// Sleep
+#include <applibs/powermanagement.h>
+
+// Defer Update
+#include "dx_deferred_update.h"
+
+#include "dx_uart.h"
 
 // Use main.h to define all your application definitions, message properties/contentProperties,
 // bindings and binding sets.
@@ -42,34 +52,18 @@ DX_USER_CONFIG dx_config;
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
-// TODO: Add any application constants
+//#define INCLUDE_OTA_DEBUG
 
 /****************************************************************************************
  * Forward declarations
  ****************************************************************************************/
-static void receive_msg_handler(void *data_block, ssize_t message_length);
-
+static DX_DECLARE_TIMER_HANDLER(waitForConnectionHandler);
+static DX_DECLARE_TIMER_HANDLER(waitToSleepHandler);
+static DX_DECLARE_DEVICE_TWIN_HANDLER(dtSleepPeriodHandler);
 
 // Memory blocks for intercore comms
 IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT ic_tx_block;
 IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL ic_rx_block;
-
-/****************************************************************************************
- * Telemetry message buffer property sets
- ****************************************************************************************/
-
-// Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-// TODO: Remove comments to use the global message buffer for sending telemetry
-//#define JSON_MESSAGE_BYTES 256
-//static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
-
-// TODO: Define telemetry message properties here, for example . . . 
-//static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"}, 
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
-
-// TODO: Remove comments to define contentProperties for sending telemetry
-//static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
 
 /****************************************************************************************
  * Bindings
@@ -82,22 +76,50 @@ DX_INTERCORE_BINDING intercore_pht_click_binding = {
     .sockFd = -1,
     .nonblocking_io = true,
     .rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
-    .interCoreCallback = receive_msg_handler,
+    .interCoreCallback = NULL,
     .intercore_recv_block = &ic_rx_block,
     .intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL)};
 
-//static DX_DEVICE_TWIN_BINDING dt_desired_sample_rate = {.propertyName = "DesiredSampleRate", .twinType = DX_DEVICE_TWIN_INT, .handler = dt_desired_sample_rate_handler};
-//static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
+/****************************************************************************************
+ * Timer Bindings
+ ****************************************************************************************/
+static DX_TIMER_BINDING connectionCheckTimer = {.period = {5, 0 * ONE_MS}, .name = "ConnectionCheckTimer", .handler = waitForConnectionHandler};
+static DX_TIMER_BINDING sleepCheckTimer = {.period = {0, 0 * ONE_MS}, .name = "WaitToSleepTimer", .handler = waitToSleepHandler};
 
-//static DX_TIMER_BINDING tmr_publish_message = {.period = {4, 0}, .name = "tmr_publish_message", .handler = publish_message_handler};
+/****************************************************************************************
+ * GPIO Bindings
+ ****************************************************************************************/
+static DX_GPIO_BINDING ledRed =   {.pin = SAMPLE_RGBLED_RED,   .name = "LedRed",   .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
+static DX_GPIO_BINDING ledGreen = {.pin = SAMPLE_RGBLED_GREEN, .name = "LedGreen", .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
+static DX_GPIO_BINDING ledBlue =  {.pin = SAMPLE_RGBLED_BLUE,  .name = "LedBlue",  .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
+
+/****************************************************************************************
+ * Device Twinb Bindings
+ ****************************************************************************************/
+static DX_DEVICE_TWIN_BINDING dt_sleep_period = {.propertyName = "sleepPeriodMinutes", .twinType = DX_DEVICE_TWIN_INT,  .handler = dtSleepPeriodHandler};	
+static DX_DEVICE_TWIN_BINDING dt_version_string = {.propertyName = "versionString", .twinType = DX_DEVICE_TWIN_STRING,  .handler = NULL};	
+
+
+/****************************************************************************************
+ * UART Peripherals
+ ****************************************************************************************/
+static DX_UART_BINDING debugClick1 = {.uart = SAMPLE_UART_LOOPBACK,
+                                         .name = "uart click1",
+                                         .handler = NULL,
+                                         .uartConfig.baudRate = 115200,
+                                         .uartConfig.dataBits = UART_DataBits_Eight,
+                                         .uartConfig.parity = UART_Parity_None,
+                                         .uartConfig.stopBits = UART_StopBits_One,
+                                         .uartConfig.flowControl = UART_FlowControl_None};
+
+// All UARTSs added to uart_bindings will be opened in InitPeripheralsAndHandlers
+DX_UART_BINDING *uart_bindings[] = {&debugClick1};
 
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-// TODO: Update each binding set below with the bindings defined above.  Add bindings by reference, i.e., &dt_desired_sample_rate
-// These sets are used by the initailization code.
 
-DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {};
+DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_sleep_period, &dt_version_string};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
-DX_GPIO_BINDING *gpio_bindings[] = {};
-DX_TIMER_BINDING *timer_bindings[] = {};
+DX_GPIO_BINDING *gpio_bindings[] = {&ledRed, &ledGreen, &ledBlue};
+DX_TIMER_BINDING *timer_bindings[] = {&connectionCheckTimer, &sleepCheckTimer};

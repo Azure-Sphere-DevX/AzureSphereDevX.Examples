@@ -1,17 +1,29 @@
 {
   "SchemaVersion": 1,
-  "Name": "TODO_Add_app_name_here",
+  "Name": "LowPowerTempHum-V1.1",
   "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
   "CmdArgs": [ "--ScopeID", "TODO_REPLACE_WITH_YOUR_ID_SCOPE" ],
   "Capabilities": {
-    "Gpio": [],
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE"
+    ],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
       "TODO_REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
     ],
+    "Uart": [ "$SAMPLE_UART_LOOPBACK"],
     "DeviceAuthentication": "00000000-0000-0000-0000-000000000000",
-    "AllowedApplicationConnections": [ "f6768b9a-e086-4f5a-8219-5ffe9684b001" ]
+    "AllowedApplicationConnections": [
+      "f6768b9a-e086-4f5a-8219-5ffe9684b001"
+    ],
+    "PowerControls": [
+      "ForcePowerDown"
+    ],
+    "SystemEventNotifications": true,
+    "SoftwareUpdateDeferral": true
   },
   "ApplicationType": "Default"
 }

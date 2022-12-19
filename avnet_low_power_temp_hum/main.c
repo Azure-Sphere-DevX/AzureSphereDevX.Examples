@@ -9,76 +9,199 @@
  *	 4. The DevX library is not a substitute for understanding the Azure Sphere SDK Samples.
  *          - https://github.com/Azure/azure-sphere-samples
  *
- * DEVELOPER BOARD SELECTION
- *
- * The following developer boards are supported.
- *
- *	 1. AVNET Azure Sphere Starter Kit.
- *   2. AVNET Azure Sphere Starter Kit Revision 2.
- *	 3. Seeed Studio Azure Sphere MT3620 Development Kit aka Reference Design Board or rdb.
- *	 4. Seeed Studio Seeed Studio MT3620 Mini Dev Board.
- *
- * ENABLE YOUR DEVELOPER BOARD
- *
- * Each Azure Sphere developer board manufacturer maps pins differently. You need to select the
- *    configuration that matches your board.
- *
- * Follow these steps:
- *
- *	 1. Open CMakeLists.txt.
- *	 2. Uncomment the set command that matches your developer board.
- *	 3. Click File, then Save to auto-generate the CMake Cache.
- *
- *  How to use this sample
+ *   Low Power Temperature and Humidity Device
  * 
- *    Developers can use this sample as a starting point for their DevX based Azure Sphere 
- *    application.  It will connect to an Azure IoTHub, IOTCentral or Avnet's IoTConnect.  
+ *   This application was designed to wake up every powerDownPeriod and  . . . 
+ *   1. Connect to Avnet's IoT Connect Platform
+ *   2. Read the temperature, humidity and pressure from the PHT Click Board in Click Socket #2
+ *   3. Send telemetry with the sendor data
+ *   3. Wait for . . 
+ *   3.1 Confirmation that the telemetry message was received by the IoT Hub
+ *   3.2 Check to see if there is a pending OTA update
+ *   4. Power down for powerDownPeriod seconds
  * 
- *    There are sections marked with "TODO" that the developer can review for hints on where
- *    to add code, or to enable code that may be needed for general support, such as sending
- *    telemetry.
+ *   Device Twins implemented
+ *   sleepPeriodMinutes: Takes an integer with the number of minutes to sleep between sensor readings
+ * 
+ *   LED Operation
+ *   Green: Application has started
+ *   Blue: Application connected to IoT Connect and sent a telemetry message with sensor data
+ *   Red: Application received confirmation that the telemtry data was received at the IoT Hub and device is going to sleep
+ *   Green/Red blinking: Device is receiving a OTA update.  Device will sleep once the update is completed
+ * 
+ *   Validation
+ *   I did my best to debug the OTA delay logic, it's difficult to do without having the debugger.  Application updates
+ *   happen without any issues.  I have not testing the OTA delay with OS updates, but I think it should work fine.
+ * 
+ *   OTA Debug
+ *   If you enable INCLUDE_OTA_DEBUG in main.h you'll see OTA messages from the Click Socket #1 UART Tx signal.  
+ *   Connect your terminal using 115200, 8, N, 1.
  * 
  ************************************************************************************************/
 #include "main.h"
 
-/****************************************************************************************/
+// Globals
+unsigned int powerDownPeriod = 60; // Seconds
+SysEvent_Status updateStatus = SysEvent_Status_Invalid;
+
+static DX_DEVICE_TWIN_HANDLER(dtSleepPeriodHandler, deviceTwinBinding)
+{
+    int temp = *(int *)deviceTwinBinding->propertyValue;
+
+    // validate data is sensible range before applying
+    if (IN_RANGE(temp, 1, 24*60)){ // 1 minute to 24 hours
+
+        powerDownPeriod = (unsigned int)(temp*60);  // Convert the incomming minutes to seconds
+        Log_Debug("New sleep period: %d Seconds\n", powerDownPeriod);
+
+        dx_deviceTwinReportValue(deviceTwinBinding, deviceTwinBinding->propertyValue);
+    } 
+}
+DX_DEVICE_TWIN_HANDLER_END
 
 /// <summary>
-/// receive_msg_handler()
-/// This handler is called when the high level application receives a raw data read response from the 
-/// PHT CLICK real time application.
+/// Algorithm to determine if a deferred update can proceed
 /// </summary>
-static void receive_msg_handler(void *data_block, ssize_t message_length)
+/// <param name="max_deferral_time_in_minutes">The maximum number of minutes you can defer</param>
+/// <returns>Return 0 to start update, return greater than zero to defer</returns>
+static uint32_t DeferredUpdateCalculate(uint32_t max_deferral_time_in_minutes, SysEvent_UpdateType type,
+                                        SysEvent_Status status, const char *typeDescription,
+                                        const char *statusDescription)
 {
-    // Cast the data block so we can index into the data
-    IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL*) data_block;
+    // We don't really want to defer the update, so return 0 to kick off the update now
+    return 0;
+}
 
-    switch (messageData->cmd) {
-        case IC_PHT_CLICK_READ_SENSOR:
-            // Pull the sensor data 
-            Log_Debug("IC_PHT_CLICK_READ_SENSOR: tempC: %.2f, pressure: %.2f, hum: %.2f\n", 
-                     messageData->temp, messageData->pressure, messageData->hum);
-            break;
-        case IC_PHT_CLICK_HEARTBEAT:
-            Log_Debug("IC_PHT_CLICK_HEARTBEAT\n");
-            break;
-        case IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY:
-            Log_Debug("IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+/// <summary>
+/// Callback notification on deferred update state
+/// </summary>
+/// <param name="type"></param>
+/// <param name="typeDescription"></param>
+/// <param name="status"></param>
+/// <param name="statusDescription"></param>
+static void DeferredUpdateNotification(uint32_t max_deferral_time_in_minutes, SysEvent_UpdateType type,
+                                       SysEvent_Status status, const char *typeDescription,
+                                       const char *statusDescription)
+{
+    Log_Debug("Max minutes for deferral: %i, Type: %s, Status: %s", max_deferral_time_in_minutes, typeDescription,
+              statusDescription);
 
-            // Verify we have an IoTHub connection and forward in incomming JSON telemetry data
-            if(dx_isAvnetConnected()){
+#ifdef INCLUDE_OTA_DEBUG
+    dx_uartWrite(&debugClick1, "DeferredUpdateNotification!\n\r", 32);
+    dx_uartWrite(&debugClick1, (char*)typeDescription, strlen(typeDescription));
+    dx_uartWrite(&debugClick1, (char*)statusDescription, strlen(statusDescription));
+#endif 
+
+    // Set the global updateStatus variable to reflect the update status.  We'll look at this 
+    // variable to determine if we can sleep right away or wait for the OTA update to complete
+    updateStatus = status;   
+}
+
+/**************************************************************************************************
+ * waitToSleepHandler
+ * 
+ * This routine checks to see if we can go to sleep again.
+ * 
+ * In order to go back to sleep, the application should have . . 
+ * 
+ * 1. Connected to the IoTHub
+ * 2. Read the temp/humidity sensor
+ * 3. Sent at least one telemetry message
+ * 4. Not be receiving an OTA update
+ *************************************************************************************************/
+static DX_TIMER_HANDLER(waitToSleepHandler)
+{
+    static bool redIsOn = true;
+
+    // Was the telemetry message received by the IoT Hub, if so the outstanding message count
+    // will be zero
+    if(dx_azureGetOutstandingMessageCount() == 0){
+
+        dx_gpioOff(&ledBlue);
+
+        // Look at the update status variable to determine if we're getting an update.  If so, don't sleep but
+        // toggle the red/green LEDs to show we're updating
+        switch (updateStatus) {
+            case SysEvent_Status_Pending:
+
+#ifdef INCLUDE_OTA_DEBUG
+                dx_uartWrite(&debugClick1, "Update Pending!\n\r", 32);
+#endif 
+                if(redIsOn){
+                    dx_gpioOff(&ledRed);
+                    dx_gpioOn(&ledGreen);
+                    redIsOn = !redIsOn;
+                } else 
+                {
+                    dx_gpioOn(&ledRed);
+                    dx_gpioOff(&ledGreen);              
+                }
+
+                redIsOn = !redIsOn;
+                return;
+            default:
+            case SysEvent_Status_Final:
+            case SysEvent_Status_Complete:
+            case SysEvent_Status_Deferred:
+            case SysEvent_Status_Invalid:
+
+#ifdef INCLUDE_OTA_DEBUG
+                dx_uartWrite(&debugClick1, "PowerDown!\n\r", 32);
+#endif
+                PowerManagement_ForceSystemPowerDown(powerDownPeriod);
+        }   
+    }
+}
+DX_TIMER_HANDLER_END
+
+static DX_TIMER_HANDLER(waitForConnectionHandler)
+{
+
+    // Check to see if we're connected to IoTConnect, if so read the sensor and send telemetry
+    if(dx_isAvnetConnected()){
+
+        dx_deviceTwinReportValue(&dt_version_string, "LowPowerTempHum-V1.1");
+    
+        memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
+
+        // Send read sensor message to realtime app
+        ic_tx_block.cmd = IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY;
+        if (dx_intercorePublishThenRead(&intercore_pht_click_binding, &ic_tx_block,
+                                sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT))< 0){
+                Log_Debug("Intercore message request/response failed\n");                        
+        
+        } else {
+
+            // Cast the data block so we can index into the data
+            IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL*) intercore_pht_click_binding.intercore_recv_block;
+
+            if (messageData->cmd == IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY) {
+            
+                Log_Debug("IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
+
                 dx_avnetPublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), NULL, 0, NULL, NULL);
 
+                // Turn on the Blue LED to indicate that we've sent a telemetry message
+                dx_gpioOn(&ledBlue);
+                dx_gpioOff(&ledRed);
+                dx_gpioOff(&ledGreen);
+
+                // Extend this timer to 120 seconds, we should go back to sleep before comming in here again
+                dx_timerChange(&connectionCheckTimer, &(struct timespec){120, 0 * ONE_MS});
+
+                // Start the sleepCheckTimer timer
+                dx_timerChange(&sleepCheckTimer, &(struct timespec){0, 500 * ONE_MS});
+
+                //  Start the timer that will wait for the telemetry message to be accepted by the IoTHub before sleeping
+                if(!dx_timerStart(&sleepCheckTimer)){
+                    Log_Debug("Error: Failed to start sleepCheckTimer\n");
+                    dx_terminate(APP_ExitCode_Sleep_Check_Timer_Start_Failed);
+                }
             }
-            break;
-        case IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE:
-            Log_Debug("IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE: Set to %d seconds\n", messageData->telemtrySendRate);
-            break;
-        case IC_PHT_CLICK_UNKNOWN:
-        default:
-            break;
         }
+    }
 }
+DX_TIMER_HANDLER_END
 
 /// <summary>
 ///  Initialize peripherals, device twins, direct methods, timer_bindings.
@@ -86,9 +209,8 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 static void InitPeripheralsAndHandlers(void)
 {
 #ifdef USE_AVNET_IOTCONNECT
-
-    dx_avnetSetApiVersion(AVT_API_VERSION_1_0);
-    dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
+    dx_avnetSetApiVersion(AVT_API_VERSION_2_1);
+//  dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
 //    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
@@ -98,21 +220,21 @@ static void InitPeripheralsAndHandlers(void)
     dx_timerSetStart(timer_bindings, NELEMS(timer_bindings));
     dx_deviceTwinSubscribe(device_twin_bindings, NELEMS(device_twin_bindings));
     dx_directMethodSubscribe(direct_method_bindings, NELEMS(direct_method_bindings));
-
     dx_intercoreConnect(&intercore_pht_click_binding);
 
-    // Code to request the real time app to automatically send telemetry data every 5 seconds
-    memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
+#ifdef INCLUDE_OTA_DEBUG
+    dx_uartSetOpen(uart_bindings, NELEMS(uart_bindings));
+#endif
 
-    // Send read sensor message to realtime app
-    ic_tx_block.cmd = IC_PHT_CLICK_SET_AUTO_TELEMETRY_RATE;
-    ic_tx_block.telemtrySendRate = 5;
-    dx_intercorePublish(&intercore_pht_click_binding, &ic_tx_block,
-                            sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT)); 
+    // Turn on the Green LED so we know the device powered back on
+    dx_gpioOn(&ledGreen);
 
-    // TODO: Update this call with a function pointer to a handler that will receive connection status updates
-    // see the azure_end_to_end example for an example
-    // dx_azureRegisterConnectionChangedNotification(NetworkConnectionState);
+    // Register for OTA update notifications
+    dx_deferredUpdateRegistration(DeferredUpdateCalculate, DeferredUpdateNotification);
+
+#ifdef INCLUDE_OTA_DEBUG
+    dx_uartWrite(&debugClick1, "Starting up . . . \n\r", strnlen("Starting up . . . \n\r", 32));
+#endif 
 }
 
 /// <summary>
