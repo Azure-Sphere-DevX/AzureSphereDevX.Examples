@@ -1,6 +1,7 @@
 /* Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
- *
+ 
+ * 
  * This example is built on the Azure Sphere DevX library.
  *   1. DevX is an Open Source community-maintained implementation of the Azure Sphere SDK samples.
  *   2. DevX is a modular library that simplifies common development scenarios.
@@ -11,7 +12,7 @@
  *
  *   Low Power Temperature and Humidity Device
  * 
- *   This application was designed to wake up every powerDownPeriod and  . . . 
+ *   This application was designed to wake up every powerDownPeriod seconds and  . . . 
  *   1. Connect to Avnet's IoT Connect Platform
  *   2. Read the temperature, humidity and pressure from the PHT Click Board in Click Socket #2
  *   3. Send telemetry with the sendor data
@@ -44,6 +45,9 @@
 unsigned int powerDownPeriod = 60; // Seconds
 SysEvent_Status updateStatus = SysEvent_Status_Invalid;
 
+/// <summary>
+/// Device twin handler for sleepPeriodMinutes device twin.
+/// </summary>
 static DX_DEVICE_TWIN_HANDLER(dtSleepPeriodHandler, deviceTwinBinding)
 {
     int temp = *(int *)deviceTwinBinding->propertyValue;
@@ -130,13 +134,11 @@ static DX_TIMER_HANDLER(waitToSleepHandler)
                 if(redIsOn){
                     dx_gpioOff(&ledRed);
                     dx_gpioOn(&ledGreen);
-                    redIsOn = !redIsOn;
                 } else 
                 {
                     dx_gpioOn(&ledRed);
                     dx_gpioOff(&ledGreen);              
                 }
-
                 redIsOn = !redIsOn;
                 return;
             default:
@@ -154,33 +156,39 @@ static DX_TIMER_HANDLER(waitToSleepHandler)
 }
 DX_TIMER_HANDLER_END
 
-static DX_TIMER_HANDLER(waitForConnectionHandler)
+static DX_TIMER_HANDLER(waitForConnectionHandler)  
 {
 
     // Check to see if we're connected to IoTConnect, if so read the sensor and send telemetry
     if(dx_isAvnetConnected()){
 
-        dx_deviceTwinReportValue(&dt_version_string, "LowPowerTempHum-V1.1");
+        dx_deviceTwinReportValue(&dt_version_string, "LowPowerTempHum-V1.2");
     
         memset(&ic_tx_block, 0x00, sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT));
 
-        // Send read sensor message to realtime app
+        // Send read sensor message to realtime app, this call will block until the data is 
+        // received or it times out.
         ic_tx_block.cmd = IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY;
         if (dx_intercorePublishThenRead(&intercore_pht_click_binding, &ic_tx_block,
                                 sizeof(IC_COMMAND_BLOCK_PHT_CLICK_HL_TO_RT))< 0){
-                Log_Debug("Intercore message request/response failed\n");                        
+                Log_Debug("Intercore message request/response failed!\n");                        
         
         } else {
 
             // Cast the data block so we can index into the data
             IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL *messageData = (IC_COMMAND_BLOCK_PHT_CLICK_RT_TO_HL*) intercore_pht_click_binding.intercore_recv_block;
 
+            // Verify we received the expected message response
             if (messageData->cmd == IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY) {
             
                 Log_Debug("IC_PHT_CLICK_READ_SENSOR_RESPOND_WITH_TELEMETRY: %s\n", messageData->telemetryJSON);
 
+                // Send the telemetry, the real-time app sent back valid telemetry JSON, so just send it.
+#ifdef USE_AVNET_IOTCONNECT
                 dx_avnetPublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), NULL, 0, NULL, NULL);
-
+#else // Azure IoTHub or IoTCentral
+                dx_azurePublish(messageData->telemetryJSON, strnlen(messageData->telemetryJSON, JSON_STRING_MAX_SIZE), NULL, 0, NULL);
+#endif 
                 // Turn on the Blue LED to indicate that we've sent a telemetry message
                 dx_gpioOn(&ledBlue);
                 dx_gpioOff(&ledRed);
@@ -213,7 +221,7 @@ static void InitPeripheralsAndHandlers(void)
 //  dx_avnetSetDebugLevel(AVT_DEBUG_LEVEL_VERBOSE);
     dx_avnetConnect(&dx_config, NETWORK_INTERFACE);
 #else     
-//    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
+    dx_azureConnect(&dx_config, NETWORK_INTERFACE, IOT_PLUG_AND_PLAY_MODEL_ID);
 #endif     
     
     dx_gpioSetOpen(gpio_bindings, NELEMS(gpio_bindings));

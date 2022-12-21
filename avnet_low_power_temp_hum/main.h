@@ -43,16 +43,15 @@
 DX_USER_CONFIG dx_config;
 
 /****************************************************************************************
- * Avnet IoTConnect Support
- ****************************************************************************************/
-// TODO: If the application will connect to Avnet's IoTConnect platform enable the 
-// #define below
-#define USE_AVNET_IOTCONNECT
-
-/****************************************************************************************
  * Application defines
  ****************************************************************************************/
+// Define to send debug data out the UART in Click Socket #1.  This is usefull when unit
+// testing the OTA update logic
 //#define INCLUDE_OTA_DEBUG
+
+// If the application will connect to Avnet's IoTConnect platform enable the 
+// #define below.  Otherwise the application will try to connect to an Azure IoTHub.
+#define USE_AVNET_IOTCONNECT
 
 /****************************************************************************************
  * Forward declarations
@@ -94,15 +93,15 @@ static DX_GPIO_BINDING ledGreen = {.pin = SAMPLE_RGBLED_GREEN, .name = "LedGreen
 static DX_GPIO_BINDING ledBlue =  {.pin = SAMPLE_RGBLED_BLUE,  .name = "LedBlue",  .direction = DX_OUTPUT,  .initialState = GPIO_Value_Low, .invertPin = true};
 
 /****************************************************************************************
- * Device Twinb Bindings
+ * Device Twin Bindings
  ****************************************************************************************/
 static DX_DEVICE_TWIN_BINDING dt_sleep_period = {.propertyName = "sleepPeriodMinutes", .twinType = DX_DEVICE_TWIN_INT,  .handler = dtSleepPeriodHandler};	
 static DX_DEVICE_TWIN_BINDING dt_version_string = {.propertyName = "versionString", .twinType = DX_DEVICE_TWIN_STRING,  .handler = NULL};	
 
-
 /****************************************************************************************
  * UART Peripherals
  ****************************************************************************************/
+#ifdef INCLUDE_OTA_DEBUG
 static DX_UART_BINDING debugClick1 = {.uart = SAMPLE_UART_LOOPBACK,
                                          .name = "uart click1",
                                          .handler = NULL,
@@ -114,11 +113,12 @@ static DX_UART_BINDING debugClick1 = {.uart = SAMPLE_UART_LOOPBACK,
 
 // All UARTSs added to uart_bindings will be opened in InitPeripheralsAndHandlers
 DX_UART_BINDING *uart_bindings[] = {&debugClick1};
+#endif 
+
 
 /****************************************************************************************
  * Binding sets
  ****************************************************************************************/
-
 DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_sleep_period, &dt_version_string};
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {&ledRed, &ledGreen, &ledBlue};
