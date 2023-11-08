@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 1,
+  "Name": "avnet_nespresso_demo_DevXV1",
+  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "0ne000745DA" ],
+  "Capabilities": {
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE"],
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "nespresso-IotHub.azure-devices.net"
+    ],
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
+  },
+  "ApplicationType": "Default"
+}

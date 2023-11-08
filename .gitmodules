@@ -202,3 +202,9 @@
 [submodule "avnet_low_power_temp_hum/HardwareDefinitions"]
 	path = avnet_low_power_temp_hum/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_nespresso_demo/AzureSphereDevX"]
+	path = avnet_nespresso_demo/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_nespresso_demo/HardwareDefinitions"]
+	path = avnet_nespresso_demo/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
