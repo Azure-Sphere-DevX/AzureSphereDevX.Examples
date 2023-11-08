@@ -9,6 +9,7 @@
       "$SAMPLE_RGBLED_RED",
       "$SAMPLE_RGBLED_GREEN",
       "$SAMPLE_RGBLED_BLUE"],
+    "Uart": ["$SAMPLE_PMOD_UART"],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
       "nespresso-IotHub.azure-devices.net"

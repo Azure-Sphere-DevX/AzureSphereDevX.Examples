@@ -10,6 +10,7 @@
 #include "dx_direct_methods.h"
 #include "dx_device_twins.h"
 #include "dx_version.h"
+#include "dx_uart.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
 
@@ -79,7 +80,6 @@ static product_t productArray[] = { {.minRunTime = 15.000,.maxRunTime = 55.000,.
 									{.minRunTime = 55.001,.maxRunTime = 75.000,.productName = "Espresso",.productEnum = ESPRESSO,.productSize = "Medium",.productSizeEnum = MEDIUM},
 									{.minRunTime = 75.001,.maxRunTime = 120.000,.productName = "Espresso",.productEnum = ESPRESSO,.productSize = "Large",.productSizeEnum = LARGE}};
 
-/*
 // on/off variables
 static bool bDeviceIsOn = false;
 static bool bLastDeviceIsOn = false;
@@ -100,24 +100,17 @@ static float fLastCurrent = NAN;
 
 static float fFrequency = NAN;
 static float fLastFrequency = NAN;
-*/
 
 static float fMaxTimeBetweenD2CMessages = 10; //Seconds.  This will be overwritten by the device twin update
 
-/*
-static float fLastMaxTimeBetweenD2CMessages = 2; //Seconds
-*/
+//static float fLastMaxTimeBetweenD2CMessages = 2; //Seconds
 
 static float fMinCurrentThreshold = 0.0F; // The minimum voltage to declare a device on.  This can be updated by the device twin
-
-/*
 
 const float ON_OFF_LEAKAGE = 0.009F; // We have seen the MCP39F511 report very small currents even with nothing plugged in.  
 									 // This fudge factor keeps us from having false on/off detections. 
 
-static float fLastMinCurrentThreshold = -1.0F; 
-
-*/
+//static float fLastMinCurrentThreshold = -1.0F; 
 
 /****************************************************************************************
  * Forward declarations
@@ -128,9 +121,11 @@ static DX_DECLARE_DEVICE_TWIN_HANDLER(dt_generic_float_handler);
 
 // Timer Handlers
 static DX_DECLARE_TIMER_HANDLER(update_network_led_handler);
+static DX_DECLARE_TIMER_HANDLER(tmr_get_current_data_handler);
 
 static void setConnectionStatusLed(RGB_Status newNetworkStatus);
-
+static void uart_rx_handler(DX_UART_BINDING *uartBinding);
+static void transmit_MCP39F511_commands(void);
 
 
 /****************************************************************************************
@@ -209,11 +204,25 @@ static DX_GPIO_BINDING blue_led = {.pin = SAMPLE_RGBLED_BLUE,
 
 // Timer Bindings
 static DX_TIMER_BINDING tmr_update_network_led = {.period = {2, 0}, 
-                                              .name = "tmr_send_telemetry", 
+                                              .name = "tmr_update_network_led", 
                                               .handler = update_network_led_handler};
 
-//static DX_GPIO_BINDING gpio_led = {.pin = LED2, .name = "gpio_led", .direction = DX_OUTPUT, .initialState = GPIO_Value_Low, .invertPin = true};
-//static DX_TIMER_BINDING tmr_publish_message = {.period = {4, 0}, .name = "tmr_publish_message", .handler = publish_message_handler};
+static DX_TIMER_BINDING tmr_get_current_data = {.period = {5, 0}, 
+                                              .name = "tmr_get_current_data", 
+                                              .handler = tmr_get_current_data_handler};
+
+/****************************************************************************************
+ * UART Peripherals
+ ****************************************************************************************/
+
+static DX_UART_BINDING mcp511Uart = {.uart = SAMPLE_PMOD_UART,
+                                     .name = "MCP39F511 Uart Comms",
+                                     .handler = uart_rx_handler,
+                                     .uartConfig.baudRate = 9600,
+                                     .uartConfig.dataBits = UART_DataBits_Eight,
+                                     .uartConfig.parity = UART_Parity_None,
+                                     .uartConfig.stopBits = UART_StopBits_One,
+                                     .uartConfig.flowControl = UART_FlowControl_None};
 
 /****************************************************************************************
  * Binding sets
@@ -224,4 +233,5 @@ DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_maxD2CMessageTime, &dt_sma
 
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
-DX_TIMER_BINDING *timer_bindings[] = {&tmr_update_network_led};
+DX_TIMER_BINDING *timer_bindings[] = {&tmr_update_network_led, &tmr_get_current_data};
+DX_UART_BINDING *uart_bindings[] = {&mcp511Uart};                                              
