@@ -46,6 +46,7 @@ static DX_TIMER_HANDLER(request_telemetry_handler)
         // Send IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY message to realtime core app one
         memset(&ic_tx_block, 0x00, sizeof(ic_tx_block));
         ic_tx_block.cmd = IC_GENERIC_READ_SENSOR_RESPOND_WITH_TELEMETRY;
+        ic_tx_block.cmd - IC_GE
         dx_intercorePublish(&intercore_app1, &ic_tx_block,
                             sizeof(IC_COMMAND_BLOCK_GENERIC_HL_TO_RT));        
     }
