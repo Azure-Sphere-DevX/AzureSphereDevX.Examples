@@ -3,18 +3,18 @@
   "Name": "generic_rtApp_interface",
   "ComponentId": "b8f5931e-173a-40f5-a4f8-3d98240f53ec",
   "EntryPoint": "/bin/app",
-  "CmdArgs": [ "--ScopeID", "REPLACE_WITH_YOUR_ID_SCOPE" ],
+  "CmdArgs": [ "--ScopeID", "0ne000745DA" ],
   "Capabilities": {
     "Gpio": [],
     "AllowedConnections": [
       "global.azure-devices-provisioning.net",
-      "REPLACE_WITH_YOUR_IOT_HUB_ENDPOINT_URL"
+      "nespresso-IotHub.azure-devices.net"
     ],
     "AllowedApplicationConnections": [
       "f6768b9a-e086-4f5a-8219-5ffe9684b001",
       "f6768b9a-e086-4f5a-8219-5ffe9684b002"
     ],
-    "DeviceAuthentication": "REPLACE_WITH_YOUR_AZURE_SPHERE_TENANT_ID"
+    "DeviceAuthentication": "8d34f65c-532e-4dcf-a1d6-3e811c1e5c68"
   },
   "ApplicationType": "Default"
 }

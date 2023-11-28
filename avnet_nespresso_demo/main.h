@@ -1,3 +1,4 @@
+#pragma once
 
 #include "hw/sample_appliance.h" // Hardware definition
 #include "app_exit_codes.h"
@@ -11,6 +12,8 @@
 #include "dx_device_twins.h"
 #include "dx_version.h"
 #include "dx_uart.h"
+#include "dx_intercore.h"
+#include "pwr_meter_rt_app.h"
 #include <applibs/log.h>
 #include <applibs/applications.h>
 
@@ -23,7 +26,6 @@
 
 DX_USER_CONFIG dx_config;
 
-
 /****************************************************************************************
  * Application defines
  ****************************************************************************************/
@@ -35,7 +37,6 @@ typedef enum {
     RGB_IoT_Hub_Connected = 3, // Connected and authenticated to IoT Hub
 
 } RGB_Status;
-
 
 #define NO_PRODUCT_FOUND -1
 
@@ -86,31 +87,29 @@ static bool bLastDeviceIsOn = false;
 
 // brewing variables
 static bool bBrewing = false;
+static bool bLastBrewing = false;
+
+// Telemetry timeout variables
+static struct timeval  lastTelemetryTime;
+static struct timeval  newTelemetryTime;
 
 // Runtime variables
 static struct timeval devStartTime;
 static struct timeval devStopTime;
+static struct timeval devRunTime;
+static double deviceRunTime = 0.0F;
 
 // Power variables
 static float fVoltage = NAN;
-static float fLastVoltage = NAN;
 
 static float fCurrent = NAN;
-static float fLastCurrent = NAN;
-
-static float fFrequency = NAN;
-static float fLastFrequency = NAN;
 
 static float fMaxTimeBetweenD2CMessages = 10; //Seconds.  This will be overwritten by the device twin update
-
-//static float fLastMaxTimeBetweenD2CMessages = 2; //Seconds
 
 static float fMinCurrentThreshold = 0.0F; // The minimum voltage to declare a device on.  This can be updated by the device twin
 
 const float ON_OFF_LEAKAGE = 0.009F; // We have seen the MCP39F511 report very small currents even with nothing plugged in.  
 									 // This fudge factor keeps us from having false on/off detections. 
-
-//static float fLastMinCurrentThreshold = -1.0F; 
 
 /****************************************************************************************
  * Forward declarations
@@ -124,26 +123,25 @@ static DX_DECLARE_TIMER_HANDLER(update_network_led_handler);
 static DX_DECLARE_TIMER_HANDLER(tmr_get_current_data_handler);
 
 static void setConnectionStatusLed(RGB_Status newNetworkStatus);
-static void uart_rx_handler(DX_UART_BINDING *uartBinding);
-static void transmit_MCP39F511_commands(void);
+static void checkAndSendTelemetry(int productIndex);
 
+// RT App Handler
+static void receive_msg_handler(void *data_block, ssize_t message_length);
+
+IC_COMMAND_BLOCK_PWR_METER_HL_TO_RT ic_tx_block_sample;
+IC_COMMAND_BLOCK_PWR_METER_RT_TO_HL ic_rx_block_sample;
 
 /****************************************************************************************
  * Telemetry message buffer property sets
  ****************************************************************************************/
 
-// Number of bytes to allocate for the JSON telemetry message for IoT Hub/Central
-// TODO: Remove comments to use the global message buffer for sending telemetry
-//#define JSON_MESSAGE_BYTES 256
-//static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
+// Number of bytes to allocate for the JSON telemetry message for IoT Hub
+#define JSON_MESSAGE_BYTES 256
+static char msgBuffer[JSON_MESSAGE_BYTES] = {0};
 
-// TODO: Define telemetry message properties here, for example . . . 
-//static DX_MESSAGE_PROPERTY *messageProperties[] = {&(DX_MESSAGE_PROPERTY){.key = "appid", .value = "hvac"}, 
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "type", .value = "telemetry"},
-//                                                   &(DX_MESSAGE_PROPERTY){.key = "schema", .value = "1"}};
-
-// TODO: Remove comments to define contentProperties for sending telemetry
-//static DX_MESSAGE_CONTENT_PROPERTIES contentProperties = {.contentEncoding = "utf-8", .contentType = "application/json"};
+// Define telemetry message formats
+static const char cstrDeviceTelemetryJson[] = "{\"voltage\":\"%.2f\", \"current\":\"%.2f\", \"frequency\":\"%.2f\", \"device\":\"%s\", \"brewing\":\"%s\"}";
+static const char cstrDeviceTelemetryProductJson[] = "{\"voltage\":\"%.2f\", \"current\":\"%.2f\", \"frequency\":\"%.2f\", \"device\":\"%s\", \"product\":\"%d\", \"size\":\"%d\"}";
 
 /****************************************************************************************
  * Bindings
@@ -207,22 +205,20 @@ static DX_TIMER_BINDING tmr_update_network_led = {.period = {2, 0},
                                               .name = "tmr_update_network_led", 
                                               .handler = update_network_led_handler};
 
-static DX_TIMER_BINDING tmr_get_current_data = {.period = {5, 0}, 
+static DX_TIMER_BINDING tmr_get_current_data = {.period = {1, 0},
                                               .name = "tmr_get_current_data", 
                                               .handler = tmr_get_current_data_handler};
 
 /****************************************************************************************
- * UART Peripherals
- ****************************************************************************************/
-
-static DX_UART_BINDING mcp511Uart = {.uart = SAMPLE_PMOD_UART,
-                                     .name = "MCP39F511 Uart Comms",
-                                     .handler = uart_rx_handler,
-                                     .uartConfig.baudRate = 9600,
-                                     .uartConfig.dataBits = UART_DataBits_Eight,
-                                     .uartConfig.parity = UART_Parity_None,
-                                     .uartConfig.stopBits = UART_StopBits_One,
-                                     .uartConfig.flowControl = UART_FlowControl_None};
+ * Inter Core Binding for PWR monitor RTApp
+ *****************************************************************************************/
+DX_INTERCORE_BINDING intercore_pwr_meter_binding = {
+.sockFd = -1,
+.nonblocking_io = true,
+.rtAppComponentId = "f6768b9a-e086-4f5a-8219-5ffe9684b001",
+.interCoreCallback = receive_msg_handler,
+.intercore_recv_block = &ic_rx_block_sample,
+.intercore_recv_block_length = sizeof(IC_COMMAND_BLOCK_PWR_METER_RT_TO_HL)};
 
 /****************************************************************************************
  * Binding sets
@@ -234,4 +230,3 @@ DX_DEVICE_TWIN_BINDING *device_twin_bindings[] = {&dt_maxD2CMessageTime, &dt_sma
 DX_DIRECT_METHOD_BINDING *direct_method_bindings[] = {};
 DX_GPIO_BINDING *gpio_bindings[] = {&red_led, &green_led, &blue_led};
 DX_TIMER_BINDING *timer_bindings[] = {&tmr_update_network_led, &tmr_get_current_data};
-DX_UART_BINDING *uart_bindings[] = {&mcp511Uart};                                              
