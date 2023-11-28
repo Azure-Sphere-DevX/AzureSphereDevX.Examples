@@ -98,7 +98,7 @@ DX_TIMER_HANDLER_END
 *****************************************************************************************/
 static DX_TIMER_HANDLER(tmr_get_current_data_handler)
 {
-    Log_Debug("Read MCP511 device\n");
+//    Log_Debug("Read MCP511 device\n");
 
 	memset(&ic_tx_block_sample, 0x00, sizeof(IC_COMMAND_BLOCK_PWR_METER_HL_TO_RT));
 
@@ -234,7 +234,7 @@ static void receive_msg_handler(void *data_block, ssize_t message_length)
 		// If the max time has elapsed or of the on/off state changed, then send the data!
 		if ((deltaTime >= fMaxTimeBetweenD2CMessages)) {
 
-			Log_Debug("Send telemetry timeout case\n"); 
+//			Log_Debug("Send telemetry timeout case\n"); 
 			checkAndSendTelemetry(productArrayIndex);
 		}
 	}
