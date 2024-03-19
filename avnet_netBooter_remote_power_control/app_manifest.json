@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": 1,
+  "Name": "netBooter-V1.0",
+  "ComponentId": "b217fd65-ac8d-4d7c-b62c-0d07b5df6357",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [ "--ScopeID", "your DPS scope ID here" ],
+  "Capabilities": {
+    "Gpio": [
+      "$SAMPLE_RGBLED_RED",
+      "$SAMPLE_RGBLED_GREEN",
+      "$SAMPLE_RGBLED_BLUE",
+      "$RELAY_CLICK2_RELAY1",
+      "$RELAY_CLICK2_RELAY2",
+      "$SAMPLE_BUTTON_1",
+      "$SAMPLE_BUTTON_2"
+    ],
+    "AllowedConnections": [
+      "global.azure-devices-provisioning.net",
+      "<your IoTHub Hostname here>",
+      "10.0.0.2"
+    ],
+    "DeviceAuthentication": "<your Azure Sphere Tenent GUID here>",
+    "NetworkConfig": true,
+    "DhcpService": true,
+    "WifiConfig": true
+  },
+  "ApplicationType": "Default"
+}
