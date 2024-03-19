@@ -178,3 +178,9 @@
 [submodule "async_example/HardwareDefinitions"]
 	path = async_example/HardwareDefinitions
 	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
+[submodule "avnet_netBooter_remote_power_control/AzureSphereDevX"]
+	path = avnet_netBooter_remote_power_control/AzureSphereDevX
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.git
+[submodule "avnet_netBooter_remote_power_control/HardwareDefinitions"]
+	path = avnet_netBooter_remote_power_control/HardwareDefinitions
+	url = https://github.com/Azure-Sphere-DevX/AzureSphereDevX.HardwareDefinitions.git
