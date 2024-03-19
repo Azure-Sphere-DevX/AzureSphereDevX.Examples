@@ -1,0 +1,129 @@
+{
+    "ddType": 1,
+    "items": [
+        {
+            "widgetGuid": "6A7BB4C8-1763-41EB-A490-0764F72A527F",
+            "widgetProperties": {
+                "i": "DeviceLatestValue",
+                "background": "#fff",
+                "fontColor": "#343434",
+                "fontFamily": "Proxima Nova",
+                "fontSize": "18",
+                "title": "Device Status",
+                "titleAlign": "",
+                "contents": {
+                    "devicelatestvalue": {
+                        "device": "",
+                        "boxtypes": "3",
+                        "attributes": "",
+                        "dateToUse": "Gateway Date",
+                        "key": "devicelatestvalue"
+                    }
+                }
+            },
+            "properties": {
+                "x": "0",
+                "y": "0",
+                "w": "15",
+                "h": "16",
+                "i": "DeviceLatestValue",
+                "minW": "15",
+                "minH": "16",
+                "maxH": "16",
+                "maxW": "15",
+                "isStatic": "false"
+            }
+        },
+        {
+            "widgetGuid": "D27E7B1D-E8DC-4492-B96A-82290423F764",
+            "widgetProperties": {
+                "i": "DeviceTwin",
+                "background": "#fff",
+                "fontColor": "#000",
+                "fontFamily": "Proxima Nova",
+                "fontSize": "18",
+                "title": "Device Twin",
+                "titleAlign": "",
+                "contents": {
+                    "deviceTwin": {
+                        "template": "1639A2FD-27DE-4253-847F-51A65590D06B",
+                        "device": "d00993454fbdf90a4bcc9709acba1f033617959e074a3f57e39fee772306aa27f03108169a00a32c1711b71355861cd6715dcad2451ebd445fba2e9781c66932",
+                        "key": "deviceTwin",
+                        "deviceGuid": "1D958BC3-5471-4B93-B4CA-2964218C5CBB"
+                    }
+                }
+            },
+            "properties": {
+                "x": "15",
+                "y": "0",
+                "w": "22",
+                "h": "16",
+                "i": "DeviceTwin",
+                "minW": "22",
+                "minH": "10",
+                "maxH": "902",
+                "maxW": "1094",
+                "isStatic": "false"
+            }
+        },
+        {
+            "widgetGuid": "8BF5A2DF-51FA-479B-B5D8-8413DC425CFF",
+            "widgetProperties": {
+                "i": "LiveLineChart",
+                "background": "#fff",
+                "fontColor": "#343434",
+                "fontFamily": "Proxima Nova",
+                "fontSize": "18",
+                "title": "Live Current Data",
+                "titleAlign": "",
+                "contents": {
+                    "liveChart": {
+                        "device": {
+                            "deviceGuid": "1D958BC3-5471-4B93-B4CA-2964218C5CBB",
+                            "deviceUniqueId": "d00993454fbdf90a4bcc9709acba1f033617959e074a3f57e39fee772306aa27f03108169a00a32c1711b71355861cd6715dcad2451ebd445fba2e9781c66932"
+                        },
+                        "dateToUse": "Gateway Date",
+                        "attributes": {
+                            "attribute": [
+                                {
+                                    "attributeGuid": "45BD2D61-3900-4210-8D3F-5C3F1FBA7E68",
+                                    "attributeName": "port_2_current",
+                                    "displayName": "Port 2 Current",
+                                    "checked": "true",
+                                    "dataType": "DECIMAL",
+                                    "attributeLatestValue": "0.00",
+                                    "deviceUpdatedDate": "2024-03-18T20:23:31.000Z",
+                                    "gatewayUpdatedDate": "2024-03-18T20:23:31.000Z",
+                                    "attributeValue": "0.00"
+                                },
+                                {
+                                    "attributeGuid": "25FCE448-590D-4162-8541-78ED1653850D",
+                                    "attributeName": "port_1_current",
+                                    "displayName": "Port 1 Current",
+                                    "checked": "true",
+                                    "dataType": "DECIMAL",
+                                    "attributeLatestValue": "0.01",
+                                    "deviceUpdatedDate": "2024-03-18T20:23:31.000Z",
+                                    "gatewayUpdatedDate": "2024-03-18T20:23:31.000Z",
+                                    "attributeValue": "0.01"
+                                }
+                            ]
+                        },
+                        "key": "liveChart",
+                        "recentEndPoints": "10"
+                    }
+                }
+            },
+            "properties": {
+                "x": "0",
+                "y": "16",
+                "w": "37",
+                "h": "15",
+                "i": "LiveLineChart",
+                "minW": "15",
+                "minH": "15",
+                "isStatic": "false"
+            }
+        }
+    ]
+}

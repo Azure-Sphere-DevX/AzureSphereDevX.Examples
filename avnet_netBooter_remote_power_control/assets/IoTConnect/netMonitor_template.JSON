@@ -1,0 +1,101 @@
+{
+    "code": "netMonitor",
+    "name": "netMonitor",
+    "authType": 2,
+    "isEdgeSupport": "0",
+    "isIotEdgeEnable": false,
+    "attributes": [
+        {
+            "name": "port_1_enabled",
+            "displayName": "Port 1 Enabled",
+            "type": "BOOLEAN",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "port_1_current",
+            "displayName": "Port 1 Current",
+            "type": "DECIMAL",
+            "description": null,
+            "unit": "Amps"
+        },
+        {
+            "name": "port_2_enabled",
+            "displayName": "Port 2 Enabled",
+            "type": "BOOLEAN",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "port_2_current",
+            "displayName": "Port 2 Current",
+            "type": "DECIMAL",
+            "description": null,
+            "unit": "Amps"
+        },
+        {
+            "name": "relay_1_enabled",
+            "displayName": "relay_1_enabled",
+            "type": "BOOLEAN",
+            "description": null,
+            "unit": null
+        },
+        {
+            "name": "relay_2_enabled",
+            "displayName": "relay_2_enabled",
+            "type": "BOOLEAN",
+            "description": null,
+            "unit": null
+        }
+    ],
+    "settings": [
+        {
+            "name": "Port_2_Enabled",
+            "type": "BOOLEAN",
+            "localName": "port2Enabled",
+            "defaultValue": "true",
+            "dataValidation": "true, false, True, False",
+            "isReadOnly": false
+        },
+        {
+            "name": "telemetryPeriodSeconds",
+            "type": "INTEGER",
+            "localName": "telemetryPeriodSeconds",
+            "defaultValue": "60",
+            "isReadOnly": false
+        },
+        {
+            "name": "Port_1_Enabled",
+            "type": "BOOLEAN",
+            "localName": "port1Enabled",
+            "defaultValue": "true",
+            "isReadOnly": false
+        },
+        {
+            "name": "clickBoardRelay2",
+            "type": "BOOLEAN",
+            "localName": "clickBoardRelay2",
+            "defaultValue": "true",
+            "dataValidation": "true, false, True, False",
+            "isReadOnly": false
+        },
+        {
+            "name": "clickBoardRelay1",
+            "type": "BOOLEAN",
+            "localName": "clickBoardRelay1",
+            "defaultValue": "true",
+            "dataValidation": "true, false, True, False",
+            "isReadOnly": false
+        }
+    ],
+    "messageVersion": "2.1",
+    "msgCode": "1389H1U",
+    "properties": {
+        "description": null,
+        "dataFrequency": "60",
+        "fileSupport": false
+    },
+    "_meta": {
+        "version": "2.0"
+    }
+}
